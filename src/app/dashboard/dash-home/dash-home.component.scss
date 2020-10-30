@@ -1,0 +1,23 @@
+$primary-color : #47475c;
+$blue : rgb(124, 181, 236);
+.mat-expansion-panel-header{
+    // background-color: #47475C;
+    height: 7rem; 
+    line-height: 7rem;  
+    // color : red;
+
+}
+::ng-deep .mat-form-field{
+    width: 11rem;
+  }
+ 
+// mat-expansion-panel-header-description ng-tns-c31-1
+::ng-deep .mat-expansion-panel-header-description{
+    color : $primary-color;
+    justify-content: center;
+
+}
+ 
+::ng-deep .mat-chip-list-wrapper{
+    padding-bottom: 1rem;
+}

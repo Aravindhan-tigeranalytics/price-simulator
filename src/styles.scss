@@ -1,1 +1,77 @@
-/* You can add global styles to this file, and also import other style files */
+
+
+@import "~@angular/material/theming";
+@import '~font-awesome/css/font-awesome.css';
+$fa-font-path: "/node_modules/font-awesome/fonts";
+@import '~font-awesome/scss/font-awesome.scss';
+
+// Include non-theme styles for core.
+@include mat-core();
+
+$mat-custom-theme: (
+  50: #fff3e0,
+  100: #ffe0b2,
+  200: #ffcc80,
+  300: #ffb74d,
+  400: #ffa726,
+  500: rgba(255, 152, 0, 0.8),
+  600: #fb8c00,
+  700: #f57c00,
+  800: #ef6c00,
+  900: #e65100,
+  A100: #ffd180,
+  A200: #ffab40,
+  A400: #ff9100,
+  A700: #ff6d00,
+  contrast: (
+    50: $dark-primary-text,
+    100: $dark-primary-text,
+    200: $dark-primary-text,
+    300: $dark-primary-text,
+    400: $dark-primary-text,
+    500: $light-primary-text,
+    600: $light-primary-text,
+    700: $light-primary-text,
+    800: $light-primary-text,
+    900: $light-primary-text,
+    A100: $dark-primary-text,
+    A200: $light-primary-text,
+    A400: $light-primary-text,
+    A700: $light-primary-text
+  )
+);
+
+
+// Define a theme.
+$primary: mat-palette($mat-custom-theme);
+$accent:  mat-palette($mat-pink, A200, A100, A400);
+
+$theme: mat-light-theme($primary, $accent);
+
+// Include all theme styles for the components.
+@include angular-material-theme($theme);
+
+
+*,
+*::before,
+*::after{
+    margin : 0;
+    padding :0;
+    // box-sizing:inherit; 
+    box-sizing:border-box;
+}
+html{
+    /* font-size: 10px; */
+    font-size: 62.5%;
+    /* 10/16 =0.625 */
+}
+
+body{
+    font-family: sans-serif;
+    font-weight: 400;
+     font-size: 1.6rem;
+    line-height: 1.7;
+    color : #777;
+    // padding: 3rem;
+    
+}

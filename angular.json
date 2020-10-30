@@ -28,7 +28,9 @@
               "src/assets"
             ],
             "styles": [
+              "node_modules/bootstrap/dist/css/bootstrap.min.css",
               "src/styles.scss"
+
             ],
             "scripts": []
           },
@@ -123,6 +125,10 @@
           }
         }
       }
-    }},
-  "defaultProject": "price-simulator"
+    }
+  },
+  "defaultProject": "price-simulator",
+  "cli": {
+    "analytics": "7366853e-e7ff-47d6-9a4e-6b2b6e57176a"
+  }
 }
