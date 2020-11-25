@@ -1,199 +1,126 @@
+<section id="explore-head-section">
+  <div class="container-fluid mt-2">
+    <div class="d-flex flex-column">
+      <div class="d-flex flex-row justify-content-around">
+        <mat-form-field appearance="fill">
+          <mat-label>Category</mat-label>
+          <mat-select
+            [(value)]="selected_category"
+            (selectionChange)="applyFilter()"
+          >
+            <mat-option>
+              <i class="fa fa-trash" aria-hidden="true"></i>
+            </mat-option>
+            <mat-option *ngFor="let p of categories_filter" [value]="p">
+              {{ p }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-chip-list *ngIf="selected_category" aria-label="Fish selection">
+          <mat-chip
+            >{{ selected_category }}
+            <mat-icon matChipRemove>
+              <i
+                class="fa fa-trash"
+                aria-hidden="true"
+                (click)="resetFilter('category')"
+              ></i></mat-icon
+          ></mat-chip>
+        </mat-chip-list>
+        <mat-form-field appearance="fill">
+          <mat-label>Retailer</mat-label>
+          <mat-select
+            [(value)]="selected_retailer"
+            (selectionChange)="applyFilter()"
+          >
+            <mat-option
+              ><i class="fa fa-trash" aria-hidden="true"></i
+            ></mat-option>
+            <mat-option *ngFor="let p of retailer_filter" [value]="p">
+              {{ p }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-chip-list *ngIf="selected_retailer" aria-label="Fish selection">
+          <mat-chip
+            >{{ selected_retailer }}
+            <mat-icon matChipRemove>
+              <i
+                class="fa fa-trash"
+                aria-hidden="true"
+                (click)="resetFilter('retail')"
+              ></i></mat-icon
+          ></mat-chip>
+        </mat-chip-list>
+        <mat-form-field appearance="fill">
+          <mat-label>Product Group</mat-label>
+          <mat-select
+            [(value)]="selected_product"
+            (selectionChange)="applyFilter()"
+          >
+            <mat-option
+              ><i class="fa fa-trash" aria-hidden="true"></i
+            ></mat-option>
+            <mat-option *ngFor="let p of product_filter" [value]="p">
+              {{ p }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
 
+        <mat-chip *ngIf="selected_product" class="category-chip">
+          <div class="category-chip__text">
+            {{ selected_product }}
+          </div>
+          <mat-icon matChipRemove>
+            <i
+              class="fa fa-trash"
+              aria-hidden="true"
+              (click)="selected_product = null"
+            ></i></mat-icon
+        ></mat-chip>
+      </div>
+      <div class="d-flex flex-row justify-content-between">
+        <highcharts-chart
+          [Highcharts]="highcharts"
+          [options]="chartOptions"
+          style="width: 100%; height: 300px; display: block"
+        >
+        </highcharts-chart>
+        <highcharts-chart
+          [Highcharts]="highcharts"
+          [options]="chartOptions_1"
+          style="width: 100%; height: 300px; display: block"
+        >
+        </highcharts-chart>
+      </div>
+      <div class="d-flex flex-row justify-content-between">
+        <highcharts-chart
+          [Highcharts]="highcharts"
+          [options]="chartOptions_change"
+          style="width: 100%; height: 250px; display: block"
+        >
+        </highcharts-chart>
 
-
-    <mat-accordion class="example-headers-align">
-        
-          <mat-expansion-panel>
-            <mat-expansion-panel-header class="specific-class">
-              
-              <mat-panel-description>
-                MARS Russia - Scenario Planner - Summary Dashboard
-                
-              </mat-panel-description>
-            </mat-expansion-panel-header>
-            <div class="row">
-              <div class="col-1">
-
-                <mat-form-field appearance="fill">
-                  <mat-label>Category</mat-label>
-                  <mat-select >
-                    <mat-option> <i class="fa fa-trash" aria-hidden="true"></i> </mat-option>
-                    <mat-option value="valid">Choco</mat-option>
-                    <mat-option value="invalid">Gum</mat-option>
-                  </mat-select>
-                  <!-- <mat-hint>Errors appear instantly!</mat-hint>
-                  <mat-error *ngIf="selected.hasError('required')">You must make a selection</mat-error>
-                  <mat-error *ngIf="selected.hasError('pattern') && !selected.hasError('required')">
-                    Your selection is invalid -->
-                  <!-- </mat-error> -->
-                
-                </mat-form-field>
-                <mat-chip-list aria-label="Fish selection">
-                  <mat-chip>Gum <mat-icon matChipRemove> <i class="fa fa-trash" aria-hidden="true"></i></mat-icon></mat-chip>
-                  <!-- <mat-chip>Two fish <mat-icon matChipRemove> <i class="fa fa-trash" aria-hidden="true"></i></mat-icon></mat-chip> -->
-                  
-                </mat-chip-list>
-
-               
-                <mat-form-field appearance="fill">
-                  <mat-label>Retailer</mat-label>
-                  <mat-select >
-                    <mat-option><i class="fa fa-trash" aria-hidden="true"></i></mat-option>
-                    <mat-option value="valid">Magnit</mat-option>
-                    <mat-option value="invalid">X5</mat-option>
-                  </mat-select>
-                  
-                </mat-form-field>
-                <mat-form-field appearance="fill">
-                  <mat-label>Product Group</mat-label>
-                  <mat-select >
-                    <mat-option><i class="fa fa-trash" aria-hidden="true"></i></mat-option>
-                    <mat-option value="valid">BIG BARS</mat-option>
-                    <mat-option value="invalid">BIG BARS_SNIKERSCRISPER - Magnit</mat-option>
-                    <mat-option value="invalid">BIG BARS_SNIKERSCRISPER - X5</mat-option>
-                    <mat-option value="invalid">ORBIT OTC</mat-option>
-                    <mat-option value="invalid">ORBIT XXL</mat-option>
-                    <mat-option value="invalid">STD BARS</mat-option>
-                    <mat-option value="invalid">STD BARS_MILKYWAY - Magnit</mat-option>
-                  </mat-select>
-                  
-                </mat-form-field>
-              </div>
-              <div class="col-11">
-  
-
-            <div class="row">
-                <div class="col">
-                    <highcharts-chart
-                    [Highcharts] = "highcharts" 
-                    [options] = "chartOptions" 
-                    style = "width: 100%; height: 400px; display: block;">
-                 </highcharts-chart>
-        
-                </div>
-                <div class="col">
-                    <highcharts-chart
-                    [Highcharts] = "highcharts" 
-                    [options] = "chartOptions_1" 
-                    style = "width: 100%; height: 400px; display: block;">
-                 </highcharts-chart>
-        
-                </div>
-                
-              </div>
-              <div class="row">
-                <div class="col">
-                    <highcharts-chart
-                    [Highcharts] = "highcharts" 
-                    [options] = "chartOptions_change" 
-                    style = "width: 100%; height: 400px; display: block;">
-                 </highcharts-chart>
-        
-                </div>
-                <div class="col">
-                    <div class="row">
-                        <div class="col">
-                            <highcharts-chart
-                            [Highcharts] = "highcharts" 
-                            [options] = "chartOptions_2" 
-                            style = "width: 100%; height: 400px; display: block;">
-                         </highcharts-chart>
-                        </div>
-                        <div class="col">
-                            <highcharts-chart
-                            [Highcharts] = "highcharts" 
-                            [options] = "chartOptions_3" 
-                            style = "width: 100%; height: 400px; display: block;">
-                         </highcharts-chart>
-                        </div>
-                        <div class="col">
-                            <highcharts-chart
-                            [Highcharts] = "highcharts" 
-                            [options] = "chartOptions_4" 
-                            style = "width: 100%; height: 400px; display: block;">
-                         </highcharts-chart>
-                        </div>
-        
-                    </div>
-                    <!-- <highcharts-chart
-                    [Highcharts] = "highcharts" 
-                    [options] = "chartOptions" 
-                    style = "width: 100%; height: 400px; display: block;">
-                 </highcharts-chart> -->
-        
-                </div>
-                
-              </div>
-                    <!--ends  -->
-
-                  </div>
-                </div>
-        
-          </mat-expansion-panel>
-        
-        
-        
-          <mat-expansion-panel>
-            <mat-expansion-panel-header>
-              
-              <mat-panel-description>
-                MARS Russia - Scenario Planner - Summary Dashboard(Per Ton Calculations)
-                
-              </mat-panel-description>
-            </mat-expansion-panel-header>
-            <div class="row">
-                <div class="col">
-                    <highcharts-chart
-                    [Highcharts] = "highcharts" 
-                    [options] = "chartOptionPerTonBase" 
-                    style = "width: 100%; height: 400px; display: block;">
-                 </highcharts-chart>
-                </div>
-                <div class="col">
-                    <highcharts-chart
-                    [Highcharts] = "highcharts" 
-                    [options] = "chartOptionPerTonNew" 
-                    style = "width: 100%; height: 400px; display: block;">
-                 </highcharts-chart>
-                </div>
-                
-              </div> 
-              <div class="row">
-                <div class="col-lg-8">
-                    <highcharts-chart
-                    [Highcharts] = "highcharts" 
-                    [options] = "chartOptions_change" 
-                    style = "width: 100%; height: 400px; display: block;">
-                 </highcharts-chart>
-                </div>
-                <div class="col-lg-4">
-                    <highcharts-chart
-                    [Highcharts] = "highcharts" 
-                    [options] = "chartOptions_4" 
-                    style = "width: 100%; height: 400px; display: block;">
-                 </highcharts-chart>
-                </div>
-                
-              </div>  
-         
-          </mat-expansion-panel>
-        </mat-accordion>
-        
-    <!-- <div class="row ">
-        <div class="col heading__col">MARS Russia - Scenario Planner - Summary Dashboard</div>
-
+        <highcharts-chart
+          [Highcharts]="highcharts"
+          [options]="chartOptions_2"
+          style="width: 100%; height: 250px; display: block"
+        >
+        </highcharts-chart>
+        <!-- <highcharts-chart
+          [Highcharts]="highcharts"
+          [options]="chartOptions_3"
+          style="width: 100%; height: 250px; display: block"
+        >
+        </highcharts-chart>
+        <highcharts-chart
+          [Highcharts]="highcharts"
+          [options]="chartOptions_4"
+          style="width: 100%; height: 250px; display: block"
+        > -->
+        <!-- </highcharts-chart> -->
+      </div>
+      <div class=""></div>
     </div>
-    
-      <div class="row ">
-        <div class="col heading__col">MARS Russia - Scenario Planner - Summary Dashboard(Per Ton Calculations)</div>
-
-    </div> -->
-     
-  <!-- </div> -->
-  <!-- tn 73 ad 4408 -->
-<!-- 
-  <highcharts-chart
-   [Highcharts] = "highcharts" 
-   [options] = "chartOptions" 
-   style = "width: 100%; height: 400px; display: block;">
-</highcharts-chart> -->
+  </div>
+</section>

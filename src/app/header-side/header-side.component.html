@@ -1,0 +1,45 @@
+<!-- <div class="content"> -->
+<nav class="sidebar" [class.hide]="hide">
+  <ul class="side-nav">
+    <li
+      class="side-nav__item"
+      [routerLinkActive]="['side-nav__item-active']"
+      [routerLinkActiveOptions]="{ exact: true }"
+    >
+      <a class="side-nav__link" routerLink="/">
+        <i class="fa fa-home side-nav__icon"></i>
+        <span>Home</span>
+        <!-- <i class="fa fa-check"></i> -->
+      </a>
+    </li>
+    <li class="side-nav__item" [routerLinkActive]="['side-nav__item-active']">
+      <a routerLink="/scenario" class="side-nav__link">
+        <i class="fa fa-dashboard side-nav__icon"></i>
+        <span>Pricing Scenario Builder</span>
+        <!-- <i class="fa fa-check"></i> -->
+      </a>
+    </li>
+    <li class="side-nav__item">
+      <a href="" class="side-nav__link">
+        <i class="fa fa-rub side-nav__icon"></i>
+        <span>Profit Pool</span>
+        <!-- <i class="fa fa-check"></i> -->
+      </a>
+    </li>
+    <li class="side-nav__item">
+      <a href="" class="side-nav__link">
+        <i class="fa fa-line-chart side-nav__icon"></i>
+        <span>Pricing Capabilities</span>
+        <!-- <i class="fa fa-check"></i> -->
+      </a>
+    </li>
+    <li class="side-nav__item">
+      <a href="" class="side-nav__link">
+        <i class="fa fa-sign-out side-nav__icon" (click)="logout()"></i>
+        <span>Logout</span>
+        <!-- <i class="fa fa-check"></i> -->
+      </a>
+    </li>
+  </ul>
+</nav>
+<!-- </div> -->

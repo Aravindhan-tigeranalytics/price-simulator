@@ -1,0 +1,55 @@
+#create-input-section {
+  margin-top: 70px;
+  color: white;
+}
+table {
+  color: white;
+}
+table td {
+  //   border: solid 1px #fab;
+  //   width: 100px;
+  //   word-wrap: break-word;
+}
+::ng-deep .mat-form-field-appearance-legacy .mat-form-field-underline {
+  background-color: white;
+}
+::ng-deep .mat-form-field.mat-accent .mat-input-element {
+  caret-color: #008ed6;
+}
+::ng-deep .mat-form-field-appearance-legacy .mat-form-field-label {
+  color: white;
+}
+::ng-deep .mat-datepicker-toggle,
+.mat-datepicker-content .mat-calendar-next-button,
+.mat-datepicker-content .mat-calendar-previous-button {
+  color: white;
+}
+::ng-deep .mat-form-field-label {
+  color: white;
+}
+::ng-deep .mat-form-field-underline {
+  /*change color of underline*/
+  background-color: white !important;
+}
+::ng-deep .mat-form-field-ripple {
+  /*change color of underline when focused*/
+  background-color: white !important;
+}
+::ng-deep .mat-form-field-underline {
+  /*change color of underline*/
+  background-color: white !important;
+}
+
+::ng-deep .mat-form-field-ripple {
+  /*change color of underline when focused*/
+  background-color: white !important;
+}
+
+::ng-deep .mat-form-field-label {
+  /*change color of label*/
+  color: white !important;
+}
+
+mat-datepicker-toggle {
+  color: white !important;
+}

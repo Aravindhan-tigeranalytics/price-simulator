@@ -1,8 +1,13 @@
-<div class="sidebar">
-  <a routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" routerLink="/">Dashboard</a>
-  <a routerLinkActive="active" routerLink="/input">Input</a>
-  
+<!-- <app-header></app-header> -->
+<div class="container-fluid">
+  <div class="content">
+    <app-header-side></app-header-side>
+    <main>
+      <router-outlet></router-outlet>
+    </main>
+  </div>
 </div>
-<div class="content">
-<router-outlet></router-outlet>
-</div>
+
+<!-- <div class="content"> -->
+<!-- -->
+<!-- </div> -->

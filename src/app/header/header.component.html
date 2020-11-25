@@ -1,0 +1,60 @@
+<nav
+  class="navbar navbar-expand-sm bg-dark navbar-dark fixed-top"
+  id="main-nav"
+>
+  <div class="container">
+    <a routerLink="/" class="navbar-brand">Mars Russia</a>
+    <button
+      class="navbar-toggler"
+      data-toggle="collapse"
+      data-target="#navbarCollapse"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarCollapse">
+      <ul class="navbar-nav ml-auto">
+        <li class="nav-item">
+          <a
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: true }"
+            routerLink="/"
+            class="nav-link"
+            >Home</a
+          >
+        </li>
+        <li *ngIf="isLoggedIn" class="nav-item">
+          <a
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: true }"
+            routerLink="/dashboard"
+            class="nav-link"
+            >Dashdoard</a
+          >
+        </li>
+        <!-- <li *ngIf="isLoggedIn" class="nav-item">
+          <a routerLinkActive="active" routerLink="/input" class="nav-link"
+            >Input</a
+          >
+        </li> -->
+        <li *ngIf="isLoggedIn" class="nav-item">
+          <a routerLinkActive="active" routerLink="/scenario" class="nav-link"
+            >Pricingscenario</a
+          >
+        </li>
+        <li *ngIf="isLoggedIn" class="nav-item">
+          <a class="nav-link" (click)="logout()">logout</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- <div class="sidebar">
+  <a
+    routerLinkActive="active"
+    [routerLinkActiveOptions]="{ exact: true }"
+    routerLink="/"
+    >Dashboard</a
+  >
+  <a routerLinkActive="active" routerLink="/input">Input</a>
+</div> -->

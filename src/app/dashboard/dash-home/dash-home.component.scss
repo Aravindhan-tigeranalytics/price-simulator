@@ -1,23 +1,38 @@
-$primary-color : #47475c;
-$blue : rgb(124, 181, 236);
-.mat-expansion-panel-header{
-    // background-color: #47475C;
-    height: 7rem; 
-    line-height: 7rem;  
-    // color : red;
+$primary-color: var(--color-amber-1);
+$blue: var(--color-pink);
 
+#explore-head-section {
+  // padding-top: 60px;
 }
-::ng-deep .mat-form-field{
-    width: 11rem;
-  }
- 
+
+::ng-deep .category-chip.category-chip.category-chip {
+  // repeated 3 times to override the Angular Material default styling
+  width: fit-content;
+  max-width: 100%;
+}
+
+::ng-deep .category-chip__text {
+  width: calc(100%); // calc is important here, do not use "100%" alone
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.mat-expansion-panel-header {
+  // background-color: #47475C;
+  height: 7rem;
+  line-height: 7rem;
+  // color : red;
+}
+::ng-deep .mat-form-field {
+  width: 11rem;
+}
+
 // mat-expansion-panel-header-description ng-tns-c31-1
-::ng-deep .mat-expansion-panel-header-description{
-    color : $primary-color;
-    justify-content: center;
-
+::ng-deep .mat-expansion-panel-header-description {
+  color: $primary-color;
+  justify-content: center;
 }
- 
-::ng-deep .mat-chip-list-wrapper{
-    padding-bottom: 1rem;
+
+::ng-deep .mat-chip-list-wrapper {
+  padding-bottom: 1rem;
 }

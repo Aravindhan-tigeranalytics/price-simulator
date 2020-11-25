@@ -12,6 +12,7 @@ import {MatSelectModule} from '@angular/material/select';
 import {HighchartsChartModule} from 'highcharts-angular';
 import { DashInputComponent } from './dash-input/dash-input.component'
 import {MatNativeDateModule} from '@angular/material/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 // import {} from "./"
 export const DashboardRoutes: Routes = [
   {
@@ -40,6 +41,8 @@ export const DashboardRoutes: Routes = [
     // MatNativeDateModule,
     // MatSelectModule,
     MaterialModule,
+    FormsModule,
+    ReactiveFormsModule,
     
     RouterModule.forChild(DashboardRoutes)
   ]

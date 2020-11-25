@@ -1,12 +1,19 @@
-
-
 @import "~@angular/material/theming";
-@import '~font-awesome/css/font-awesome.css';
+@import "~font-awesome/css/font-awesome.css";
 $fa-font-path: "/node_modules/font-awesome/fonts";
-@import '~font-awesome/scss/font-awesome.scss';
+@import "~font-awesome/scss/font-awesome.scss";
 
 // Include non-theme styles for core.
 @include mat-core();
+
+@font-face {
+  font-family: brandon;
+  src: url(assets/font/brandon.otf) format("opentype");
+}
+@font-face {
+  font-family: opensans;
+  src: url(assets/font/OpenSans-Regular.ttf) format("opentype");
+}
 
 $mat-custom-theme: (
   50: #fff3e0,
@@ -37,41 +44,67 @@ $mat-custom-theme: (
     A100: $dark-primary-text,
     A200: $light-primary-text,
     A400: $light-primary-text,
-    A700: $light-primary-text
-  )
+    A700: $light-primary-text,
+  ),
 );
-
 
 // Define a theme.
 $primary: mat-palette($mat-custom-theme);
-$accent:  mat-palette($mat-pink, A200, A100, A400);
+$accent: mat-palette($mat-pink, A200, A100, A400);
 
 $theme: mat-light-theme($primary, $accent);
 
 // Include all theme styles for the components.
 @include angular-material-theme($theme);
 
+:root {
+  --color-pink: #eb2f64;
+  --color-pink-light: #ff3366;
+  --color-pink-dark: #ba265d;
+
+  --color-grey-light-1: #faf9f9;
+  --color-grey-light-2: #f4f2f2;
+  --color-grey-light-3: #f0eeee;
+  --color-grey-light-4: #ccc;
+
+  --color-grey-dark-1: #333;
+  --color-grey-dark-2: #777;
+  --color-grey-dark-3: #999;
+
+  --color-amber-1: #ffbf00;
+  --color-amber-2: #ff7e00;
+}
 
 *,
 *::before,
-*::after{
-    margin : 0;
-    padding :0;
-    // box-sizing:inherit; 
-    box-sizing:border-box;
+*::after {
+  margin: 0;
+  padding: 0;
+  // font-family: "brandon", "arial", sans-serif;
+  // box-sizing:inherit;
+  // box-sizing: border-box;
 }
-html{
-    /* font-size: 10px; */
-    font-size: 62.5%;
-    /* 10/16 =0.625 */
+html {
+  /* font-size: 10px; */
+  // font-size: 62.5%;
+  /* 10/16 =0.625 */
 }
 
-body{
-    font-family: sans-serif;
-    font-weight: 400;
-     font-size: 1.6rem;
-    line-height: 1.7;
-    color : #777;
-    // padding: 3rem;
-    
+body {
+  font-family: "opensans", "arial", sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  color: var(--color-grey-dark-1);
+  // font-size: 62.5%;
+  // line-height: 1.7;
+  // color : #777;
+  // background: var(--color-grey-light-2);
+  background-image: linear-gradient(
+    to right bottom,
+    var(--color-grey-light-1),
+    var(--color-grey-dark-3)
+  );
+  // color: #fff;
+  // box-sizing: border-box;
+  // padding: 3rem;
 }

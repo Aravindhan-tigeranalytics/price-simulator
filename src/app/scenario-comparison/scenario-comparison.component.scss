@@ -1,0 +1,75 @@
+.btn-primary,
+.btn-primary:hover,
+.btn-primary:active,
+.btn-primary:visited {
+  background-color: var(--color-pink) !important;
+}
+
+.btn-primary,
+.btn-primary:hover,
+.btn-primary:active,
+.btn-primary:visited {
+  color: #fff;
+
+  border-color: #fff;
+}
+.card-text {
+  position: relative;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-grey-dark-3);
+  padding: 10px;
+  margin: 10px;
+}
+.download {
+  background-color: var(--color-pink);
+  border-radius: 5px;
+}
+.download > div > a > i {
+  color: var(--color-grey-light-1);
+}
+
+.select2 {
+  border-color: var(--color-amber-1) !important;
+}
+.cust {
+  border-radius: 10px;
+  box-shadow: 0 0 10px var(--color-amber-1);
+}
+// .first-row {
+//   // border: #008ed6 1px solid;
+//   border-radius: 10px;
+// }
+.card {
+  // border-radius: 10px;
+  // border: 3px solid blue;
+  transform: scale(0.9);
+}
+// .card-dark {
+//   background: #333;
+//   color: #fff;
+// }
+.border-tr tr {
+  border-right: 3px solid var(--color-amber-1);
+}
+.reduce-opacity {
+  opacity: 0;
+}
+.border-tr {
+  // color: #fff;
+}
+// .border-tr tr td {
+//   width: 100px;
+// }
+.table td,
+.table th {
+  padding: 4px;
+  text-align: start;
+}
+.card-body {
+  padding: 0rem;
+  background: var(--color-grey-light-2);
+}
+.row {
+  margin: 0px;
+}
