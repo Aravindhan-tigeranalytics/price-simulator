@@ -1,3 +1,19 @@
+export class SimulatedArray {
+  key: string;
+  current: SimulatedSummary;
+  simulated: SimulatedSummary;
+  absolute_change: SimulatedSummary;
+  percent_change: SimulatedSummary;
+
+  constructor(key, current, simulated, absolute_change, percent_change) {
+    this.key = key;
+    this.current = current;
+    this.simulated = simulated;
+    this.absolute_change = absolute_change;
+    this.percent_change = percent_change;
+  }
+}
+
 export class SimulatedSummary {
   units: number;
   tonnes: number;
@@ -27,8 +43,39 @@ export class SimulatedSummary {
     this.rp = rp;
     this.rp_percent_rsv = (this.rp / this.rsv) * 100;
   }
-}
 
+  public get_absolute(obj: SimulatedSummary): SimulatedSummary {
+    return new SimulatedSummary(
+      this.units - obj.units,
+      this.tonnes - obj.tonnes,
+      this.lsv - obj.lsv,
+      this.rsv - obj.rsv,
+      this.nsv - obj.nsv,
+
+      this.te - obj.te,
+      this.mac - obj.mac,
+      this.rp - obj.rp
+    );
+  }
+  public get_percent_change(final: SimulatedSummary): SimulatedSummary {
+    return new SimulatedSummary(
+      ((final.units - this.units) / this.units) * 100,
+      ((final.tonnes - this.tonnes) / this.tonnes) * 100,
+      ((final.lsv - this.lsv) / this.lsv) * 100,
+      ((final.rsv - this.rsv) / this.rsv) * 100,
+      ((final.nsv - this.nsv) / this.nsv) * 100,
+      ((final.te - this.te) / this.te) * 100,
+      ((final.mac - this.mac) / this.mac) * 100,
+      ((final.rp - this.rp) / this.rp) * 100
+    );
+  }
+}
+export class ClassObj {
+  id: number;
+  constructor(id) {
+    this.id = id;
+  }
+}
 export class SimulatorInput {
   retailer: string;
   category: string;

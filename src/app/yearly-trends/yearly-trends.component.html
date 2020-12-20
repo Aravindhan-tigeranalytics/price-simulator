@@ -1,0 +1,218 @@
+<div class="container-fluid">
+  <!-- <div class="row py-1 my-3 cust"> -->
+  <!-- <div class="col-8"> -->
+  <div class="d-flex pt-1 flex-row justify-content-center align-items-baseline">
+    <div class="px-3">
+      <label for="sel1">Saved Scenario:</label>
+    </div>
+    <mat-form-field appearance="fill" class="px-3">
+      <mat-label>Choose Metrics</mat-label>
+      <mat-select (selectionChange)="metricChange($event.value)">
+        <mat-option *ngFor="let retailer of metrics" [value]="retailer">{{
+          retailer
+        }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+    <div class="px-3">
+      <a (click)="addMetric()" class="btn btn-primary"
+        ><i class="fa fa-plus pr-1" aria-hidden="true"></i>Add to compare</a
+      >
+    </div>
+  </div>
+  <div #initElement class="d-flex py-1 flex-row align-items-baseline;">
+    <div class="p-1 m-1">
+      <mat-form-field appearance="fill">
+        <mat-label>Select Retailer</mat-label>
+        <mat-select
+          [formControl]="selectedRetailer"
+          name="selectedRetailer"
+          multiple
+          [disabled]="disable"
+        >
+          <mat-option [value]="'ALL'">All</mat-option>
+          <mat-option
+            *ngFor="let retailer of retailer_filter"
+            [value]="retailer"
+            >{{ retailer }}</mat-option
+          >
+        </mat-select>
+      </mat-form-field>
+    </div>
+    <div class="p-1 m-1">
+      <mat-form-field appearance="fill">
+        <mat-label>Select Category</mat-label>
+        <mat-select
+          [formControl]="selectedCategories"
+          name="selectedCategories"
+          multiple
+        >
+          <mat-option [value]="'ALL'">All</mat-option>
+          <mat-option
+            *ngFor="let category of category_filter"
+            [value]="category"
+            >{{ category }}</mat-option
+          >
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <div class="p-1 m-1">
+      <mat-form-field appearance="fill">
+        <mat-label>Select Product group</mat-label>
+        <mat-select
+          [formControl]="selectedProducts"
+          name="selectedProducts"
+          multiple
+        >
+          <mat-option [value]="'ALL'">All</mat-option>
+          <mat-option
+            *ngFor="let product of product_filter"
+            [value]="product"
+            >{{ product }}</mat-option
+          >
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <div class="p-1 m-1">
+      <mat-form-field appearance="fill">
+        <mat-label>Select Promo Activity</mat-label>
+        <mat-select
+          [formControl]="selectedActivity"
+          name="selectedActivity"
+          multiple
+        >
+          <mat-option [value]="'ALL'">All</mat-option>
+          <mat-option
+            *ngFor="let promo of promo_activity_filter"
+            [value]="promo"
+            >{{ promo }}</mat-option
+          >
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <div class="p-1 m-1">
+      <mat-form-field appearance="fill">
+        <mat-label>Select Promo Mechanics</mat-label>
+        <mat-select
+          [formControl]="selectedMechanic"
+          name="selectedMechanic"
+          multiple
+        >
+          <mat-option [value]="'ALL'">All</mat-option>
+          <mat-option
+            *ngFor="let mechanic of promo_mechanic_filter"
+            [value]="mechanic"
+            >{{ mechanic }}</mat-option
+          >
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <!-- </div> -->
+    <!-- <div class="col-4"> -->
+    <!-- <div class="d-flex flex-row justify-content-start align-items-center"> -->
+    <div class="p-2 flex-fill">
+      <a class="btn btn-primary btn-block">Apply</a>
+    </div>
+    <div class="p-2 flex-fill">
+      <a class="btn btn-primary btn-block">Reset</a>
+    </div>
+  </div>
+  <!-- <div
+    class="d-flex p-2 flex-row justify-content-center align-items-baseline grad"
+  >
+    <div class="p-1 m-1">
+      <mat-form-field appearance="fill">
+        <mat-label>Select Year</mat-label>
+        <mat-select
+          [formControl]="selectedYear"
+          (selectionChange)="changeYear($event.value)"
+          name="selectedYear"
+        >
+          <mat-option *ngFor="let year of year_filter" [value]="year">{{
+            year
+          }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+  </div> -->
+  <div class="d-flex p-2 flex-wrap flex-row">
+    <div *ngFor="let g of graphs" class="p-2 m-2 d-flex delete-wrapper">
+      <highcharts-chart class="chart" [Highcharts]="highcharts" [options]="g">
+      </highcharts-chart>
+      <span class="delete-icon"
+        ><i class="fa fa-trash" aria-hidden="true"></i
+      ></span>
+    </div>
+    <div class="p-2 m-2 d-flex custom_property">
+      <h3>Select metrics to analysis</h3>
+    </div>
+    <div class="p-2 m-2 d-flex custom_property">
+      <h3>Select metrics to analysis</h3>
+    </div>
+    <div class="p-2 m-2 d-flex custom_property">
+      <h3>Select metrics to analysis</h3>
+    </div>
+    <div class="p-2 m-2 d-flex custom_property">
+      <h3>Select metrics to analysis</h3>
+    </div>
+    <!-- <div class="p-2 m-2">
+      <highcharts-chart
+        class="chart"
+        [Highcharts]="highcharts"
+        [options]="chartOptions_change"
+      >
+      </highcharts-chart>
+    </div>
+    <div class="p-2 m-2">
+      <highcharts-chart
+        class="chart"
+        [Highcharts]="highcharts"
+        [options]="chartOptions_change"
+      >
+      </highcharts-chart>
+    </div> -->
+    <!-- <div class="p-2 m-2">
+      <highcharts-chart
+        class="chart"
+        [Highcharts]="highcharts"
+        [options]="chartOptions_change"
+      >
+      </highcharts-chart>
+    </div> -->
+  </div>
+  <!-- <div class="row"> -->
+  <!-- <div class="col-6"> -->
+
+  <!-- </div> -->
+  <!-- <div class="col-6"> -->
+  <!-- <highcharts-chart
+        [Highcharts]="highcharts"
+        [options]="chartOptions_year2"
+        style="width: 100%; height: 250px; display: block"
+      >
+      </highcharts-chart> -->
+  <!-- </div> -->
+  <!-- </div> -->
+
+  <!-- <div class="row"> -->
+  <!-- <div class="col-6"> -->
+  <!-- <highcharts-chart
+        [Highcharts]="highcharts"
+        [options]="mars_profit_pool_chartOptions_year1"
+        style="width: 100%; height: 250px; display: block"
+      >
+      </highcharts-chart> -->
+  <!-- </div> -->
+  <!-- <div class="col-6"> -->
+  <!-- <highcharts-chart
+        [Highcharts]="highcharts"
+        [options]="mars_profit_pool_chartOptions_year2"
+        style="width: 100%; height: 250px; display: block"
+      >
+      </highcharts-chart> -->
+  <!-- </div> -->
+  <!-- </div> -->
+</div>

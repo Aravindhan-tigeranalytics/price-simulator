@@ -6,13 +6,105 @@
 <!-- <app-header-side></app-header-side> -->
 <section id="create-head-section">
   <div class="container-fluid text-muted">
+    <div class="row mx-2 cust" #filterHeader>
+      <div class="col-8">
+        <div
+          #initElement
+          class="d-flex flex-row justify-content-between align-items-center"
+        >
+          <div>
+            <mat-form-field appearance="fill">
+              <mat-label>Select Retailer</mat-label>
+              <mat-select [formControl]="retailers" multiple>
+                <mat-option [value]="'ALL'">All</mat-option>
+                <mat-option
+                  *ngFor="let retailer of retailer_filter"
+                  [value]="retailer"
+                  >{{ retailer }}</mat-option
+                >
+              </mat-select>
+            </mat-form-field>
+          </div>
+          <div>
+            <mat-form-field appearance="fill">
+              <mat-label>Select Category</mat-label>
+              <mat-select [formControl]="categories" multiple>
+                <mat-option [value]="'ALL'">All</mat-option>
+                <mat-option
+                  *ngFor="let category of categories_filter"
+                  [value]="category"
+                  >{{ category }}</mat-option
+                >
+              </mat-select>
+            </mat-form-field>
+          </div>
+          <div>
+            <mat-form-field appearance="fill">
+              <mat-label>Select PPG</mat-label>
+              <mat-select [formControl]="products" multiple>
+                <mat-option [value]="'ALL'">All</mat-option>
+                <mat-option
+                  *ngFor="let product of product_filter"
+                  [value]="product"
+                  >{{ product }}</mat-option
+                >
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+      </div>
+      <div class="col-4">
+        <div class="d-flex flex-row justify-content-start align-items-center">
+          <div class="p-2 flex-fill">
+            <a class="btn btn-primary btn-block" (click)="applyFilter()"
+              >Apply</a
+            >
+          </div>
+          <div class="p-2 flex-fill">
+            <a class="btn btn-primary btn-block" (click)="resetFilter()"
+              >Reset</a
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+    <ul ngbNav #nav="ngbNav" [(activeId)]="active" class="nav-tabs mt-2 pt-2">
+      <li [ngbNavItem]="1" class="pr-2">
+        <a ngbNavLink (click)="ResetSummary()">Simulator Input</a>
+        <ng-template ngbNavContent>
+          <app-scenario-input
+            *ngIf="tableData$"
+            [tableData]="tableData$"
+            [simulteFlag]="simulateFlag$"
+          ></app-scenario-input>
+        </ng-template>
+      </li>
+      <li [ngbNavItem]="2" class="pr-2">
+        <a ngbNavLink (click)="SimulateSummary()">Summary</a>
+        <ng-template ngbNavContent>
+          <app-scenario-summary></app-scenario-summary>
+        </ng-template>
+      </li>
+      <li [ngbNavItem]="3" class="pr-2">
+        <a ngbNavLink>Dashboard</a>
+        <ng-template ngbNavContent>
+          <app-line-chart></app-line-chart>
+        </ng-template>
+      </li>
+    </ul>
+
+    <div [ngbNavOutlet]="nav" class="mt-2"></div>
+
     <!-- <mat-tab-group mat-align-tabs="start">
-      <mat-tab label="Simulator input"> -->
-    <app-scenario-input></app-scenario-input>
-    <!-- </mat-tab> -->
-    <!-- <mat-tab label="Scenario comparison"> -->
-    <!-- <app-scenario-comparison></app-scenario-comparison> -->
-    <!-- </mat-tab>
+      <mat-tab label="Simulator input" class="act-tab">
+        <app-scenario-input></app-scenario-input>
+      </mat-tab>
+      <mat-tab label="Summary">
+        <app-scenario-comparison></app-scenario-comparison>
+      </mat-tab>
+      <mat-tab label="Dashboard">
+        <app-scenario-comparison></app-scenario-comparison>
+      </mat-tab>
     </mat-tab-group> -->
   </div>
 </section>

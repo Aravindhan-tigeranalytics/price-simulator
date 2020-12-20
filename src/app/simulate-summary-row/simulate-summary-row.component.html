@@ -1,0 +1,224 @@
+<td scope="row">
+  <strong>{{ name }}</strong>
+</td>
+<td
+  [ngClass]="{
+    'color-danger ': obj.units < 0 && name == '% Change',
+    'color-success ': obj.units > 0 && name == '% Change'
+  }"
+>
+  {{ obj.units | number: decimalFormat }}
+  <i
+    *ngIf="name == '% Change'"
+    class="fa"
+    aria-hidden="true"
+    [ngClass]="{
+      'fa-arrow-down': obj.units < 0,
+      'fa-arrow-up': obj.units > 0
+    }"
+  ></i>
+</td>
+<td
+  [ngClass]="{
+    'color-danger ': obj.tonnes < 0 && name == '% Change',
+    'color-success ': obj.tonnes > 0 && name == '% Change'
+  }"
+>
+  {{ obj.tonnes | number: decimalFormat }}
+  <i
+    *ngIf="name == '% Change'"
+    class="fa"
+    aria-hidden="true"
+    [ngClass]="{
+      'fa-arrow-down': obj.tonnes < 0,
+      'fa-arrow-up': obj.tonnes > 0
+    }"
+  ></i>
+</td>
+<td
+  [ngClass]="{
+    'color-danger ': obj.lsv < 0 && name == '% Change',
+    'color-success ': obj.lsv > 0 && name == '% Change'
+  }"
+>
+  {{ obj.lsv | number: decimalFormat }}
+  <i
+    *ngIf="name == '% Change'"
+    class="fa"
+    aria-hidden="true"
+    [ngClass]="{
+      'fa-arrow-down': obj.lsv < 0,
+      'fa-arrow-up': obj.lsv > 0
+    }"
+  ></i>
+</td>
+<td
+  [ngClass]="{
+    'color-danger ': obj.rsv < 0 && name == '% Change',
+    'color-success ': obj.rsv > 0 && name == '% Change'
+  }"
+>
+  {{ obj.rsv | number: decimalFormat }}
+  <i
+    *ngIf="name == '% Change'"
+    class="fa"
+    aria-hidden="true"
+    [ngClass]="{
+      'fa-arrow-down': obj.rsv < 0,
+      'fa-arrow-up': obj.rsv > 0
+    }"
+  ></i>
+</td>
+<td
+  [ngClass]="{
+    'color-danger ': obj.nsv < 0 && name == '% Change',
+    'color-success ': obj.nsv > 0 && name == '% Change'
+  }"
+>
+  {{ obj.nsv | number: decimalFormat }}
+  <i
+    *ngIf="name == '% Change'"
+    class="fa"
+    aria-hidden="true"
+    [ngClass]="{
+      'fa-arrow-down': obj.nsv < 0,
+      'fa-arrow-up': obj.nsv > 0
+    }"
+  ></i>
+</td>
+<td
+  [ngClass]="{
+    'color-danger ': obj.nsv_tonnes < 0 && name == '% Change',
+    'color-success ': obj.nsv_tonnes > 0 && name == '% Change'
+  }"
+>
+  {{ obj.nsv_tonnes | number: decimalFormat }}
+  <i
+    *ngIf="name == '% Change'"
+    class="fa"
+    aria-hidden="true"
+    [ngClass]="{
+      'fa-arrow-down': obj.nsv_tonnes < 0,
+      'fa-arrow-up': obj.nsv_tonnes > 0
+    }"
+  ></i>
+</td>
+<td
+  [ngClass]="{
+    'color-danger ': obj.te < 0 && name == '% Change',
+    'color-success ': obj.te > 0 && name == '% Change'
+  }"
+>
+  {{ obj.te | number: decimalFormat }}
+  <i
+    *ngIf="name == '% Change'"
+    class="fa"
+    aria-hidden="true"
+    [ngClass]="{
+      'fa-arrow-down': obj.te < 0,
+      'fa-arrow-up': obj.te > 0
+    }"
+  ></i>
+</td>
+<td
+  [ngClass]="{
+    'color-danger ': obj.te_percent_lsv < 0 && name == '% Change',
+    'color-success ': obj.te_percent_lsv > 0 && name == '% Change'
+  }"
+>
+  {{ obj.te_percent_lsv | number: decimalFormat }}
+  <i
+    *ngIf="name == '% Change'"
+    class="fa"
+    aria-hidden="true"
+    [ngClass]="{
+      'fa-arrow-down': obj.te_percent_lsv < 0,
+      'fa-arrow-up': obj.te_percent_lsv > 0
+    }"
+  ></i>
+</td>
+<td
+  [ngClass]="{
+    'color-danger ': obj.te_units < 0 && name == '% Change',
+    'color-success ': obj.te_units > 0 && name == '% Change'
+  }"
+>
+  {{ obj.te_units | number: decimalFormat }}
+  <i
+    *ngIf="name == '% Change'"
+    class="fa"
+    aria-hidden="true"
+    [ngClass]="{
+      'fa-arrow-down': obj.te_units < 0,
+      'fa-arrow-up': obj.te_units > 0
+    }"
+  ></i>
+</td>
+<td
+  [ngClass]="{
+    'color-danger ': obj.mac < 0 && name == '% Change',
+    'color-success ': obj.mac > 0 && name == '% Change'
+  }"
+>
+  {{ obj.mac | number: decimalFormat }}
+  <i
+    *ngIf="name == '% Change'"
+    class="fa"
+    aria-hidden="true"
+    [ngClass]="{
+      'fa-arrow-down': obj.mac < 0,
+      'fa-arrow-up': obj.mac > 0
+    }"
+  ></i>
+</td>
+<td
+  [ngClass]="{
+    'color-danger ': obj.mac_percent_nsv < 0 && name == '% Change',
+    'color-success ': obj.mac_percent_nsv > 0 && name == '% Change'
+  }"
+>
+  {{ obj.mac_percent_nsv | number: decimalFormat }}
+  <i
+    *ngIf="name == '% Change'"
+    class="fa"
+    aria-hidden="true"
+    [ngClass]="{
+      'fa-arrow-down': obj.mac_percent_nsv < 0,
+      'fa-arrow-up': obj.mac_percent_nsv > 0
+    }"
+  ></i>
+</td>
+<td
+  [ngClass]="{
+    'color-danger ': obj.rp < 0 && name == '% Change',
+    'color-success ': obj.rp > 0 && name == '% Change'
+  }"
+>
+  {{ obj.rp | number: decimalFormat }}
+  <i
+    *ngIf="name == '% Change'"
+    class="fa"
+    aria-hidden="true"
+    [ngClass]="{
+      'fa-arrow-down': obj.rp < 0,
+      'fa-arrow-up': obj.rp > 0
+    }"
+  ></i>
+</td>
+<td
+  [ngClass]="{
+    'color-danger ': obj.rp_percent_rsv < 0 && name == '% Change',
+    'color-success ': obj.rp_percent_rsv > 0 && name == '% Change'
+  }"
+>
+  {{ obj.rp_percent_rsv | number: decimalFormat }}
+  <i
+    *ngIf="name == '% Change'"
+    class="fa"
+    aria-hidden="true"
+    [ngClass]="{
+      'fa-arrow-down': obj.rp_percent_rsv < 0,
+      'fa-arrow-up': obj.rp_percent_rsv > 0
+    }"
+  ></i>
+</td>

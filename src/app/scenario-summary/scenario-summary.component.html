@@ -1,0 +1,74 @@
+<section class="simulate" #simulate>
+  <mat-accordion *ngIf="isSimulate">
+    <mat-expansion-panel
+      *ngFor="let array of simulatedArray; first as isFirst"
+      [expanded]="isFirst"
+    >
+      <mat-expansion-panel-header>
+        <mat-panel-description> {{ array.key }} </mat-panel-description>
+      </mat-expansion-panel-header>
+      <table
+        *ngIf="isSimulate"
+        class="table table-bordered table-striped table-hover"
+      >
+        <thead>
+          <tr style="font-size: 12px; text-align: center">
+            <th scope="col"></th>
+            <th scope="col">Units</th>
+            <th scope="col">Tonnes</th>
+            <th style="width: 100px" scope="col">LSV</th>
+            <th style="width: 100px" scope="col">RSV</th>
+            <th style="width: 100px" scope="col">NSV</th>
+            <th scope="col">NSV / Tonnes</th>
+            <th scope="col">TE</th>
+            <th scope="col">TE,% LSV</th>
+            <th scope="col">TE,Units</th>
+            <th scope="col">MAC</th>
+            <th scope="col">MAC,% NSV</th>
+            <th style="width: 100px" scope="col">RP</th>
+            <th scope="col">RP,% RSV</th>
+          </tr>
+        </thead>
+        <tbody>
+          <ng-container *ngFor="let input of params">
+            <ng-container [ngSwitch]="input">
+              <ng-container *ngSwitchCase="'Current Values'">
+                <tr
+                  app-simulate-summary-row
+                  [name]="'Current Values'"
+                  [obj]="array.current"
+                  class="small-font"
+                ></tr>
+              </ng-container>
+              <ng-container *ngSwitchCase="'Simulated'">
+                <tr
+                  app-simulate-summary-row
+                  [name]="'Simulated'"
+                  [obj]="array.simulated"
+                  class="small-font"
+                ></tr>
+              </ng-container>
+              <ng-container *ngSwitchCase="'ABS Change'">
+                <tr
+                  app-simulate-summary-row
+                  [name]="'ABS Change'"
+                  [obj]="array.absolute_change"
+                  class="small-font"
+                ></tr>
+              </ng-container>
+              <ng-container *ngSwitchCase="'% Change'">
+                <tr
+                  [name]="'% Change'"
+                  app-simulate-summary-row
+                  [obj]="array.percent_change"
+                  class="small-font"
+                ></tr>
+              </ng-container>
+            </ng-container>
+          </ng-container>
+        </tbody>
+      </table>
+    </mat-expansion-panel>
+  </mat-accordion>
+  <!-- ACCORDION ENDS -->
+</section>

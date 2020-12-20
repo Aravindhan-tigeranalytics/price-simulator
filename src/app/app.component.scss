@@ -8,6 +8,15 @@ app-header-side {
   flex: 0 0 7%;
   height: 100vh;
 }
+app-profit-pool-header {
+  flex: 0 0 7%;
+  height: 100vh;
+
+  // hide
+}
+.remove {
+  display: none !important;
+}
 main {
   //   background-color: lightgray;
   //   border: 1px solid red;

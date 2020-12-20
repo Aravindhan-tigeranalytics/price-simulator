@@ -1,18 +1,18 @@
-.btn-primary,
-.btn-primary:hover,
-.btn-primary:active,
-.btn-primary:visited {
-  background-color: var(--color-pink) !important;
-}
+// .btn-primary,
+// .btn-primary:hover,
+// .btn-primary:active,
+// .btn-primary:visited {
+//   background-color: var(--color-pink) !important;
+// }
 
-.btn-primary,
-.btn-primary:hover,
-.btn-primary:active,
-.btn-primary:visited {
-  color: #fff;
+// .btn-primary,
+// .btn-primary:hover,
+// .btn-primary:active,
+// .btn-primary:visited {
+//   color: #fff;
 
-  border-color: #fff;
-}
+//   border-color: #fff;
+// }
 .card-text {
   position: relative;
   top: 50%;
@@ -21,8 +21,11 @@
   padding: 10px;
   margin: 10px;
 }
+.eq-size {
+  width: 7rem;
+}
 .download {
-  background-color: var(--color-pink);
+  background-color: var(--color-blue-1);
   border-radius: 5px;
 }
 .download > div > a > i {

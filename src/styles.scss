@@ -73,6 +73,8 @@ $theme: mat-light-theme($primary, $accent);
 
   --color-amber-1: #ffbf00;
   --color-amber-2: #ff7e00;
+  // --color-blue-1: #00008b;
+  --color-blue-1: #0000a0;
 }
 
 *,
@@ -98,13 +100,163 @@ body {
   // font-size: 62.5%;
   // line-height: 1.7;
   // color : #777;
-  // background: var(--color-grey-light-2);
-  background-image: linear-gradient(
-    to right bottom,
-    var(--color-grey-light-1),
-    var(--color-grey-dark-3)
-  );
+  background: var(--color-grey-light-2);
+  // background-image: linear-gradient(
+  //   to right bottom,
+  //   var(--color-grey-light-1),
+  //   var(--color-grey-dark-3)
+  // );
   // color: #fff;
   // box-sizing: border-box;
   // padding: 3rem;
+}
+
+.glow {
+  font-size: 80px;
+  color: var(--color-grey-dark-1);
+  text-align: center;
+  // -webkit-animation: glow 1s ease-in-out infinite alternate;
+  // -moz-animation: glow 1s ease-in-out infinite alternate;
+  // animation: glow 1s ease-in-out infinite alternate;
+}
+
+@keyframes glow {
+  from {
+    text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #e60073,
+      0 0 40px var(--color-amber-1), 0 0 50px var(--color-amber-1),
+      0 0 60px var(--color-amber-1), 0 0 70px var(--color-amber-1);
+  }
+  to {
+    text-shadow: 0 0 20px #fff, 0 0 30px var(--color-amber-1),
+      0 0 40px var(--color-amber-1), 0 0 50px var(--color-amber-1),
+      0 0 60px var(--color-amber-1), 0 0 70px var(--color-amber-1),
+      0 0 80px var(--color-amber-1);
+  }
+}
+.btn-primary,
+.btn-primary:hover,
+.btn-primary:active,
+.btn-primary:visited {
+  // background-color: var(--color-amber-1) !important;
+  background-color: var(--color-blue-1) !important;
+}
+
+.btn-primary,
+.btn-primary:hover,
+.btn-primary:active,
+.btn-primary:visited {
+  // color: var(--color-grey-dark-1);
+  color: var(--color-grey-light-1);
+
+  border-color: #fff;
+}
+
+.chart {
+  width: 100%;
+  height: 220px;
+  display: block;
+  border-radius: 10px;
+  // background: greenyellow;
+  // background-color: green;
+  // box-shadow: 12px 12px 16px 0 rgba(255, 255, 255, 0.3) inset,
+  //   -8px -8px 12px 0 rgba(0, 0, 0, 0.25) inset;
+  box-shadow: 12px 12px 24px 0 rgba(0, 0, 0, 0.2),
+    -12px -12px 24px 0 rgba(255, 255, 255, 0.5),
+    12px 12px 24px 0 rgba(0, 0, 0, 0.2),
+    -12px -12px 24px 0 rgba(255, 255, 255, 0.5);
+}
+
+.neumorphic {
+  // background-color: var(--color-grey-light-4);
+  box-shadow: 12px 12px 24px 0 rgba(0, 0, 0, 0.2),
+    -12px -12px 24px 0 rgba(255, 255, 255, 0.5);
+  // font-size: 5rem;
+  // width: 200px;
+  // height: 200px;
+  // border: 2px solid var(--color-amber-1);
+  border-radius: 25px;
+  overflow: hidden;
+  // padding: 1.3rem;
+  display: flex;
+  justify-content: center;
+}
+
+.neumorphic--pressed {
+  box-shadow: inset 6px 6px 10px 0 rgba(0, 0, 0, 0.2),
+    inset -6px -6px 10px 0 rgba(255, 255, 255, 0.5);
+}
+
+.variation1 {
+  background: linear-gradient(
+    -45deg,
+    rgba(0, 0, 0, 0.2),
+    rgba(255, 255, 255, 0.3)
+  );
+}
+
+.variation1 span {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  width: 100%;
+  height: 100%;
+  border-radius: 100%;
+  overflow: hidden;
+  padding: 0.65rem;
+  box-shadow: inset 8px 8px 16px 0 rgba(0, 0, 0, 0.2),
+    inset -8px -8px 16px 0 rgba(255, 255, 255, 0.4);
+}
+
+.variation1 strong {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  justify-content: center;
+  // width: 100%;
+  // height: 100%;
+  border-radius: 100%;
+  overflow: hidden;
+  background-color: #f13c20;
+  color: white;
+}
+
+.variation1.pressed strong {
+  background-color: #bb3c20;
+}
+
+.variation2 {
+  justify-content: space-around;
+  align-items: center;
+}
+
+.variation2 span {
+  display: block;
+  padding-bottom: 1.5rem;
+  position: relative;
+  font-size: 3rem;
+}
+
+.variation2 span::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: block;
+  height: 0.3rem;
+  border-radius: 1rem;
+  width: 50%;
+  margin: 0 auto;
+  background-color: currentColor;
+}
+
+.variation2.pressed {
+  color: #5ab9ea;
+}
+.theme-btn {
+  background: url("./assets/img/theme1.jpg") no-repeat;
+  color: #fff;
+}
+.eq {
+  width: 165px;
 }

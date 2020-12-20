@@ -1,7 +1,9 @@
 <!-- <app-header></app-header> -->
 <div class="container-fluid">
   <div class="content">
-    <app-header-side></app-header-side>
+    <app-header-side *ngIf="!hide"></app-header-side>
+    <app-profit-pool-header *ngIf="profit_pool"></app-profit-pool-header>
+    <!-- <app-header-side ></app-header-side> -->
     <main>
       <router-outlet></router-outlet>
     </main>

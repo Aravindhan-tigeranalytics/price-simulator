@@ -1,0 +1,16 @@
+// .chart::after {
+//   content: "X";
+// }
+.custom_property {
+  width: 655px;
+  height: 266px;
+}
+.delete-wrapper {
+  position: relative;
+}
+.delete-icon {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  color: red;
+}
