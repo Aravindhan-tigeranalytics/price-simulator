@@ -37,9 +37,9 @@ export class LineChartComponent implements OnInit {
   private y: any;
   private svg: any;
   private line: d3.Line<[number, number]>; // this is line defination
-  MARGIN = { top: 10, right: 10, bottom: 100, left: 100 };
-  WIDTH = 300 - this.MARGIN.left - this.MARGIN.right;
-  HEIGHT = 450 - this.MARGIN.top - this.MARGIN.bottom;
+  MARGIN = { top: 10, right: 10, bottom: 10, left: 10 };
+  WIDTH = 200 - this.MARGIN.left - this.MARGIN.right;
+  HEIGHT = 300 - this.MARGIN.top - this.MARGIN.bottom;
   DATA = [
     [
       {
@@ -99,7 +99,7 @@ export class LineChartComponent implements OnInit {
     const g = svg
       .append('g')
       // .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
-      .attr('transform', 'translate(' + margin.top + ',' + 0 + ')');
+      .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
     // g.append('text')
     //   .attr('class', 'x-axis-label')
@@ -182,6 +182,7 @@ export class LineChartComponent implements OnInit {
     //   'https://raw.githubusercontent.com/holtzy/data_to_viz/master/Example_dataset/7_OneCatOneNum_header.csv',
 
     datas.map(function (data) {
+      data.sort(function(a, b) { return  b.value - a.value ; });
       var x = d3
         .scaleLinear()
         // .domain([0, d3.max(data, (d) => d.value)])
@@ -206,7 +207,7 @@ export class LineChartComponent implements OnInit {
       // g.append('g').attr('transform', 'translate(0 , 0 )');
       // .call(d3.axisLeft(y));
 
-      g.selectAll('myRect')
+      g.selectAll('rect')
         .data(data)
         .enter()
 
@@ -226,6 +227,13 @@ export class LineChartComponent implements OnInit {
         )
         .attr('height', y.bandwidth())
         .attr('fill', 'var(--color-blue-1)');
+        g.selectAll("text")
+        .data(data)
+        .enter()
+        .append('text')
+        .text(d=>d.value)
+        .attr('y', d=>y(d.year) +20 )
+        .style('fill' , '#fff') 
       // .append('text')
       // .attr('class', 'below')
       // .attr('x', 12)
@@ -276,104 +284,26 @@ export class LineChartComponent implements OnInit {
       width = this.WIDTH - margin.left - margin.right,
       height = this.HEIGHT - margin.top - margin.bottom;
 
-    // append the svg object to the body of the page
+     
     const svg = d3
       .select(ele)
       .append('svg')
       // .attr('width', width + margin.left + margin.right)
       .attr('width', width + margin.left + margin.right)
       .attr('height', height + margin.top + margin.bottom)
-      .attr('transform', 'rotate(180)');
+      // .attr('transform', 'rotate(180)');
     const g = svg
       .append('g')
       // .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
-      .attr('transform', 'translate(' + margin.top + ',' + 110 + ')');
+      .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
-    // g.append('text')
-    //   .attr('class', 'x-axis-label')
-    //   .attr('x', width / 2)
-    //   .attr('y', height + 110)
-    //   .attr('font-size', '20px')
-    //   .attr('text-anchor', 'middle')
-    //   .text('The world tallest');
-
-    // const x1 = d3
-    //   .scaleLinear()
-    //   .domain(datas[0].map((d) => d.value))
-    //   .range([0, width]);
-
-    // console.log(
-    //   d3.max(datas[0], (d) => d.year),
-    //   '&))))'
-    // );
-
-    // const y1 = d3
-    //   .scaleBand()
-    //   .domain([
-
-    //     d3.min(datas[0], (d) => d.year),
-    //     d3.max(datas[0], (d) => d.year),
-    //   ])
-    //   .range([0, height])
-    //   .paddingInner(0.3)
-    //   .paddingOuter(0.2);
-    // const xAxisCall = d3.axisBottom(x1);
-    // g.append('g')
-    //   .attr('class', 'x axis')
-    //   .attr('transform', `translate(0,${height})`)
-    //   .call(xAxisCall)
-    //   .selectAll('text')
-    //   .attr('y', '10')
-    //   .attr('x', '-5')
-    //   .attr('text-anchor', 'end')
-    //   .attr('transform', 'rotate(-40)');
-    // const yAxisCall = d3.axisLeft(y1);
-    // g.append('g').attr('class', 'y axis').call(yAxisCall);
-
-    // const rects = g.selectAll('rect').data(datas[0]);
-    // rects
-    //   .enter()
-    //   .append('rect')
-    //   .attr('y', (d) => y1(d.year))
-    //   .attr('x', x1(0))
-    //   .attr('width', (d) => y1(d.value))
-    //   .attr('height', y1.bandwidth());
-
-    //     .append('rect')
-    //     .attr('x', x(0))
-    //     .attr('y', function (d) {
-
-    //       return y(d.year);
-    //     })
-    //     .attr(
-    //       'width',
-
-    //       function (d) {
-    //         return x(d.value);
-    //       }
-    //     )
-    //     .attr('height', y.bandwidth())
-    //     .attr('fill', '#69b3a2');
-
-    // .attr('fill', 'grey');
-
-    // var svg2 = d3
-    //   .select('#my_dataviz2')
-    //   .append('svg')
-    //   .attr('width', width + margin.left + margin.right)
-    //   .attr('height', height + margin.top + margin.bottom)
-    //   .append('g')
-    //   .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
-
-    // Parse the Data
-    // d3.csv(
-    //   'https://raw.githubusercontent.com/holtzy/data_to_viz/master/Example_dataset/7_OneCatOneNum_header.csv',
-
+     
     datas.map(function (data) {
+      data.sort(function(a, b) { return a.value - b.value; });
       var x = d3
         .scaleLinear()
         // .domain([100, 0])
-        .domain([d3.max(data, (d) => d.value), 0])
+        .domain([ 0,d3.max(data, (d) => d.value)])
         .range([width, 0]);
 
       var y = d3
@@ -385,22 +315,12 @@ export class LineChartComponent implements OnInit {
         // .paddingOuter(0.5)
         .paddingInner(0.1);
 
-      // g.append('g')
-
-      //   .attr('transform', 'translate(0,' + height + ')')
-      //   // .call(d3.axisBottom(x))
-      //   .selectAll('text')
-      //   .attr('transform', 'translate(-10,0) rotate(-45)')
-      //   .style('text-anchor', 'end');
-
-      // g.append('g').attr('transform', 'translate(0 , 0 )');
-      // .call(d3.axisLeft(y));
-
-      g.selectAll('myRect')
+      
+      g.selectAll('rect')
         .data(data)
         .enter()
         .append('rect')
-        .attr('x', x(0))
+        .attr('x',function(d){return x(d.value) })
         .attr('y', function (d) {
           return y(d.year);
         })
@@ -408,12 +328,22 @@ export class LineChartComponent implements OnInit {
           'width',
 
           function (d) {
-            return x(d.value);
+            return x(0) - x(d.value);
           }
         )
-        .attr('height', y.bandwidth)
+        .attr('height', y.bandwidth())
         .attr('fill', 'var(--color-amber-1)');
       // .attr('transform', 'translate(0,0)');
+
+      g.selectAll("text")
+      .data(data)
+      .enter()
+      .append('text')
+      .text(d=>d.value)
+      .attr('x', '125' )
+      .attr('y', d=>y(d.year) +20 )
+      .style('fill' , '#fff') 
+      // .attr()
     });
   }
   private addXandYAxis() {
@@ -618,4 +548,63 @@ export class LineChartComponent implements OnInit {
     //     'translate(' + this.margin.left + ',' + this.margin.top + ')'
     //   );
   }
+
+
+  // private addG2(ele) {
+  //   var datas = this.DATA;
+  //   var margin = this.MARGIN,
+  //     width = this.WIDTH - margin.left - margin.right,
+  //     height = this.HEIGHT - margin.top - margin.bottom;
+
+     
+  //   const svg = d3
+  //     .select(ele)
+  //     .append('svg')
+  //     // .attr('width', width + margin.left + margin.right)
+  //     .attr('width', width + margin.left + margin.right)
+  //     .attr('height', height + margin.top + margin.bottom)
+  //     .attr('transform', 'rotate(180)');
+  //   const g = svg
+  //     .append('g')
+  //     // .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+  //     .attr('transform', 'translate(' + margin.top + ',' + 110 + ')');
+
+     
+  //   datas.map(function (data) {
+  //     var x = d3
+  //       .scaleLinear()
+  //       // .domain([100, 0])
+  //       .domain([d3.max(data, (d) => d.value), 0])
+  //       .range([width, 0]);
+
+  //     var y = d3
+  //       .scaleBand()
+
+  //       .range([height, 0])
+  //       .domain(data.map((d) => d.year))
+
+  //       // .paddingOuter(0.5)
+  //       .paddingInner(0.1);
+
+      
+  //     g.selectAll('myRect')
+  //       .data(data)
+  //       .enter()
+  //       .append('rect')
+  //       .attr('x', x(0))
+  //       .attr('y', function (d) {
+  //         return y(d.year);
+  //       })
+  //       .attr(
+  //         'width',
+
+  //         function (d) {
+  //           return x(d.value);
+  //         }
+  //       )
+  //       .attr('height', y.bandwidth)
+  //       .attr('fill', 'var(--color-amber-1)');
+  //     // .attr('transform', 'translate(0,0)');
+  //   });
+  // }
 }

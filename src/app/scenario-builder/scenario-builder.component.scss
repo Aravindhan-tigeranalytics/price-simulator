@@ -19,7 +19,9 @@
   color: #fff;
   font-weight: bold;
 }
-
+::ng-deep .mat-form-field-appearance-fill .mat-form-field-infix{
+  font-family: "mars-extra-bold";
+}
 // ::ng-deep .mat-label {
 //   color: #fff;
 // }

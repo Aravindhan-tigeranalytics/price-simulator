@@ -26,6 +26,12 @@ export class AuthComponent implements OnInit {
       },
       (error) => {
         this.invalidLogin = true;
+        localStorage.removeItem('token')
+        // localStorage.setItem('token','5e822efb0672751ca20584be198ca93420198678');
+        // this.authService.isLoggedInObservable.next(true);
+        // let returnUrl = this.route.snapshot.queryParamMap.get('returnUrl')
+        // this.router.navigate(['home']);
+        // this.invalidLogin = true;
         // console.log(error,"ERROR")
       }
     );

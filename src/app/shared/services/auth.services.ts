@@ -10,7 +10,7 @@ import {
   HttpParams,
 } from '@angular/common/http';
 // import {} from "@angular/htt"
-
+import {environment} from '../../../environments/environment'
 @Injectable()
 export class AuthService {
   isLoggedInObservable = new BehaviorSubject<boolean>(false);
@@ -25,7 +25,7 @@ export class AuthService {
     let formData: FormData = new FormData();
     formData.append('email', credentials.email);
     formData.append('password', credentials.password);
-    return this.http.post('http://localhost:8000/api/user/token/', formData, {
+    return this.http.post( environment.baseUrl+ '/api/user/token/', formData, {
       headers: { skip: 'true' },
     });
   }

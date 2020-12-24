@@ -65,13 +65,13 @@
         <div class="col table-responsive d-flex">
           <table class="table table-bordered table-striped table-hover">
             <thead class="no-border-head">
-              <tr style="height: 65px">
+              <tr style="height: 65px;background-color: var(--color-light-grey-1);color: var(--color-blue-1);">
                 <th scope="col" style="width: 215px"></th>
                 <th scope="col"></th>
                 <th scope="col"></th>
                 <th scope="col"></th>
 
-                <th scope="col" style="padding: 0; vertical-align: middle">
+                <th scope="col" style="padding: 0; vertical-align: middle;">
                   <div
                     class="d-flex flex-column align-items-center custome-input"
                   >
@@ -81,7 +81,7 @@
                     >
                       <mat-card style="max-width: 300px">
                         <mat-card-content>
-                          Please click here to select a date
+                         select LPI % wef date
                         </mat-card-content>
                       </mat-card>
                     </mde-popover>
@@ -145,7 +145,7 @@
                   >
                     <mat-card style="max-width: 300px">
                       <mat-card-content>
-                        Please click here to select a date
+                        select RSP % wef date
                       </mat-card-content>
                     </mat-card>
                   </mde-popover>
@@ -197,7 +197,7 @@
                   >
                     <mat-card style="max-width: 300px">
                       <mat-card-content>
-                        Please click here to select a date
+                        select COGS % wef date
                       </mat-card-content>
                     </mat-card>
                   </mde-popover>
@@ -257,7 +257,7 @@
                     <i
                       class="fa fa-download"
                       aria-hidden="true"
-                      style="font-size: 25px"
+                      style="font-size: 1.3rem"
                       (click)="csvInput.click()"
                     ></i>
                   </div>
@@ -280,8 +280,8 @@
               </tr>
             </thead>
             <thead class="header-table">
-              <tr style="height: 70px">
-                <th scope="col">Product Group</th>
+              <tr style="height: 85px">
+                <th style="text-align: left" scope="col">Product Group</th>
                 <th scope="col">Current LP</th>
                 <th scope="col">Current RSP</th>
                 <th scope="col">Current COGS</th>
@@ -317,22 +317,22 @@
               </div> -->
 
               <ng-container *ngFor="let input of inputForm.controls | keyvalue">
-                <tr style="height: 90px" formGroupName="{{ input.key }}">
+                <tr style="height: 80px" formGroupName="{{ input.key }}">
                   <td scope="row" style="text-align: left">
                     <strong>{{
                       input.value.controls.product_group_retailer.value
                         | removeUnder
                     }}</strong>
                   </td>
-                  <td>
+                  <td style="font-size: 1rem;">
                     {{ input.value.controls.current_lpi.value }}
                     <strong> ₽</strong>
                   </td>
-                  <td>
+                  <td style="font-size: 1rem;">
                     {{ input.value.controls.current_rsp.value }}
                     <strong> ₽</strong>
                   </td>
-                  <td>
+                  <td style="font-size: 1rem;">
                     {{
                       input.value.controls.current_cogs.value
                         | number: decimalFormat
@@ -417,7 +417,7 @@
                   <!-- <td>
                     {{ input.value.controls.base_price_elasticity.value }}
                   </td> -->
-                  <td>
+                  <td style="padding: 0;">
                     <input
                       type="text"
                       class="form-control ip"
@@ -430,11 +430,12 @@
                       formControlName="base_price_elasticity"
                     />
                   </td>
-                  <td>
+                  <td style="padding: 0;">
                     <mat-form-field class="demo-full-width" appearance="fill">
-                      <select matNativeControl>
+                      <select matNativeControl formControlName="competition" 
+                      (change)="competitionChange($event.target.value , input)">
                         <option value=""></option>
-                        <option value="Follows" selected>Follows</option>
+                        <option value="Follows">Follows</option>
                         <option value="Not Follows">Not Follows</option>
                       </select>
                     </mat-form-field>
@@ -511,7 +512,7 @@
                 </tr>
               </thead>
               <thead>
-                <tr style="height: 70px">
+                <tr style="height: 85px">
                   <th scope="col">MAC</th>
                   <th scope="col">RP</th>
                   <th scope="col">TE</th>
@@ -528,21 +529,30 @@
                 <ng-container
                   *ngFor="let input of inputForm.controls | keyvalue"
                 >
-                  <tr style="height: 90px" formGroupName="{{ input.key }}">
+                  <tr style="height: 80px" formGroupName="{{ input.key }}">
                     <td
                       style="padding: 0"
                       [ngClass]="{
                         'color-danger':
-                          input.value.controls.mac.value < 0 && isCHG,
+                          input.value.controls.mac.value < 0  ,
                         'color-success':
-                          input.value.controls.mac.value > 0 && isCHG
+                          input.value.controls.mac.value > 0 
                       }"
                     >
+                    
+                    <span *ngIf="!isCHG"> 
                       {{
                         input.value.controls.mac.value
                           | convertTonnes: isCHG
-                          | number: decimalFormat
+                         
                       }}
+                    </span><span *ngIf="isCHG"> 
+                      {{
+                        input.value.controls.mac.value  | number: decimalFormat
+                          
+                         
+                      }}
+                    </span>
                       <strong *ngIf="!isCHG"> ₽</strong>
                       <span *ngIf="isCHG && input.value.controls.mac.value"
                         >%
@@ -551,9 +561,9 @@
                           aria-hidden="true"
                           [ngClass]="{
                             'color-danger fa-arrow-down':
-                              input.value.controls.mac.value < 0 && isCHG,
+                              input.value.controls.mac.value < 0  ,
                             'color-success fa-arrow-up':
-                              input.value.controls.mac.value > 0 && isCHG
+                              input.value.controls.mac.value > 0 
                           }"
                         ></i>
                       </span>
@@ -562,16 +572,24 @@
                       style="padding: 0"
                       [ngClass]="{
                         'color-danger':
-                          input.value.controls.rp.value < 0 && isCHG,
+                          input.value.controls.rp.value < 0  ,
                         'color-success':
-                          input.value.controls.rp.value > 0 && isCHG
+                          input.value.controls.rp.value > 0 
                       }"
                     >
+                    <span *ngIf="!isCHG"> 
                       {{
                         input.value.controls.rp.value
                           | convertTonnes: isCHG
-                          | number: decimalFormat
+                         
                       }}
+                    </span><span *ngIf="isCHG"> 
+                      {{
+                        input.value.controls.rp.value  | number: decimalFormat
+                          
+                         
+                      }}
+                    </span>
                       <strong *ngIf="!isCHG"> ₽</strong>
                       <span *ngIf="isCHG && input.value.controls.rp.value"
                         >%
@@ -580,9 +598,9 @@
                           aria-hidden="true"
                           [ngClass]="{
                             'color-danger fa-arrow-down':
-                              input.value.controls.rp.value < 0 && isCHG,
+                              input.value.controls.rp.value < 0  ,
                             'color-success fa-arrow-up':
-                              input.value.controls.rp.value > 0 && isCHG
+                              input.value.controls.rp.value > 0  
                           }"
                         ></i>
                       </span>
@@ -591,16 +609,24 @@
                       style="padding: 0"
                       [ngClass]="{
                         'color-danger':
-                          input.value.controls.te.value > 0 && isCHG,
+                          input.value.controls.te.value > 0  ,
                         'color-success':
-                          input.value.controls.te.value < 0 && isCHG
+                          input.value.controls.te.value < 0 
                       }"
                     >
+                    <span *ngIf="!isCHG"> 
                       {{
                         input.value.controls.te.value
                           | convertTonnes: isCHG
-                          | number: decimalFormat
+                         
                       }}
+                    </span><span *ngIf="isCHG"> 
+                      {{
+                        input.value.controls.te.value  | number: decimalFormat
+                          
+                         
+                      }}
+                    </span>
                       <strong *ngIf="!isCHG"> ₽</strong>
 
                       <span *ngIf="isCHG && input.value.controls.te.value"
@@ -610,9 +636,9 @@
                           aria-hidden="true"
                           [ngClass]="{
                             'color-danger fa-arrow-up':
-                              input.value.controls.te.value > 0 && isCHG,
+                              input.value.controls.te.value > 0  ,
                             'color-success fa-arrow-down':
-                              input.value.controls.te.value < 0 && isCHG
+                              input.value.controls.te.value < 0  
                           }"
                         ></i>
                       </span>
@@ -666,6 +692,9 @@
       </div>
       <a (click)="resetFormGroup()" class="btn btn-primary mx-2 eq"
         >Reset Scenario</a
+      >
+      <a (click)="open(mymodal)" class="btn btn-primary mx-2 eq"
+        >Load Scenario</a
       >
 
       <a (click)="open(mymodal)" class="btn btn-primary mx-2 eq"

@@ -75,6 +75,7 @@ export interface DialogData {
 })
 export class ScenarioInputComponent implements OnInit {
   @Input('tableData') tableData$: Observable<NewUnit[]>;
+  @Input('units') _units: NewUnit[];
   @Input('simulteFlag') simulteFlag$: Observable<boolean>;
   @Output() simulateSummaryEvent = new EventEmitter<boolean>();
   simulate;
@@ -270,9 +271,13 @@ export class ScenarioInputComponent implements OnInit {
       this.simulatedArray.forEach((e) => {
         if (e.key != 'ALL') {
           this.inputForm.controls[e.key].patchValue({
-            mac: e.simulated.mac,
-            te: e.simulated.te,
-            rp: e.simulated.rp,
+            mac: e.simulated.mac - e.current.mac,
+            te: e.simulated.te - e.current.te,
+            rp: e.simulated.rp - e.current.rp,
+
+            // mac: sarr.simulated.mac - sarr.current.mac,
+            // te: sarr.simulated.te - sarr.current.te,
+            // rp: sarr.simulated.rp -sarr.current.rp,
           });
         }
       });
@@ -288,11 +293,7 @@ export class ScenarioInputComponent implements OnInit {
     // });
   }
   applyFilter() {
-    // console.log(this.retailers.value,"Retailers")
-    // console.log(this.categories.value,"Categories")
-    // console.log(this.products.value, 'Products');
-    // console.log(this.product_filter, 'PRODUC T FILRET');
-    if (this.categories.value && this.categories.value.includes('ALL')) {
+       if (this.categories.value && this.categories.value.includes('ALL')) {
       this.categoryFilterSubject.next(this.categories_filter);
     } else {
       this.categoryFilterSubject.next(this.categories.value);
@@ -315,7 +316,7 @@ export class ScenarioInputComponent implements OnInit {
       // let arr = this.products.value;
       this.productFilterSubject.next(this.products.value);
     }
-
+// debugger;
     combineLatest([
       this.tableData$,
       this.categoryFilterSubject,
@@ -342,7 +343,7 @@ export class ScenarioInputComponent implements OnInit {
         })
       )
       .subscribe((data) => {
-        //  console.log(data , "FILTERED DATA ")
+         console.log(data , "FILTERED DATA ")
         this.aggregate(data);
         //  console.log(data.length , "LENGTH TABLE DATA")
       });
@@ -375,6 +376,7 @@ export class ScenarioInputComponent implements OnInit {
   resetFormGroup() {
     console.log(this.units, 'RESETTING');
     this.api.getData();
+   
     // this.aggregate(this.initUnit);
     this.api.getUnits().subscribe((data) => {
       this.aggregate(data);
@@ -390,18 +392,18 @@ export class ScenarioInputComponent implements OnInit {
     //   this.initUnit = data;
     // });
 
-    let arr = [1, 2, 3];
+    // let arr = [1, 2, 3];
 
-    let sim = arr.map((d) => {
-      let t = new ClassObj(d);
-      return t;
-    });
-    let updated = sim.map((e) => {
-      return new ClassObj(e.id + 100);
-    });
-    console.log(updated, 'UPDATED');
-    console.log(sim, 'SIM');
-    debugger;
+    // let sim = arr.map((d) => {
+    //   let t = new ClassObj(d);
+    //   return t;
+    // });
+    // let updated = sim.map((e) => {
+    //   return new ClassObj(e.id + 100);
+    // });
+    // console.log(updated, 'UPDATED');
+    // console.log(sim, 'SIM');
+    // debugger;
 
     this.simulteFlag$.subscribe((data) => {
       if (data) {
@@ -410,6 +412,15 @@ export class ScenarioInputComponent implements OnInit {
 
       console.log(data, 'OBSERVABLE DATA.......');
     });
+    // this.units = this._units
+    // this.inputList = this.aggregate(this.units);
+    // console.log(this.inputList , "IP")
+    // this.api.getProductFilter().subscribe(data=>{
+    //   // this.products.setValue(data)
+    //   console.log(data , "DATA FILTER ")
+    //   console.log(this.products.value , " CATEGORIES DATA FILTER ")
+    //   // this.applyFilter()
+    // })
     this.tableData$.subscribe((data: NewUnit[]) => {
       console.log(data, 'UNITTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT');
       this.units = data;
@@ -438,6 +449,20 @@ export class ScenarioInputComponent implements OnInit {
         this.product_filter.push(data.product_group);
       });
   }
+  competitionChange(value , input){
+    let val = 0
+    if(value == "Follows"){
+      val = input.value.controls.net_elasticity.value
+    }
+    else{
+      val = input.value.controls.base_price_elasticity_manual.value
+    }
+
+    this.inputForm.controls[input.key].patchValue({
+      base_price_elasticity: val
+     
+    });
+  }
   aggregate(units: NewUnit[]) {
     const group = {};
     let arr = [];
@@ -456,6 +481,7 @@ export class ScenarioInputComponent implements OnInit {
           data.list_price,
           data.retailer_median_base_price,
           data.base_price_elasticity,
+          data.net_elasticity,
           data.competition
         );
 
@@ -495,7 +521,8 @@ export class ScenarioInputComponent implements OnInit {
       rsp_increase: new FormControl(0),
       cogs_increase: new FormControl(0),
       base_price_elasticity: new FormControl(obj.base_price_elasticity_used),
-      base_price_elasticity_manual: new FormControl(0),
+      base_price_elasticity_manual: new FormControl(obj.base_price_elasticity_manual),
+      net_elasticity : new FormControl(obj.net_elasticity),
       competition: new FormControl(obj.competition),
       mac: new FormControl(obj.mac),
       rp: new FormControl(obj.mac),
@@ -508,7 +535,7 @@ export class ScenarioInputComponent implements OnInit {
 
   populateSummary(units: NewUnit[], key) {
     // console.log(units, 'UNITS');
-    // console.log(key, 'KEY');
+    console.log(key, 'KEY');
     // let totalrsv$ =  of(...units).pipe(
     //      reduce((a, b) => a + ((b.base_units)), 0)
     //      )
@@ -633,11 +660,12 @@ export class ScenarioInputComponent implements OnInit {
             baseSummary.get_absolute(SimulateSummary),
             baseSummary.get_percent_change(SimulateSummary)
           );
+          // debugger
           if (key != 'ALL') {
             this.inputForm.controls[key].patchValue({
-              mac: sarr.simulated.mac,
-              te: sarr.simulated.te,
-              rp: sarr.simulated.rp,
+              mac: sarr.simulated.mac - sarr.current.mac,
+              te: sarr.simulated.te - sarr.current.te,
+              rp: sarr.simulated.rp -sarr.current.rp,
             });
             this.expandTable('expand');
           }
@@ -651,6 +679,9 @@ export class ScenarioInputComponent implements OnInit {
           console.log(this.simulatedArray, 'OBSERVABLE COMPLETED..........');
         }
       );
+  }
+  sm(){
+    this.isCHG = false
   }
   simulateFn() {
     this.isCHG = false;
@@ -666,17 +697,19 @@ export class ScenarioInputComponent implements OnInit {
   }
 
   simulateSummary(el?: HTMLElement) {
+    // debugger
     // console.log(this.units, 'CURRENT UNITS11sss');
     this.simulatedArray = [];
     // console.log(this.inputForm.value, 'VALUES');
-    let new_units = { ...this.units };
+    // let new_units = { ...this.units };
 
     // debugger;
     // console.log(Object.values(new_units), 'values');
     // debugger;
 
     let new_unit: NewUnit[] = this.api.updateSimulatedvalue(
-      Object.values(new_units) as NewUnit[],
+      this.units,
+  
       this.inputForm.value,
       this.date_lpi,
       this.date_rsp,

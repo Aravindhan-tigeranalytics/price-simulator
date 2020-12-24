@@ -1,6 +1,6 @@
 import { Observable, BehaviorSubject, Subject, throwError } from 'rxjs';
 import { Injectable } from '@angular/core';
-import { map, tap, catchError, switchMap, mergeMap } from 'rxjs/operators';
+import { map, tap, catchError, switchMap, mergeMap  } from 'rxjs/operators';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import {
   HttpClient,
@@ -11,12 +11,12 @@ import {
 import { ModelMapper, mapJson } from '../models/modelmapper';
 import * as ipdata from '../../data/input1.json';
 import * as pricepool from '../../data/pricepool.json';
-import { from, of } from 'rxjs';
+import { from ,of} from 'rxjs';
 import { UnitModel, NewUnit } from '../models/unit';
 import { ProfitPool } from '../models/profit-pool.model';
 import * as Utils from '../utils/utils';
 import { SimulatedArray } from '../../shared/models/input';
-
+import {environment} from '../../../environments/environment'
 @Injectable({
   providedIn: 'root',
 })
@@ -25,12 +25,19 @@ export class ApiService {
   simulatedArrayObservable = new BehaviorSubject<SimulatedArray[]>([]);
   newUnitObservable = new BehaviorSubject<NewUnit[]>([]);
   newUnitChangeObservable = new BehaviorSubject<NewUnit[]>([]);
+  categoryFilterObservable = new BehaviorSubject<NewUnit[]>([]);
+  productFilterObservable = new BehaviorSubject<any[]>([]);
+  retailerFilterObservable = new BehaviorSubject<NewUnit[]>([]);
 
   constructor(private http: HttpClient) {
     console.log('SERVICE CONSTRUCTOR');
-    this.getData<NewUnit[]>();
+    // this.getData<NewUnit[]>();
   }
 
+
+public  getProductFilter():Observable<any[]>{
+return this.productFilterObservable.asObservable()
+}
   public getSimulatedArray(): Observable<SimulatedArray[]> {
     return this.simulatedArrayObservable.asObservable();
   }
@@ -79,8 +86,8 @@ export class ApiService {
     });
     return t;
   }
-  public getData<T>() {
-    let t = ipdata['Sheet1'].map((data: any) => {
+  public getData() : Observable<NewUnit[]> {
+    let t : NewUnit[] = ipdata['Sheet1'].map((data: any) => {
       let r = new NewUnit(
         data['Category'],
         data['Product Group'],
@@ -140,17 +147,10 @@ export class ApiService {
     });
     this.newUnitObservable.next(t);
     this.newUnitChangeObservable.next(t);
-    // console.log(t , "TTTT")
-    // return this.newUnitObservable.asObservable()
-
-    // return from(ipdata['Sheet1']).pipe(
-
-    //     map(
-    //     (data:any) => data.map((item:any)=>{
-    //             return new ModelMapper(itemType).map(item)
-    //         })
-    //     )
-    // )
+console.log(t , "TTTTTTTTTTTTTT")
+    // return from(t[])
+    return of(t)
+    
   }
   private checkForChanges(obj) {
     return (
@@ -170,6 +170,10 @@ export class ApiService {
     // let units = unit;
 
     // console.log(units, 'BEFORE MANIPULATION');
+    // units.forEach((data)=>{
+    //   var clone = {...data}
+      
+    // })
 
     units.forEach((data) => {
       // for(const i in form){}
@@ -259,16 +263,16 @@ export class ApiService {
     formData.append('savedump', JSON.stringify(form));
     // formData.append('password', credentials.password);
     return this.http.post(
-      'http://localhost:8000/api/scenario/savedscenario/',
+       environment.baseUrl+ '/api/scenario/savedscenario/',
       formData
     );
   }
 
   public getScenario() {
-    return this.http.get('http://localhost:8000/api/scenario/savedscenario/');
+    return this.http.get(  environment.baseUrl+ '/api/scenario/savedscenario/');
   }
   public getExcel() {
-    return this.http.get('http://127.0.0.1:8000/api/scenario/download/', {
+    return this.http.get( environment.baseUrl + '/api/scenario/download/', {
       responseType: 'blob',
     });
   }

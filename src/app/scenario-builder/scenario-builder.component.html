@@ -73,9 +73,10 @@
         <a ngbNavLink (click)="ResetSummary()">Simulator Input</a>
         <ng-template ngbNavContent>
           <app-scenario-input
-            *ngIf="tableData$"
+            *ngIf="units.length > 0"
             [tableData]="tableData$"
             [simulteFlag]="simulateFlag$"
+            [units] = "units"
           ></app-scenario-input>
         </ng-template>
       </li>

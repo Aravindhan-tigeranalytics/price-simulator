@@ -17,6 +17,7 @@ import { HighchartsChartModule } from 'highcharts-angular';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AuthService } from './shared/services/auth.services';
 import { ProfitPoolService } from './shared/services/profit-pool.service';
+import {PriceScenarioService} from './shared/services/price-scenario.service'
 import { ExcelServicesService } from './shared/services/excel.service';
 import { AuthGuard } from './shared/services/auth-guard.service';
 import { ScenarioComparisonComponent } from './scenario-comparison/scenario-comparison.component';
@@ -42,6 +43,7 @@ import { RemoveUnderscorePipe } from './shared/pipes/remove-underscore.pipe';
 import { RemoveUnderPipe } from './remove-under.pipe';
 import { ConvertTonnesPipe } from './convert-tonnes.pipe';
 import { ChangeColorDirective } from './change-color.directive';
+import { PowerbiComponent } from './powerbi/powerbi.component';
 // import {} from './dashboard/'
 
 const routes: Routes = [
@@ -52,6 +54,10 @@ const routes: Routes = [
   {
     path: 'home',
     component: HomeComponent,
+  },
+  {
+    path: 'report',
+    component: PowerbiComponent,
   },
   {
     path: 'scenario',
@@ -141,6 +147,7 @@ const routes: Routes = [
     RemoveUnderPipe,
     ConvertTonnesPipe,
     ChangeColorDirective,
+    PowerbiComponent,
   ],
   imports: [
     BrowserModule,
@@ -158,6 +165,7 @@ const routes: Routes = [
     AuthService,
     AuthGuard,
     ProfitPoolService,
+    PriceScenarioService,
     ExcelServicesService,
     {
       provide: HTTP_INTERCEPTORS,

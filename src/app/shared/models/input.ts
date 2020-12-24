@@ -87,6 +87,7 @@ export class SimulatorInput {
   lpi_percent = 0;
   rsp_precent = 0;
   cogs_percent = 0;
+  net_elasticity : number;
   base_price_elasticity_used: number;
   base_price_elasticity_manual: number;
   competition: number;
@@ -102,6 +103,7 @@ export class SimulatorInput {
     lp,
     rsp,
     base_price_elasticity,
+    net_elasticity,
     competition
   ) {
     this.retailer = retailer;
@@ -111,6 +113,8 @@ export class SimulatorInput {
     // + "-" + this.retailer + "-" + this.category
     this.cogs = cogs;
     this.base_price_elasticity_used = base_price_elasticity;
+    this.base_price_elasticity_manual = base_price_elasticity;
+    this.net_elasticity = net_elasticity;
     this.competition = competition;
     this.lp = lp;
     this.rsp = rsp;

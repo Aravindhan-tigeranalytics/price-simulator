@@ -17,6 +17,7 @@ import {
   tap,
 } from 'rxjs/operators';
 import { ApiService } from '../shared/services/api.service';
+import {PriceScenarioService} from '../shared/services/price-scenario.service'
 import { NewUnit } from '../shared/models/unit';
 @Component({
   selector: 'app-scenario-builder',
@@ -34,12 +35,20 @@ export class ScenarioBuilderComponent implements OnInit {
   categories = new FormControl();
   products = new FormControl();
   simulateFlag$ = new BehaviorSubject<boolean>(false);
-  constructor(private api: ApiService) {}
+  
+  units: NewUnit[];
+  constructor(private api: ApiService , private priceScenario:PriceScenarioService) {}
 
   ngOnInit(): void {
     this.tableData$ = this.api.getUnits();
     this.tableData$.subscribe((data: NewUnit[]) => {
-      this.populateFilter(data);
+      // setTimeout(()=>{
+        this.units = data
+        this.populateFilter(data);
+
+      // },5000)
+      
+     
     });
   }
 
@@ -68,6 +77,10 @@ export class ScenarioBuilderComponent implements OnInit {
     console.log('CLICKED');
   }
 
-  applyFilter() {}
+  applyFilter() {
+    console.log(this.products.value , "values")
+    this.api.productFilterObservable.next(this.products.value)
+    
+  }
   resetFilter() {}
 }

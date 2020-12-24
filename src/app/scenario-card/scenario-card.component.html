@@ -1,6 +1,6 @@
 <div class="card shadows">
   <div class="card-body">
-    <div class="clearfix">
+    <!-- <div class="clearfix">
       <div class="float-right mr-2 mt-1">
         <i
           class="fa fa-window-close"
@@ -9,17 +9,30 @@
         ></i>
       </div>
       <div class="float-right mr-5">
-        <h4>{{ simulated.key }}</h4>
+        <h5>{{ simulated.key }}</h5>
+      </div>
+    </div> -->
+    <div class="d-flex justify-content-around">
+      
+      <div class="">
+        <h5>{{ simulated.key }}</h5>
+      </div>
+      <div class="">
+        <i
+          class="fa fa-window-close"
+          aria-hidden="true"
+          (click)="removeScenario(simulated.key)"
+        ></i>
       </div>
     </div>
 
     <div class="d-flex justify-content-center">
-      <table class="table table-borderless">
-        <tr>
-          <th>ABS Change</th>
-          <th>% Change</th>
+      <table class="table table-borderless pad-0">
+        <tr style="font-size: 11px;">
+          <th style="vertical-align: middle;">ABS Change</th>
+          <th  style="vertical-align: middle;">% Change</th>
         </tr>
-        <tr>
+        <tr class="">
           <td>{{ simulated.absolute_change.units | number: decimalFormat }}</td>
           <td>
             {{ simulated.percent_change.units | number: decimalFormat }} %
