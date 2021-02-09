@@ -1,0 +1,57 @@
+.sec-h{
+    font-family : 'mars-extra-bold';
+    background-color:var(--color-blue-1) ;
+    color:#fff
+  }
+  p.text-muted{
+    // text-align: center;
+    font-family : 'mars-bold'
+  }
+  p.flex-fill{
+    text-align: center;
+    font-family : 'mars-bold'
+  }
+  .tb-tr{
+    height: 46px;
+  }
+  .color-danger {
+    color: red;
+  }
+  .color-success {
+    color: green;
+  }
+  .color-danger::after{
+    font-family: "FontAwesome";
+    content: "\f063";  // both up and down
+    display: inline-block;
+    font-weight: 900; 
+    
+  }
+  .color-success::after{
+    font-family: "FontAwesome";
+    content: "\f062";  // both up and down
+    display: inline-block;
+    font-weight: 900; 
+    
+  }
+  .bar {
+    fill: steelblue;
+  }
+  
+  .highlight {
+    fill: orange;
+  }
+  // .gb:first {
+  //   margin-top: 31px;
+  // }
+  .gb {
+    padding: 10px;
+    //   background: url("../../assets/img/mars-background.jpg") no-repeat;
+    //   color: #fff;
+    //   margin: 11px;
+    //   width: 185px;
+    //   height: 57px;
+    //   margin: 4px;
+    //   margin : 11
+  }
+  

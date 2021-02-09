@@ -1,4 +1,41 @@
-<div class="card shadows">
+<mde-popover
+                      #appPopover="mdePopover"
+                      [mdePopoverOverlapTrigger]="false"
+                      mdePopoverLeaveDelay="1000"
+                    >
+                    <div class="card shadows">
+                      <div class="list-group">
+                        <button type="button" class="list-group-item list-group-item-action active">
+                          Retailers
+                        </button>
+                        <button type="button" class="list-group-item list-group-item-action">
+                          {{filter_used.retailerFilter}}
+                        </button>
+                      </div>
+                      <div class="list-group">
+                        <button type="button" class="list-group-item list-group-item-action active">
+                          Product Group
+                        </button>
+                        <button *ngFor="let product of filter_used.productFilter"
+                         type="button" class="list-group-item list-group-item-action">
+                          {{product}}
+                        </button>
+                      </div>
+                      <div class="list-group">
+                        <button type="button" class="list-group-item list-group-item-action active">
+                          Category
+                        </button>
+                        <button *ngFor="let category of filter_used.categoryFilter"
+                         type="button" class="list-group-item list-group-item-action">
+                          {{category}}
+                        </button>
+                      </div>      
+
+                       
+                    </div>
+                    </mde-popover>
+<div class="card shadows" 
+>
   <div class="card-body">
     <!-- <div class="clearfix">
       <div class="float-right mr-2 mt-1">
@@ -12,10 +49,14 @@
         <h5>{{ simulated.key }}</h5>
       </div>
     </div> -->
-    <div class="d-flex justify-content-around">
+    <!-- [mdePopoverTriggerFor]="appPopover"
+mdePopoverTriggerOn="hover"
+
+#popoverTrigger="mdePopoverTrigger" -->
+    <div class="d-flex justify-content-end">
       
-      <div class="">
-        <h5>{{ simulated.key }}</h5>
+      <div class="mr-5">
+        <p>{{ simulated.key }} <i class="fa fa-info-circle" style="font-size: 15px;" aria-hidden="true"></i></p>
       </div>
       <div class="">
         <i
@@ -33,47 +74,47 @@
           <th  style="vertical-align: middle;">% Change</th>
         </tr>
         <tr class="">
-          <td>{{ simulated.absolute_change.units | number: decimalFormat }}</td>
+          <td>{{ simulated.absolute_change.units |  convertTonnes  }}</td>
           <td>
-            {{ simulated.percent_change.units | number: decimalFormat }} %
+            {{ simulated.percent_change.units |  convertTonnes  }} %
           </td>
         </tr>
         <tr>
           <td>
-            {{ simulated.absolute_change.tonnes | number: decimalFormat }}
+            {{ simulated.absolute_change.tonnes |  convertTonnes  }}
           </td>
           <td>
             {{ simulated.percent_change.tonnes | number: decimalFormat }} %
           </td>
         </tr>
         <tr>
-          <td>{{ simulated.absolute_change.lsv | number: decimalFormat }}</td>
+          <td>{{ simulated.absolute_change.lsv |  convertTonnes }}</td>
           <td>{{ simulated.percent_change.lsv | number: decimalFormat }} %</td>
         </tr>
         <tr>
-          <td>{{ simulated.absolute_change.rsv | number: decimalFormat }}</td>
+          <td>{{ simulated.absolute_change.rsv |  convertTonnes }}</td>
           <td>{{ simulated.percent_change.rsv | number: decimalFormat }} %</td>
         </tr>
         <tr>
-          <td>{{ simulated.absolute_change.nsv | number: decimalFormat }}</td>
+          <td>{{ simulated.absolute_change.nsv|  convertTonnes }}</td>
           <td>{{ simulated.percent_change.nsv | number: decimalFormat }} %</td>
         </tr>
         <tr>
           <td>
-            {{ simulated.absolute_change.nsv_tonnes | number: decimalFormat }}
+            {{ simulated.absolute_change.nsv_tonnes |  convertTonnes }}
           </td>
           <td>
             {{ simulated.percent_change.nsv_tonnes | number: decimalFormat }} %
           </td>
         </tr>
         <tr>
-          <td>{{ simulated.absolute_change.te | number: decimalFormat }}</td>
+          <td>{{ simulated.absolute_change.te |  convertTonnes }}</td>
           <td>{{ simulated.percent_change.te | number: decimalFormat }} %</td>
         </tr>
         <tr>
           <td>
             {{
-              simulated.absolute_change.te_percent_lsv | number: decimalFormat
+              simulated.absolute_change.te_percent_lsv |  convertTonnes
             }}
           </td>
           <td>
@@ -85,20 +126,20 @@
         </tr>
         <tr>
           <td>
-            {{ simulated.absolute_change.te_units | number: decimalFormat }}
+            {{ simulated.absolute_change.te_units |  convertTonnes }}
           </td>
           <td>
             {{ simulated.percent_change.te_units | number: decimalFormat }} %
           </td>
         </tr>
         <tr>
-          <td>{{ simulated.absolute_change.mac | number: decimalFormat }}</td>
+          <td>{{ simulated.absolute_change.mac |  convertTonnes}}</td>
           <td>{{ simulated.percent_change.mac | number: decimalFormat }} %</td>
         </tr>
         <tr>
           <td>
             {{
-              simulated.absolute_change.mac_percent_nsv | number: decimalFormat
+              simulated.absolute_change.mac_percent_nsv |  convertTonnes
             }}
           </td>
           <td>
@@ -109,13 +150,13 @@
           </td>
         </tr>
         <tr>
-          <td>{{ simulated.absolute_change.rp | number: decimalFormat }}</td>
+          <td>{{ simulated.absolute_change.rp |  convertTonnes }}</td>
           <td>{{ simulated.percent_change.rp | number: decimalFormat }} %</td>
         </tr>
         <tr>
           <td>
             {{
-              simulated.absolute_change.rp_percent_rsv | number: decimalFormat
+              simulated.absolute_change.rp_percent_rsv |  convertTonnes
             }}
           </td>
           <td>

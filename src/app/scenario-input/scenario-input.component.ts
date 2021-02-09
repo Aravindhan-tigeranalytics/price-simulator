@@ -8,6 +8,9 @@ import {
   Input,
   Output,
   EventEmitter,
+  OnChanges,
+  ViewChildren,
+  QueryList
 } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -16,8 +19,10 @@ import {
   MatDialogRef,
   MAT_DIALOG_DATA,
 } from '@angular/material/dialog';
-import { NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
+// import { NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
 import { ApiService } from '../shared/services/api.service';
+import {PriceScenarioService} from "../shared/services/price-scenario.service"
+import {ModalService} from "../shared/services/modal.service"
 import { NewUnit } from '../shared/models/unit';
 // import {} from '../simulate-summary-row/simulate-summary-row.component'
 import {
@@ -31,11 +36,19 @@ import {
   of,
   from,
   BehaviorSubject,
+  Subject,
   combineLatest,
+  forkJoin,
   pipe,
+  fromEvent,
+  Subscription,
+
+  
+  
 } from 'rxjs';
 import { FormBuilder, FormGroup, FormArray } from '@angular/forms';
 import { ExcelServicesService } from '../shared/services/excel.service';
+import {FormService} from '../shared/services/form.service'
 
 import {
   distinct,
@@ -45,26 +58,40 @@ import {
   filter,
   tap,
   finalize,
+  debounceTime,
+  startWith,
+  takeUntil,
+
 } from 'rxjs/operators';
 import { Directive } from '@angular/core';
-export interface DialogData {
-  animal: string;
-  name: string;
-}
+// import { debug } from 'console';
+ 
+const compare = (v1: string | number, v2: string | number) => v1 < v2 ? -1 : v1 > v2 ? 1 : 0;
+@Directive({
+  selector: 'span[sortable]',
+  host: {
+    '[class.asc]': 'direction === "asc"',
+    '[class.desc]': 'direction === "desc"',
+    '[class.sortable]': 'direction === ""',
+    '(click)': 'rotate()'
+  }
+})
+export class NgbdSortableHeader {
 
-// @Directive({
-//   selector: '[remove-wrapper]',
-// })
-// export class RemoveWrapperDirective {
-//   constructor(private el: ElementRef) {
-//     console.log(el, 'DIRECTIVE ELEMENT REFERENCE');
-//     const parentElement = el.nativeElement.parentElement;
-//     const element = el.nativeElement;
-//     parentElement.removeChild(element);
-//     parentElement.parentNode.insertBefore(element, parentElement.nextSibling);
-//     parentElement.parentNode.removeChild(parentElement);
-//   }
-// }
+  @Input() sortable: any = '';
+  @Input() direction: string = '';
+  @Output() sort = new EventEmitter<any>();
+  rotateDirection: {[key: string]: any} = { 'asc': 'desc', 'desc': '', '': 'asc' };
+
+  rotate() {
+    // console.log(this.direction , "DIRECTION IN DIRECTIVE")
+   
+   
+    this.direction = this.rotateDirection[this.direction];
+    // console.log(this.direction, "AFTER ROTATE")
+    this.sort.emit({column: this.sortable, direction: this.direction});
+  }
+}
 
 @Component({
   selector: 'app-scenario-input',
@@ -73,11 +100,22 @@ export interface DialogData {
   // directives: []
   // directives:[]
 })
-export class ScenarioInputComponent implements OnInit {
-  @Input('tableData') tableData$: Observable<NewUnit[]>;
-  @Input('units') _units: NewUnit[];
+export class ScenarioInputComponent implements OnInit , OnChanges {
+  @ViewChildren(NgbdSortableHeader) headers: QueryList<NgbdSortableHeader>;
+  // @ViewChildren(NgbdSortableHeader) headers: QueryList<NgbdSortableHeader>;
+  // @Input('tableData') tableData$: Observable<NewUnit[]>;
+  // @Input('units') _units: NewUnit[];
+  private unsubscribe$: Subject<any> = new Subject<any>();
   @Input('simulteFlag') simulteFlag$: Observable<boolean>;
+  // @Input('productFilters') productFilters : [];
+  // @Input('categoryFilters') categoryFilters : [];
+  // @Input('retailerFilters') retailerFilters : [];
+  // @Input('productAvailable') productAvailable : [];
+  // @Input('categoryAvailable') categoryAvailable : [];
+  // @Input('retailerAvailable') retailerAvailable : [];
   @Output() simulateSummaryEvent = new EventEmitter<boolean>();
+  @Output() filtersEvent = new EventEmitter<any>();
+  @Output() saveScenarioEvent = new EventEmitter<any>()
   simulate;
   isSimulate = false;
   date_lpi;
@@ -85,18 +123,22 @@ export class ScenarioInputComponent implements OnInit {
   date_cogs;
   isCHG;
   initialForm = null;
+  scenarios;
+  scenarioArray;
+  selectedScenario = new FormControl();
   // decimalFormat = '1.0-1';
   // simulated_summary_obj = {
 
   // }
-  decimalFormat = '1.0-1';
+  decimalFormat = '1.0-2';
   panelOpenState = false;
-  scenarioComment;
-  scenarioName;
+  scenarioComment="";
+  scenarioName="";
   expanded_flag = false;
   params = ['Current Values', 'Simulated', 'ABS Change', '% Change'];
-  base_summary: SimulatedSummary = new SimulatedSummary(0, 0, 0, 0, 0, 0, 0, 0);
+  base_summary: SimulatedSummary = new SimulatedSummary(0, 0, 0, 0,0, 0, 0, 0, 0);
   simulated_summary: SimulatedSummary = new SimulatedSummary(
+    0,
     0,
     0,
     0,
@@ -112,7 +154,10 @@ export class ScenarioInputComponent implements OnInit {
   products = new FormControl();
   categoryFilterSubject = new BehaviorSubject([]);
   productFilterSubject = new BehaviorSubject([]);
-  retailerFilterSubject = new BehaviorSubject([]);
+  retailerFilterSubject = new BehaviorSubject(null);
+  savedScenario;
+  chosenScenario;
+  // selectedScenario;
 
   inputList: string[];
   categories_filter = [];
@@ -134,16 +179,201 @@ export class ScenarioInputComponent implements OnInit {
   simulatorInput: SimulatorInput[] = new Array();
   simulatedArray: SimulatedArray[] = new Array();
   inputForm: FormGroup;
-
+  myForm : FormGroup;
+  inputFormArray : FormArray
+  minDate: Date = new Date();
+  maxDate: Date = new Date(1950,1,1);
+fg
   constructor(
-    private modalService: NgbModal,
+    private modalService: ModalService,
     private api: ApiService,
     private formBuilder: FormBuilder,
     private excel: ExcelServicesService,
-    private router: Router
+    private router: Router,
+    private formSevice : FormService,
+    private priceScenarioService : PriceScenarioService
   ) {
+    this.inputFormArray = new FormArray([]);
+    this.myForm = this.formBuilder.group({
+      inputFormArray : this.formBuilder.array([])
+    })
+    // this.inputForm = new FormArray([]);
     // this.inputForm = new FormGroup({})
   }
+  ngOnInit(): void {
+    this.fg = this.formSevice.getForms() 
+  
+    // this.myForm.valueChanges.subscribe(data=>{
+    //   this.formSevice.setForms({
+    //     'myform' : data,
+    //     'date_lpi' : this.date_lpi,
+    //     'date_rsp' : this.date_rsp,
+    //     'date_cogs' : this.date_cogs,
+    //     'selectedScenario' : this.selectedScenario,
+    //   })
+
+    // })
+    // this.unsubscribe$.complete();
+    //  this.unsubscribe$.next();
+    
+  this.priceScenarioService.getUnits().pipe(
+    takeUntil(this.unsubscribe$)
+  )
+    .subscribe(data=>{
+      // setTimeout(() => {
+        console.log(data ,"DATA comming")
+        if(data){
+          this.units = data
+          
+      
+            this.init()
+             this.updateForm()
+        this.simulateFn()
+  
+        }
+      
+      // }, 1000);
+      
+    
+     
+      // console.log( this.formSevice.getForms() , "init form service")
+
+      // debugger
+     
+      // this.updateForm()
+      // this.simulateFn()
+      // console.log(data , "table data ")
+    },
+    (err)=>{
+
+    },()=>{
+      console.log("COMPLETED")
+    })
+    // this.myForm()
+    // this.myForm.get('inputFormArray').valueChanges.subscribe(data=>{
+    //   // console.log(data , "INPUT VALUE CHANGES")
+
+    // })
+    
+    this.priceScenarioService.getSimulatedArray().subscribe(data=>{
+      if(data && data.length > 0){
+        this.simulatedArray = data
+      }
+    })
+  
+   
+    this.scrollHeaderPosition = 0;
+    this.filterHeaderPosition = 0;
+ 
+
+    this.simulteFlag$.subscribe((data) => {
+      if (data) {
+        this.simulateFn();
+      }
+
+      
+    });
+    // this.units = this._units
+   
+  }
+
+  downloadExcel(){
+    let form = this.myForm.get('inputFormArray')
+    // console.log(form.value , "form values...")
+    this.excel.exportAsExcelFile(form.value , "modify")
+  }
+  onSort({column, direction}: any) {
+    // console.log(column , "C")
+    // console.log(direction , "DIR")
+    this.headers.forEach(header => {
+      if (header.sortable !== column) {
+        header.direction = '';
+      }
+    });
+    let form = this.myForm.get('inputFormArray')
+    let unsorted =form.value
+    if (direction === '') {
+    // let unsorted =this.inputFormArray.value
+    } else {
+     unsorted = [...unsorted].sort((a, b) => {
+        const res = compare(a[column], b[column]);
+        return direction === 'asc' ? res : -res;
+      });
+    }
+     
+    form.patchValue(unsorted)
+     
+   
+  }
+  sortNull(...args) {
+   return 0
+  }
+  init(){
+    this.inputList = this.aggregate(this.units);
+    if(this.savedScenario){
+      // debugger
+         const control = <FormArray>this.myForm.controls['inputFormArray'];
+    this.savedScenario.formArray.forEach(element => {
+      let form = (this.myForm.get('inputFormArray') as FormArray).
+      controls.find((d:FormGroup)=>d.controls.product_group.value == element.product_group)
+      let obj = {}
+      for (var key of Object.keys(element)) {
+        obj[key] = element[key]
+    }
+    form.patchValue(obj)
+    });
+
+    }
+    
+   
+
+
+  }
+  ngOnChanges(changes) {
+    // console.log(changes , "CCCCCCCCCCCCCCCCCCCCCCCCCCC")
+    if('_units' in changes){
+      if(changes._units.currentValue){
+
+        // this.units = changes._units.currentValue;
+      }
+      
+
+    }
+    // this.init()
+     
+         }
+      updateForm(){
+        // let f : FormGroup =  this.formSevice.getForm();
+        
+        let fr : {} = this.formSevice.getForms();
+        console.log(fr , "FORM s")
+        // debugger
+        if(fr){
+         
+          if(fr['formValue']){
+            this.myForm.get('inputFormArray').patchValue(fr['formValue']['inputFormArray'])
+    
+          }
+          if(fr['date_cogs']){
+            this.date_cogs = fr['date_cogs']
+          }
+          if(fr['date_lpi']){
+            this.date_lpi = fr['date_lpi']
+    
+          }
+          if(fr['date_rsp']){
+            this.date_rsp = fr['date_rsp']
+    
+          }
+          if(fr['selectedScenario']){
+            this.selectedScenario.patchValue(fr['selectedScenario'].value)
+    
+          }
+    
+        }
+   
+       
+      }
   expandTable(flag?) {
     if (flag) {
       if (flag == 'expand') {
@@ -155,114 +385,245 @@ export class ScenarioInputComponent implements OnInit {
       this.expanded_flag = !this.expanded_flag;
     }
 
-    // alert(this.expanded_flag);
+   
   }
   resetDate(date) {
-    // this.date = null;
+    
   }
   csvInputChange(fileInputEvent: any) {
-    console.log(fileInputEvent.target.files[0]);
+     
     const target: DataTransfer = <DataTransfer>fileInputEvent.target;
     const reader: FileReader = new FileReader();
+    let file = target.files[0]
+    // this.api.readExcel(file).subscribe(data=>{
+    //   console.log(data )
+    // },err=>{
+    //   console.log(err, "error")
+    // })
+    // console.log(file , "file")
     reader.readAsBinaryString(target.files[0]);
     reader.onload = (e: any) => {
+     
       this.updateElasiticity(this.excel.read(e.target.result));
     };
   }
   updateElasiticity(data) {
+    console.log(data , "DATA ") 
+    let form = this.myForm.get('inputFormArray') as FormArray
+   
     this.update = true;
+   
     data.forEach((element) => {
-      this.inputForm.controls[element.Product].patchValue({
-        base_price_elasticity: element.Base,
-      });
+      if(element.__rowNum__ > 5){
+        const obj = Object.values(element)
+        form.controls.find(d=>d.get('product_group').value == obj[0]).patchValue({
+
+          base_price_elasticity : Number(obj[3])
+        })
+
+      }
+
+    
+      
     });
   }
-  saveScenario(mymodal) {
+  loadScenario(modal){
+    
+    let selected = this.scenarios.find((p) => p.id === this.selectedScenario.value);
+    let valArr = JSON.parse(selected.savedump)
+    this.savedScenario =  JSON.parse(selected.savedump)
+    // console.log(JSON.parse(selected.savedump), "SAVED DUMP");
+    // console.log(selected , "selected")
+    this.chosenScenario = selected
+    this.scenarioName = this.chosenScenario.name
+    this.scenarioComment = this.chosenScenario.comment
+   
+      
+    this.filtersEvent.emit({
+      product : valArr.productFilter,
+      retailer : valArr.retailerFilter,
+      category : valArr.categoryFilter
+
+    })
+    this.close(modal)
+  
+
+  }
+  deleteScenario(modal){
+    this.api.deleteScenario(this.chosenScenario.id).subscribe(data=>{
+      this.close(modal)
+      // console.log(this.scenarioArray , "SCE ARR")
+      this.scenarioArray.filter(d=>d.id!=this.chosenScenario.id)
+      this.chosenScenario =null
+    })
+
+    // this.close(modal)
+  }
+  editScenario(mymodal){
+    let res ={}
+    res['id'] = this.chosenScenario.id
+    res['formArray'] = this.myForm.get('inputFormArray').value
+    res['scenarioName'] = this.scenarioName
+    res['scenarioComment'] = this.scenarioComment
+    this.saveScenarioEvent.emit(res)
     this.close(mymodal);
-    console.log(mymodal, 'MODAL REF');
-    console.log(this.closebutton, 'CLOSE BUTTON');
-    // this.closebutton.nativeElement.click();
-    this.api
-      .saveScenario(
-        this.scenarioName,
-        this.scenarioComment,
-        this.inputForm.value
-      )
-      .subscribe((data) => {
-        console.log(data, 'RETURN DATA ');
-      });
+  }
+  saveScenario(mymodal) {
+   
+    
+    let res ={}
+    res['formArray'] = this.myForm.get('inputFormArray').value
+    res['scenarioName'] = this.scenarioName
+    res['scenarioComment'] = this.scenarioComment
+    
+    this.saveScenarioEvent.emit(res)
+    this.close(mymodal);
+    
   }
 
   goToDashboard() {
-    this.api.updateUnits(this.inputForm.value);
+     
     this.router.navigate(['dashboard']);
   }
-  increaseValue(key, formname) {
-    console.log(key, 'KEY');
+  modifyForm(form , value){
+    form.patchValue(value)
 
-    let val = this.inputForm.controls[key].get(formname).value;
-    if (formname == 'lpi_increase') {
-      this.inputForm.controls[key].patchValue({
-        lpi_increase: val + 5,
-      });
-    }
-    if (formname == 'rsp_increase') {
-      this.inputForm.controls[key].patchValue({
-        rsp_increase: val + 5,
-      });
-    }
-    if (formname == 'cogs_increase') {
-      this.inputForm.controls[key].patchValue({
-        cogs_increase: val + 5,
-      });
-    }
   }
-  decreaseValue(key, formname) {
-    console.log(key, 'KEY');
-    // console.log(lpi_increase, 'LPI');
+  private checkValue(value,val){
+    let inc_per ;
+      if(value == ""){
+        inc_per = ''
+      }
+      else if (value < 0){
+        inc_per = 0
+      }
 
-    let val = this.inputForm.controls[key].get('lpi_increase').value;
-    // debugger;
+      else if(value){
+        
+inc_per = Number(value)
+      }
+     
+      else{
+        inc_per = val + 5
+      }
+      return inc_per
+      
+
+  }
+  increaseValue(formGroup, formname,index,value?) {
+    
+    let form  = this.myForm.get('inputFormArray') as FormArray
     if (formname == 'lpi_increase') {
-      this.inputForm.controls[key].patchValue({
-        lpi_increase: val - 5,
-      });
+      let val = formGroup.controls.lpi_increase.value;
+      let cur_lpi = formGroup.controls.current_lpi.value;
+      let inc_per = this.checkValue(value , val)
+      let inc_lpi = cur_lpi * (inc_per / 100)
+      let v = {
+        lpi_increase: inc_per,
+        increased_lpi : cur_lpi +inc_lpi
+
+
+      }
+      this.modifyForm( form.at(index) , v)
+     
     }
     if (formname == 'rsp_increase') {
-      this.inputForm.controls[key].patchValue({
-        rsp_increase: val - 5,
-      });
+      let val = formGroup.controls.rsp_increase.value;
+      let cur_rsp = formGroup.controls.current_rsp.value;
+      let inc_per = this.checkValue(value , val)
+      let inc_rsp = cur_rsp * (inc_per / 100)
+      form.at(index).patchValue({
+        rsp_increase: inc_per,
+        increased_rsp : cur_rsp +inc_rsp
+
+      })
+       
     }
     if (formname == 'cogs_increase') {
-      this.inputForm.controls[key].patchValue({
-        cogs_increase: val - 5,
-      });
+      let val = formGroup.controls.cogs_increase.value;
+      let cur_cogs = formGroup.controls.current_cogs.value;
+      let inc_per = this.checkValue(value , val)
+      let inc_cogs = cur_cogs * (inc_per / 100)
+      form.at(index).patchValue({
+        cogs_increase: inc_per,
+        increased_cogs : cur_cogs +inc_cogs
+
+
+      })
+      
+   
+
+     
+  }
+  
+}
+  decreaseValue(formGroup, formname , index?) {
+    let form  = this.myForm.get('inputFormArray') as FormArray
+    if (formname == 'lpi_increase') {
+      let val = formGroup.controls.lpi_increase.value;
+      let cur_lpi = formGroup.controls.current_lpi.value;
+      let inc_per = val - 5
+      if(inc_per < 0){
+        inc_per = 0 
+      }
+      let inc_lpi = cur_lpi * (inc_per / 100)
+      form.at(index).patchValue({
+        lpi_increase: inc_per,
+        increased_lpi : cur_lpi + inc_lpi
+
+      })
+       
     }
+    if (formname == 'rsp_increase') {
+      let val = formGroup.controls.rsp_increase.value;
+      let cur_rsp = formGroup.controls.current_rsp.value;
+      let inc_per = val - 5
+      if(inc_per < 0){
+        inc_per = 0 
+      }
+      let inc_rsp = cur_rsp * (inc_per / 100)
+      form.at(index).patchValue({
+        rsp_increase: inc_per,
+        increased_rsp : cur_rsp + inc_rsp
+
+      })
+    
+    }
+    if (formname == 'cogs_increase') {
+      let val = formGroup.controls.cogs_increase.value;
+      let cur_cogs = formGroup.controls.current_cogs.value;
+      let inc_per = val - 5
+      if(inc_per < 0){
+        inc_per = 0 
+      }
+      let inc_cogs = cur_cogs * (inc_per / 100)
+      form.at(index).patchValue({
+        cogs_increase: inc_per,
+        increased_cogs : cur_cogs + inc_cogs
+
+      })
+     
+    }
+
+  
   }
 
   toggleChange(e) {
     this.isCHG = e.checked;
-    // let sarr = new SimulatedArray(
-    //   key,
-    //   baseSummary,
-    //   SimulateSummary,
-    //   baseSummary.get_absolute(SimulateSummary),
-    //   baseSummary.get_percent_change(SimulateSummary)
-    // );
-    // if (key != 'ALL') {
-    //   this.inputForm.controls[key].patchValue({
-    //     mac: sarr.simulated.mac,
-    //     te: sarr.simulated.te,
-    //     rp: sarr.simulated.rp,
-    //   });
-    // }
-    // console.log(, 'EVENT');
-    if (e.checked) {
+    // console.log(this.simulatedArray , "sim arr")
+         if (e.checked) {
       this.simulatedArray.forEach((e) => {
         if (e.key != 'ALL') {
-          this.inputForm.controls[e.key].patchValue({
-            mac: e.percent_change.mac,
+          
+          let form  = (this.myForm.get('inputFormArray') as FormArray).
+          controls.find((d:FormGroup)=>d.controls.product_group.value == e.key)
+          
+         form.patchValue({
+           tonnes : e.percent_change.tonnes,
+            mac:  e.percent_change.mac,
             te: e.percent_change.te,
+            rsv:e.percent_change.rsv,
+            nsv:e.percent_change.nsv,
             rp: e.percent_change.rp,
           });
         }
@@ -270,89 +631,102 @@ export class ScenarioInputComponent implements OnInit {
     } else {
       this.simulatedArray.forEach((e) => {
         if (e.key != 'ALL') {
-          this.inputForm.controls[e.key].patchValue({
-            mac: e.simulated.mac - e.current.mac,
-            te: e.simulated.te - e.current.te,
+           
+          let form  = (this.myForm.get('inputFormArray') as FormArray).
+          controls.find((d:FormGroup)=>d.controls.product_group.value == e.key)
+          
+         form.patchValue({
+           
+           tonnes : e.simulated.tonnes  - e.current.tonnes,
+            mac:  e.simulated.mac - e.current.mac,
+            te:  e.simulated.te - e.current.te,
+            rsv : e.simulated.rsv - e.current.rsv,
+            nsv : e.simulated.nsv - e.current.nsv,
             rp: e.simulated.rp - e.current.rp,
-
-            // mac: sarr.simulated.mac - sarr.current.mac,
-            // te: sarr.simulated.te - sarr.current.te,
-            // rp: sarr.simulated.rp -sarr.current.rp,
           });
         }
       });
     }
   }
   openDialog(): void {
-    // const dialogRef: MatDialogRef<DialogOverviewExampleDialog>= this.dialog.open(DialogOverviewExampleDialog, {
-    //   width: '250px',
-    //   data: {name: 'sdfsdfsdf', animal: 'ssdsd'}
-    // });
-    // dialogRef.afterClosed().subscribe(result => {
-    //   console.log('The dialog was closed');
-    // });
+    
   }
-  applyFilter() {
-       if (this.categories.value && this.categories.value.includes('ALL')) {
-      this.categoryFilterSubject.next(this.categories_filter);
-    } else {
-      this.categoryFilterSubject.next(this.categories.value);
-    }
-    if (this.retailers.value && this.retailers.value.includes('ALL')) {
-      this.retailerFilterSubject.next(this.retailer_filter);
-    } else {
-      this.retailerFilterSubject.next(this.retailers.value);
-    }
-    if (this.products.value && this.products.value.includes('ALL')) {
-      let arr = this.products.value;
-      // console.log(arr, 'ARARAA');
-      arr.push(...this.product_filter);
-      // console.log(arr, 'AFTER PUSH');
-      // console.log([...new Set(arr)], 'UNIQUE');
-      // && this.products.value.includes('ALL')
-      this.productFilterSubject.next(arr);
-    } else {
-      // console.log(this.products.value, 'ARARAA else');
-      // let arr = this.products.value;
-      this.productFilterSubject.next(this.products.value);
-    }
-// debugger;
-    combineLatest([
-      this.tableData$,
-      this.categoryFilterSubject,
-      this.productFilterSubject,
-      this.retailerFilterSubject,
-    ])
-      .pipe(
-        map(([units, category, product, retailer]) => {
-          // console.log(category , "CATEGORY")
+//   applyFilter() {
+//        if (this.categories.value && this.categories.value.includes('ALL')) {
+//       this.categoryFilterSubject.next(this.categories_filter);
+//     } else {
+//       this.categoryFilterSubject.next(this.categories.value);
+//     }
+//     if (this.retailers.value && this.retailers.value.includes('ALL')) {
+//       this.retailerFilterSubject.next(this.retailer_filter);
+//     } else {
+//       this.retailerFilterSubject.next(this.retailers.value);
+//     }
+//     if (this.products.value && this.products.value.includes('ALL')) {
+//       let arr = this.products.value;
+     
+//       arr.push(...this.product_filter);
+    
+//       this.productFilterSubject.next(arr);
+//     } else {
+      
+//       this.productFilterSubject.next(this.products.value);
+//     }
 
-          if (category) {
-            units = units.filter((unit) => category.includes(unit.category));
-          }
-          if (product) {
-            units = units.filter((unit) =>
-              product.includes(unit.product_group)
-            );
-          }
-          if (retailer) {
-            units = units.filter((unit) => retailer.includes(unit.retailer));
-          }
+  
 
-          return units;
-        })
-      )
-      .subscribe((data) => {
-         console.log(data , "FILTERED DATA ")
-        this.aggregate(data);
-        //  console.log(data.length , "LENGTH TABLE DATA")
-      });
+
+// this.filterSummary();
+
+
+
+//     combineLatest([
+//       this.tableData$,
+//       this.categoryFilterSubject,
+//       this.productFilterSubject,
+//       this.retailerFilterSubject,
+//     ])
+//       .pipe(
+//         map(([units, category, product, retailer]) => {
+        
+//           if (category) {
+//             units = units.filter((unit) => category.includes(unit.category));
+//           }
+//           if (product) {
+//             units = units.filter((unit) =>
+//               product.includes(unit.product_group)
+//             );
+//           }
+//           if (retailer) {
+//             units = units.filter((unit) => retailer.includes(unit.retailer));
+//           }
+//           // this.simulatedArray = this.simulatedArray.filter(d=>d.key == unit.product_group)
+
+//           return units;
+//         })
+//       )
+//       .subscribe((data) => {
+//         //  console.log(data , "FILTERED DATA ")
+//         this.aggregate(data);
+       
+
+       
+         
+//       });
+//   }
+  filterSummary(){
+
+
+    let products = this.productFilterSubject.getValue()
+    // console.log(products, "FILTER SIMILATED PRODUCTS")
+    this.priceScenarioService.filterSimulatedSummary(products)
+
   }
   resetFilter() {
     this.categories.reset();
     this.retailers.reset();
     this.products.reset();
-    this.applyFilter();
+    // this.applyFilter();
   }
   downloadSummary() {
     let data = JSON.parse(JSON.stringify(this.simulatedArray));
@@ -361,82 +735,53 @@ export class ScenarioInputComponent implements OnInit {
       'summary'
     );
   }
+  openScenario(content){
+    this.api.getScenario().subscribe((data: any[]) => {
+      // console.log(data, 'GET DATA');
+      this.scenarios = data;
+      this.scenarioArray = data.map((d) => ({ name: d.name, id: d.id }));
+      // console.log(this.scenarioArray, 'SELECTED SCENARIO');
+      this.open(content)
+    });
+   
+
+  }
 
   open(content) {
-    this.modalService
-      .open(content, { ariaLabelledBy: 'modal-basic-title' })
-      .result.then(
-        (result) => {},
-        (reason) => {}
-      );
+    this.modalService.open(content)
+      
   }
   close(content) {
-    this.modalService.dismissAll(content);
+    this.modalService.close(content);
   }
   resetFormGroup() {
-    console.log(this.units, 'RESETTING');
-    this.api.getData();
+    this.resetFilter()
+    this.priceScenarioService.setSimulatedArray([]);
+    this.formSevice.setForm(null)
+    this.formSevice.setForms(null);
+     
+    this.date_lpi = null
+    this.date_rsp = null
+    this.date_cogs = null
+    this.selectedScenario.patchValue('')
+    this.savedScenario = null;
+
+    
+      
+    this.aggregate(this.units);
+    this.update = false;
+    this.expandTable('close');
    
-    // this.aggregate(this.initUnit);
-    this.api.getUnits().subscribe((data) => {
-      this.aggregate(data);
-      this.update = false;
-      this.expandTable('close');
-    });
+    
   }
-
-  ngOnInit(): void {
-    this.scrollHeaderPosition = 0;
-    this.filterHeaderPosition = 0;
-    // this.api.getUnitsChange().subscribe((data) => {
-    //   this.initUnit = data;
-    // });
-
-    // let arr = [1, 2, 3];
-
-    // let sim = arr.map((d) => {
-    //   let t = new ClassObj(d);
-    //   return t;
-    // });
-    // let updated = sim.map((e) => {
-    //   return new ClassObj(e.id + 100);
-    // });
-    // console.log(updated, 'UPDATED');
-    // console.log(sim, 'SIM');
-    // debugger;
-
-    this.simulteFlag$.subscribe((data) => {
-      if (data) {
-        this.simulateFn();
-      }
-
-      console.log(data, 'OBSERVABLE DATA.......');
-    });
-    // this.units = this._units
-    // this.inputList = this.aggregate(this.units);
-    // console.log(this.inputList , "IP")
-    // this.api.getProductFilter().subscribe(data=>{
-    //   // this.products.setValue(data)
-    //   console.log(data , "DATA FILTER ")
-    //   console.log(this.products.value , " CATEGORIES DATA FILTER ")
-    //   // this.applyFilter()
-    // })
-    this.tableData$.subscribe((data: NewUnit[]) => {
-      console.log(data, 'UNITTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT');
-      this.units = data;
-      // this.initUnit = Object.values({ ...data }) as NewUnit[];
-
-      this.inputList = this.aggregate(this.units);
-      console.log(this.inputList, 'IP LIST');
-      this.populateFilter(this.units);
-    });
-  }
+ 
 
   populateFilter(datas) {
     of(...datas)
       .pipe(distinct((unit: NewUnit) => unit.category))
       .subscribe((data) => {
         this.categories_filter.push(data.category);
+
       });
     of(...datas)
       .pipe(distinct((unit: NewUnit) => unit.retailer))
@@ -447,101 +792,232 @@ export class ScenarioInputComponent implements OnInit {
       .pipe(distinct((unit: NewUnit) => unit.product_group))
       .subscribe((data) => {
         this.product_filter.push(data.product_group);
+        // console.log(this.product_filter , "PRODUCT FILTER ")
       });
   }
-  competitionChange(value , input){
+  competitionChange(value , input , index?){
+    // this.inputFormArray.at(index).patchValue({
+    //   rsp_increase: val + 5,
+    // })
     let val = 0
+    // debugger
     if(value == "Follows"){
-      val = input.value.controls.net_elasticity.value
+      val = input.controls.net_elasticity.value
     }
     else{
-      val = input.value.controls.base_price_elasticity_manual.value
+      val = input.controls.base_price_elasticity_manual.value
     }
-
-    this.inputForm.controls[input.key].patchValue({
+    
+    (this.myForm.get('inputFormArray') as FormArray).at(index).patchValue({
       base_price_elasticity: val
+    })
+
+    // input.controls.patchValue({
+    //   base_price_elasticity: val
      
-    });
+    // });
   }
   aggregate(units: NewUnit[]) {
+    // debugger
+    // console.log(units , "UNITS AGGREGATE")
+    // this.inputFormArray.reset()
+    let f1 = (this.myForm.get('inputFormArray') as FormArray)
+    f1.clear()
+    // console.log(f1, "f111")
+    // this.myForm.get('inputFormArray').patchValue([])
+    this.inputFormArray = new FormArray([]);
+    // console.log("AGGREGATE")
     const group = {};
     let arr = [];
     this.simulatorInput = new Array();
+    let weight = {
+
+    }
     units.forEach((data) => {
+      // debugger
+      this.minDate = this.minDate > data.date ? data.date : this.minDate
+      this.maxDate = this.maxDate < data.date ? data.date : this.maxDate
       let str = data.product_group;
       //  + "-" + data.retailer + "-" + data.category
       if (arr.includes(str)) {
+        let arr2 : FormArray = this.myForm.get('inputFormArray') as FormArray;
+        let form = arr2.controls.find((d : FormGroup)=>d.controls.product_group_retailer.value == str)
+        let prev = form.value.base_price_elasticity
+        let val_lpi = ( prev+ data.base_price_elasticity)
+        // weight[str] = weight[str] + 1
+        weight[str]['count'] = weight[str]['count'] + 1
+        weight[str]['b*u']  = weight[str]['b*u'] + (data.base_price_elasticity * data.base_units)
+        weight[str]['units'] = weight[str]['units'] + data.base_units
+        // console.log(val_lpi , "BASE PRICE ELASITICITY")
+        // let val_rsp = form.value.current_rsp + data.retailer_median_base_price
+        // let val_cogs = form.value.current_cogs + data.mars_cogs_per_unit
+        // data.mars_cogs_per_unit,
+        // data.list_price,
+        // data.retailer_median_base_price,
+        // form.patchValue({
+        //   base_price_elasticity  :val_lpi,
+          
+        // })
+        // console.log(arr2)
+        // debugger
+      // arr2.controls.find(d=>d.value)
+          // debugger
+          // arr2.push(this.getFormGroup(obj));
       } else {
         arr.push(str);
+        weight[str] = {
+          'count' : 0,
+          'b*u' : data.base_price_elasticity * data.base_units,
+          'units' : data.base_units
+        };
         let obj = new SimulatorInput(
           data.retailer,
           data.category,
           data.product_group,
           data.mars_cogs_per_unit,
           data.list_price,
-          data.retailer_median_base_price,
+          data.retailer_median_base_price_w_o_vat,
           data.base_price_elasticity,
           data.net_elasticity,
           data.competition
         );
 
+
+
         // console.log(obj , "OBBBB")
         if (obj) {
           this.simulatorInput.push(obj);
-          group[str] = new FormGroup(this.getFormGroup(obj));
+
+          let arr1 : FormArray = this.myForm.get('inputFormArray') as FormArray;
+          // debugger
+          arr1.push(this.getFormGroup(obj));
+          // let form =  this.getFormGroup(obj)
+          // group[str] = form
+          // this.inputFormArray.push(form)
+        
         }
       }
+      // console.log(weight , "WEIGHT")
     });
-    this.initialForm = group;
+    // console.log(this.minDate , "DATE-MIN")
+    // console.log(this.maxDate , "DATE-MIN MAX")
+    // console.log(this.myForm,"FORM ARRAY VALUES myform")
+    // console.log(weight , "WEiGHT WEiGHT WEiGHT WEiGHT WEiGHT ")
+    for (const i in weight){
+      // console.log(i , "iii")
+      weight[i]['el']  = weight[i]['b*u'] / weight[i]['units']
+    }
+    // console.log(weight , "WEiGHT WEiGHT WEiGHT WEiGHT WEiGHT ")
+    let form = this.myForm.get('inputFormArray') as FormArray;
+    // console.log(form , "FORM ARRAY VALUES")
+   for(const obj in weight){
+    let ctrl = form.controls.find((d : FormGroup)=>d.controls.product_group_retailer.value == obj)
+    
+    // let weighted_value =  Math.round(((prev/weight[obj])+ Number.EPSILON) * 100) / 100
+    let weighted_value =  weight[obj]['el'].toFixed(2)
+    ctrl.patchValue({
+     
+      base_price_elasticity:weighted_value,
+      base_price_elasticity_manual:  weighted_value
 
-    console.log(group, 'GROUP FOR FOM');
-    this.inputForm = new FormGroup(group);
-    // this.inputForm.valueChanges.subscribe(data=>{
-    //   console.log(data , "FORMV VALUE CHANEGS")
+    })
 
-    // })
-    // console.log(this.inputForm , "INPUT FORM VALUES")
-    // console.log(this.simulatorInput , "ACTUAL DATA ")
+   }
+    // 
+   
+   
+     
+    this.expandTable('close')
+
+  
     return arr;
+  }
+  sortForm(column , direction){
+    let f = this.simulatorInput
+    this.simulatorInput = [...f].sort((a, b) => {
+      const res = compare(a[column], b[column]);
+      return direction === 'asc' ? res : -res;
+    });
+
+
   }
   //   getVal(obj){
   //     console.log(obj , "OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO")
   // return true
   //   }
   private getFormGroup(obj: SimulatorInput) {
-    return {
-      product_group: new FormControl(obj.product_group),
-      retailer: new FormControl(obj.retailer),
-      category: new FormControl(obj.category),
-      product_group_retailer: new FormControl(obj.ret_cat_prod),
-      current_lpi: new FormControl(obj.lp),
-      current_rsp: new FormControl(obj.rsp),
-      current_cogs: new FormControl(obj.cogs),
-      lpi_increase: new FormControl(0),
-      rsp_increase: new FormControl(0),
-      cogs_increase: new FormControl(0),
-      base_price_elasticity: new FormControl(obj.base_price_elasticity_used),
-      base_price_elasticity_manual: new FormControl(obj.base_price_elasticity_manual),
-      net_elasticity : new FormControl(obj.net_elasticity),
-      competition: new FormControl(obj.competition),
-      mac: new FormControl(obj.mac),
-      rp: new FormControl(obj.mac),
-      te: new FormControl(obj.te),
-      // lpi_date: new FormControl(),
-      // rsp_date: new FormControl(),
-      // cogs_date: new FormControl(),
-    };
+
+    return this.formBuilder.group({
+        product_group: [obj.product_group],
+      retailer: [obj.retailer],
+      category: [obj.category],
+      product_group_retailer: [obj.ret_cat_prod],
+      current_lpi: [obj.lp],
+      increased_lpi : [obj.lp],
+      current_rsp:  [obj.rsp],
+      increased_rsp:  [obj.rsp],
+      current_cogs: [obj.cogs],
+      increased_cogs: [obj.cogs],
+      lpi_increase: [0],
+      rsp_increase: [0],
+      cogs_increase:[0],
+      base_price_elasticity: [obj.base_price_elasticity_used],
+      base_price_elasticity_manual: [obj.base_price_elasticity_manual],
+      net_elasticity : [obj.net_elasticity],
+      competition:  [obj.competition],
+      tonnes : [obj.tonnes],
+      rsv : [obj.rsv],
+      mac: [obj.mac],
+      rp: [obj.rp],
+      nsv : [obj.nsv],
+      te:  [obj.te],
+
+    })
+    // return {
+    //   product_group: new FormControl(obj.product_group),
+    //   retailer: new FormControl(obj.retailer),
+    //   category: new FormControl(obj.category),
+    //   product_group_retailer: new FormControl(obj.ret_cat_prod),
+    //   current_lpi: new FormControl(obj.lp),
+    //   current_rsp: new FormControl(obj.rsp),
+    //   current_cogs: new FormControl(obj.cogs),
+    //   lpi_increase: new FormControl(0),
+    //   rsp_increase: new FormControl(0),
+    //   cogs_increase: new FormControl(0),
+    //   base_price_elasticity: new FormControl(obj.base_price_elasticity_used),
+    //   base_price_elasticity_manual: new FormControl(obj.base_price_elasticity_manual),
+    //   net_elasticity : new FormControl(obj.net_elasticity),
+    //   competition: new FormControl(obj.competition),
+    //   mac: new FormControl(obj.mac),
+    //   rp: new FormControl(obj.mac),
+    //   te: new FormControl(obj.te),
+    //   // lpi_date: new FormControl(),
+    //   // rsp_date: new FormControl(),
+    //   // cogs_date: new FormControl(),
+    // };
   }
 
   populateSummary(units: NewUnit[], key) {
-    // console.log(units, 'UNITS');
-    console.log(key, 'KEY');
-    // let totalrsv$ =  of(...units).pipe(
-    //      reduce((a, b) => a + ((b.base_units)), 0)
-    //      )
-    let total_base$ = of(...units).pipe(reduce((a, b) => a + b.base_units, 0));
+    // console.log(units , key , "SIMULATED AT}RRAY incoming units key")
+    
+    let total_base$ = of(...units).pipe(
+      reduce((a, b) => a + Number(b.base_units.toFixed(2)),0)
+      );
+    let category$ = of(...units)
+    .pipe(
+      map(data => Array.from(new Set(data.category))),
+    )
+    
+      // .pipe(
+        
+      //   distinct((unit) => unit.category)
+      //   )
+    let retailer$ = of(...units)
+      .pipe(distinct((unit) => unit.retailer))
+    let product$ = of(...units)
+      .pipe(distinct((unit) => unit.product_group))
+     
     let total_base_new$ = of(...units).pipe(
-      // filter(data=>data.category === category),
       reduce((a, b) => a + b.new_base_units, 0)
     );
     let total_weight_in_tons$ = of(...units).pipe(
@@ -555,7 +1031,9 @@ export class ScenarioInputComponent implements OnInit {
       reduce((a, b) => a + b.total_lsv_new, 0)
     );
     let total_rsv$ = of(...units).pipe(
-      reduce((a, b) => a + b.total_rsv_w_o_vat, 0)
+      
+      reduce((a, b) => a + b.total_rsv_w_o_vat, 0),
+     
     );
     let total_rsv_new$ = of(...units).pipe(
       reduce((a, b) => a + b.total_rsv_w_o_vat_new, 0)
@@ -564,6 +1042,8 @@ export class ScenarioInputComponent implements OnInit {
     let total_nsv_new$ = of(...units).pipe(
       reduce((a, b) => a + b.total_nsv_new, 0)
     );
+    let total_cogs$ = of(...units).pipe(reduce((a, b) => a + b.total_cogs, 0));
+    let total_cogs_new$ = of(...units).pipe(reduce((a, b) => a + b.total_cogs_new, 0));
 
     let trade_expense$ = of(...units).pipe(
       reduce((a, b) => a + b.trade_expense, 0)
@@ -594,16 +1074,21 @@ export class ScenarioInputComponent implements OnInit {
       total_rsv_new$,
       total_nsv$,
       total_nsv_new$,
+      total_cogs$,
+      total_cogs_new$,
       trade_expense$,
       trade_expense_new$,
       mars_mac$,
       mars_mac_new$,
       retailer_margin$,
       retailer_margin_new$,
+      retailer$,
+      category$,
+      product$
     ])
       .pipe(
         finalize(() => {
-          console.log(this.simulatedArray, 'FINAAALLLLLLLLLLLLLL');
+          // console.log(this.simulatedArray, 'FINAAALLLLLLLLLLLLLL');
         })
       )
 
@@ -619,19 +1104,27 @@ export class ScenarioInputComponent implements OnInit {
           total_rsv_new,
           total_nsv,
           total_nsv_new,
+          total_cogs,
+          total_cogs_new,
           trade_expense,
           trade_expense_new,
           mars_mac,
           mars_mac_new,
           retailer_margin,
           retailer_margin_new,
+          retialer,
+          category,
+          product
         ]) => {
+ 
+          
           let baseSummary = new SimulatedSummary(
             total_base,
             total_weight_in_tons,
             total_lsv,
             total_rsv,
             total_nsv,
+            total_cogs,
             trade_expense,
             mars_mac,
             retailer_margin
@@ -642,119 +1135,136 @@ export class ScenarioInputComponent implements OnInit {
             total_lsv_new,
             total_rsv_new,
             total_nsv_new,
+            total_cogs_new,
             trade_expense_new,
             mars_mac_new,
             retailer_margin_new
           );
           // console.log(key, 'FOR KEY');
-          // console.log(baseSummary, 'BASE SUMMARY');
-          // console.log(SimulateSummary, 'SIMULATED SUMMARY');
+          // console.log(category, 'FOR KEY category');
+          // console.log(retialer, 'FOR KEY retailer');
+          // console.log(baseSummary, 'FOR KEY BASE SUMMARY');
+          // console.log(SimulateSummary, 'FOR KEY SIMULATED SUMMARY');
           this.base_summary = baseSummary;
           this.simulated_summary = SimulateSummary;
           // let f = this.inputForm;
           // debugger;
           let sarr = new SimulatedArray(
             key,
+          category,
+          retialer,
+          // product,
             baseSummary,
             SimulateSummary,
             baseSummary.get_absolute(SimulateSummary),
             baseSummary.get_percent_change(SimulateSummary)
           );
+          // console.log(sarr, 'FOR KEY SIMULATED SUMMARY sarrrrrrr' );
           // debugger
           if (key != 'ALL') {
-            this.inputForm.controls[key].patchValue({
+            let form  = (this.myForm.get('inputFormArray') as FormArray).
+            controls.find((d:FormGroup)=>d.controls.product_group.value == key)
+            // let arr = this.myForm.get('inputFormArray') as FormArray
+            // arr.controls.find(d=>d.controls.product_group.value == key)
+            // arr.controls[0].value.product_group
+            // debugger;
+           form.patchValue({
+             tonnes:sarr.simulated.tonnes - sarr.current.tonnes,
               mac: sarr.simulated.mac - sarr.current.mac,
               te: sarr.simulated.te - sarr.current.te,
+              rsv:sarr.simulated.rsv - sarr.current.rsv,
+              nsv:sarr.simulated.nsv - sarr.current.nsv,
               rp: sarr.simulated.rp -sarr.current.rp,
             });
-            this.expandTable('expand');
+            // this.expandTable('expand');
+          }
+          // if(sarr.key)
+          let sindex = this.simulatedArray.findIndex(d=>d.key == sarr.key)
+          // console.log(sarr.key , sindex , "key and index")
+          if (sindex > -1) {
+            this.simulatedArray.splice(sindex, 1);
           }
 
           this.simulatedArray.push(sarr);
-          console.log(this.simulatedArray, 'SIMULATED AT}RRAY');
+          // console.log(this.simulatedArray, 'SIMULATED AT}RRAY');
         },
         (err) => {},
         () => {
-          this.api.setSimulatedArray(this.simulatedArray);
-          console.log(this.simulatedArray, 'OBSERVABLE COMPLETED..........');
+          this.priceScenarioService.setSimulatedArray(this.simulatedArray);
+          // console.log(this.simulatedArray, 'OBSERVABLE COMPLETED..........');
         }
       );
   }
   sm(){
     this.isCHG = false
   }
-  simulateFn() {
+  simulateFn(expand?) {
+    console.log(expand , "expand flag")
+    if(expand){
+      this.expandTable('expand');
+    }
     this.isCHG = false;
-    // let new_unit: NewUnit[] = this.api.updateSimulatedvalue(
-    //   this.inputForm.value
-    // );
-    // this.inputForm.controls[key].patchValue({
-    //   mac: sarr.simulated.mac,
-    //   te: sarr.simulated.te,
-    //   rp: sarr.simulated.rp,
-    // });
+  
     this.simulateSummary();
+    
   }
 
   simulateSummary(el?: HTMLElement) {
-    // debugger
-    // console.log(this.units, 'CURRENT UNITS11sss');
+    
+     
     this.simulatedArray = [];
-    // console.log(this.inputForm.value, 'VALUES');
-    // let new_units = { ...this.units };
+    
+    let form = this.myForm.get('inputFormArray') as FormArray
+     
+    // console.log(form.value , "form value")
+     
+    let product_group = form.value.map(d=>d.product_group)
+     
+var values = form.controls.map(d=>d.dirty)
 
-    // debugger;
-    // console.log(Object.values(new_units), 'values');
-    // debugger;
-
-    let new_unit: NewUnit[] = this.api.updateSimulatedvalue(
+var result = {};
+product_group.forEach((key, i) => result[key] = values[i]);
+ 
+    product_group.unshift('ALL')
+    
+     
+    let new_unit: NewUnit[] = this.priceScenarioService.updateSimulatedvalue(
       this.units,
   
-      this.inputForm.value,
+      result,
+      this.myForm.get('inputFormArray').value,
       this.date_lpi,
       this.date_rsp,
 
       this.date_cogs
     );
-    // console.log(new_unit, 'NEW UNIT');
-    // console.log(this.units, 'CURRENT UNITS');
-    //  this.aggregate(new_unit)
-    let products = this.productFilterSubject.getValue();
-    if (products.length == 0) {
-      products.push('ALL');
-      this.product_filter.forEach((e) => {
-        products.push(e);
+    this.priceScenarioService.setNewChange(new_unit);
+    // console.log(product_group , "PRODUCT GROUPGROUP3")
+    // this.simulatedArray = []
+    product_group.forEach((p) => {
+      if(p == "ALL"){
+        this.populateSummary(
+          new_unit,
+          p
+        );
+
+      }
+      else{
+        this.populateSummary(
+          new_unit.filter((unit) => unit.product_group === p  ),
+          p
+        );
+
+      }
+      
+  
+        
       });
-    }
-    // console.log(products, 'PRODUCTSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS');
-    if (products.includes('ALL')) {
-      var index = products.indexOf('ALL');
-      // if (index !== -1) {
-      products.splice(index, 1);
-      // console.log('PROCESSING ALL');
-      this.populateSummary(new_unit, 'ALL');
-      // }
-    }
-    // else{
-    console.log(products, 'PRODUCTS ARRAY');
-    products.forEach((p) => {
-      this.populateSummary(
-        new_unit.filter((unit) => unit.product_group === p),
-        p
-      );
-
-      // console.log(p, 'PROCESSING');
-    });
-
-    // }
-
-    // products.forEach(p=>{
-    //   this.populateSummary(p,new_unit)
-    // })
-    // this.populateSummary(new_unit);
+     
+   
     if (el) {
       this.scroll(el);
-      // this.isSimulate = true;
+       
     }
   }
 
@@ -765,41 +1275,48 @@ export class ScenarioInputComponent implements OnInit {
   }
   @HostListener('window:scroll')
   checkScroll() {
-    // let ele: any = this.simulate;
-    // this.topScroll = ele.nativeElement.offsetHeight;
-    // this.scrollHeaderPosition = this.scrollHeader.nativeElement.offsetTop;
-    // this.filterHeaderPosition = this.filterHeader.nativeElement.offsetTop;
-    // if (window.pageYOffset > this.filterHeaderPosition) {
-    //   this.sticky_header = true;
-    // } else {
-    //   this.sticky_header = false;
-    // }
-    // console.log(this.scrollHeaderPosition, 'SCROLL HEAD POSITION');
-    // console.log(window.pageYOffset, 'SCROLL HEAD POSITION Windows');
-    // console.log(this.filterHeaderPosition, 'filter HEAD POSITION');
-    // if (window.pageYOffset > this.scrollHeaderPosition - 70) {
-    //   // this.scrollHeader.nativeElement.classList.add("sticky")
-    //   this.sticky = true;
-    //   this.isSimulate = true;
-    // } else {
-    //   // this.scrollHeader.nativeElement.classList.remove("sticky")
-    //   this.sticky = false;
-    //   this.isSimulate = false;
-    // }
+     
   }
   ngAfterViewInit() {
-    // this.scrollHeaderPosition = 0
-    // console.log(this.scrollHeader , "SCROLL HEADER..")
-    // this.scrollHeaderPosition = this.scrollHeader.nativeElement.offsetTop;
-    // this.filterHeaderPosition = this.filterHeader.nativeElement.offsetTop;
-    // let ele:any = this.initElement
-    // if(ele){
-    //   // console.log(ele.nativeElement.offsetHeight , "OFFSET TOP")
-    // }
-    // console.log(window.pageYOffset , "WINDOS OFFSET")
+  
+  }
+  downloadE(){
+    let val = this.myForm.get('inputFormArray').value
+    console.log(val , "VAL")
+    let gen_val = []
+    for(var i in val){
+     
+      gen_val.push(
+        {
+        "Product Group":val[i]['product_group'],
+       
+        "Base Price Elasticity" : val[i]['base_price_elasticity']
+       })
+    }
+   
+    console.log(gen_val , "genval")
+    this.api.getExcel(gen_val , "input").subscribe(data=>{
+      console.log(data)
+      this.excel.save(data , "input")
+    },
+    err=>{
+      console.log(err , "error")
+    })
   }
   ngOnDestroy() {
+    // alert("DESTROYING")
+    // this.formSevice.setForm(this.myForm)
+    this.formSevice.setForms({
+      'formValue':this.myForm.value,
+      'myform' : this.myForm,
+      'date_lpi' : this.date_lpi,
+      'date_rsp' : this.date_rsp,
+      'date_cogs' : this.date_cogs,
+      'selectedScenario' : this.selectedScenario,
+    })
     this.scrollHeaderPosition = 0;
     this.filterHeaderPosition = 0;
+    // this.unsubscribe$.next();
+    // this.unsubscribe$.complete();
   }
 }

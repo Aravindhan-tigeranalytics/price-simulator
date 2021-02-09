@@ -1,12 +1,19 @@
-<section class="simulate" #simulate>
-  <mat-accordion *ngIf="isSimulate">
+<section *ngIf="form" class="simulate" #simulate>
+  <form  [formGroup]="form">
+  <!-- <mat-accordion *ngIf="isSimulate">
     <mat-expansion-panel
       *ngFor="let array of simulatedArray; first as isFirst"
       [expanded]="isFirst"
     >
       <mat-expansion-panel-header>
         <mat-panel-description> {{ array.key }} </mat-panel-description>
+        
       </mat-expansion-panel-header>
+      <mat-radio-group aria-label="Select an option">
+        <mat-radio-button class="m-2" value="1">Total Value</mat-radio-button>
+        <mat-radio-button class="m-2" value="2">Per Ton</mat-radio-button>
+        <mat-radio-button class="m-2" value="1">Per Unit</mat-radio-button>
+      </mat-radio-group>
       <table
         *ngIf="isSimulate"
         class="table table-bordered table-striped table-hover"
@@ -16,16 +23,17 @@
             <th style="background-color: #fff;" scope="col"></th>
             <th scope="col">Units</th>
             <th scope="col">Tonnes</th>
-            <th style="width: 100px" scope="col">LSV</th>
             <th style="width: 100px" scope="col">RSV</th>
-            <th style="width: 100px" scope="col">NSV</th>
-            <th scope="col">NSV / Tonnes</th>
+            <th style="width: 100px" scope="col">Customer Margin</th> 
+           
+            <th style="width: 100px" scope="col">LSV</th>
             <th scope="col">TE</th>
-            <th scope="col">TE,% LSV</th>
-            <th scope="col">TE,Units</th>
+            <th style="width: 100px" scope="col">NSV</th>
             <th scope="col">MAC</th>
+            <th scope="col">NSV / Tonnes</th>
+            <th scope="col">TE,Units</th>
+            <th scope="col">TE,% LSV</th>
             <th scope="col">MAC,% NSV</th>
-            <th style="width: 100px" scope="col">RP</th>
             <th scope="col">RP,% RSV</th>
           </tr>
         </thead>
@@ -69,6 +77,94 @@
         </tbody>
       </table>
     </mat-expansion-panel>
+  </mat-accordion> -->
+  <ng-container
+    formArrayName="simulatedArray"
+    *ngFor="let array of form.get('simulatedArray').controls; first as isFirst;index as i"
+   
+    >
+  <mat-accordion [formGroupName]="i">
+    
+    <mat-expansion-panel 
+   
+    
+      [expanded]="isFirst"
+    >
+     
+      <mat-expansion-panel-header>
+        <mat-panel-description> {{ array.controls.simulated.value.key }} 
+               
+        </mat-panel-description>
+        
+      </mat-expansion-panel-header>
+      <mat-radio-group aria-label="Select an option" formControlName = "selected">
+        <mat-radio-button class="m-2" [value]="op" *ngFor="let op of array.controls.options.value"
+        (change)="radioChange($event , i)"
+        >
+          {{op}}
+        </mat-radio-button>
+
+      </mat-radio-group>
+      <table
+        *ngIf="isSimulate"
+        class="table table-bordered table-striped table-hover"
+      >
+        <thead>
+          <tr style="font-size: 12px; text-align: center">
+            <th style="background-color: #fff;" scope="col"></th>
+            <ng-container *ngFor="let input of params"></ng-container>
+            <th *ngFor="let o of array.controls.table_header.value">{{o}}</th>
+          </tr>
+        </thead>
+        <tbody>
+          
+          <ng-container *ngFor="let input of params">
+            <ng-container [ngSwitch]="input">
+              <ng-container *ngSwitchCase="'Current Values'">
+                <tr
+                  app-simulate-summary-row
+                  [opt] = "array.controls.selected.value"
+                  [name]="'Current Values'"
+                  [obj]="array.controls.simulated.value.current"
+                  class="small-font"
+                ></tr>
+              </ng-container>
+              <ng-container *ngSwitchCase="'Simulated'">
+                <tr
+                  app-simulate-summary-row
+                  [opt] = "array.controls.selected.value"
+                  [name]="'Simulated'"
+                  [obj]="array.controls.simulated.value.simulated"
+                  class="small-font"
+                ></tr>
+              </ng-container>
+              <ng-container *ngSwitchCase="'ABS Change'">
+                <tr
+                  app-simulate-summary-row
+                  [opt] = "array.controls.selected.value"
+                  [name]="'ABS Change'"
+                  [obj]="array.controls.simulated.value.absolute_change"
+                  class="small-font"
+                ></tr>
+              </ng-container>
+              <ng-container *ngSwitchCase="'% Change'">
+                <tr
+                  [name]="'% Change'"
+                  app-simulate-summary-row
+                  [opt] = "array.controls.selected.value"
+                  [obj]="array.controls.simulated.value.percent_change"
+                  class="small-font"
+                ></tr>
+              </ng-container>
+            </ng-container>
+          </ng-container>
+        </tbody>
+      </table>
+     
+    </mat-expansion-panel>
+  
   </mat-accordion>
-  <!-- ACCORDION ENDS -->
+</ng-container>
+</form>
+  
 </section>

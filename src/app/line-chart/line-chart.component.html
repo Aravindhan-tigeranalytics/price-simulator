@@ -1,265 +1,219 @@
 <!-- <svg width="600" height="500"></svg> -->
 <!-- <div id="my_dataviz"></div> -->
 <div class="container-fluid">
-  <div class="d-flex ">
+  <div class="d-flex justify-content-center sec-h">
+    <p class="m-auto py-2">Mars & Customer P&L Metrics</p>
+  </div>
+  <div class="d-flex flex-column">
 
-    <div class="card bg-light mr-2 " style="width: 50%;">
-      <div class="d-flex flex-column">
-        <div class="d-flex justify-content-center">
-          <p style="font-family : 'mars-extra-bold'">Mars PNL Metric</p>
+    <div class="card bg-light mr-2 " style="width:100%">
+      <div class="row  no-gutters">
+        <div class="col-3">
+          <div class="d-flex justify-content-end" id="my_dataviz2"></div>
         </div>
-        <div class="d-flex justify-content-around">
-          <p style="font-family : 'mars-bold'">Base Scenario</p>
-          <h1>vs</h1>
-          <p style="font-family : 'mars-bold'">New Scenario</p>
+        <div class="col-9">
+          <div class="d-flex justify-content-end" id="my_dataviz"></div>
         </div>
+        
+      </div>
+      <!-- <div class="d-flex justify-content-end">
+       
 
-        <div class="d-flex" style="height: 320px">
-          <div id="my_dataviz2"></div>
-          <div class="d-flex flex-column justify-content-start">
-            <button
-              type="button"
-              class="btn btn-light gb"
-              style="margin-top: 0px"
-            >
-              List Sales Value,RSV (W/o VAT)
-            </button>
-            <button type="button" class="btn btn-light gb">
-              Trade Expense
-            </button>
-            <button type="button" class="btn btn-light gb">
-              Net Sales Value
-            </button>
-            <button type="button" class="btn btn-light gb">COGS</button>
-            <button type="button" class="btn btn-light gb m-2">Mars MAC</button>
-            <button type="button" class="btn btn-light gb">
-              Retailer Margin
-            </button>
-          </div>
-          <div id="my_dataviz"></div>
+        <div class="d-flex" >
+          <div class="flex-fill" id="my_dataviz"></div>
+          <div class="flex-fill" id="my_dataviz2"></div>
+           
          
         </div>
        
-      </div>
+      </div> -->
     </div>
-    <div class="card bg-light  flex-fill  " style="width: 50%;">
-      <table class="table table-sm">
+    <div class="card bg-light  flex-fill  " style="width: 100%;">
+      <table class="table table-sm table-striped" *ngIf="simulated" style="width: 1150px;">
         <thead>
-          <tr>
-            <th>Metrics</th>
-            <th>Absolute</th>
-            <th>Percent</th>
+          <tr style="height: 50px;">
+            <td style="width: 90px;"></td>
+            <td><p class="text-muted">Volume(in Tonnes)</p></td>
+            <td><p class="text-muted">RSV w/o VAT</p></td>
+            <td><p class="text-muted">Customer Margin</p></td>
+            <td><p class="text-muted">LSV</p></td>
+            <td><p class="text-muted">Trade Expense</p></td>
+            <td><p class="text-muted">Net Sales Value</p></td>
+            <td><p class="text-muted">Mars MAC</p></td>
+            <td><p class="text-muted">COGS</p></td>
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td>LSV</td>
-            <td>0</td>
-            <td>0%</td>
+          <tr class="tb-tr">
+            <td>Percentage Change</td>
+             
+            
+            <td appTdDirective [n] = "per" [value] = "simulated.percent_change.rsv">
+              {{ simulated.percent_change.tonnes | number: decimalFormat }} %</td>
+              <td appTdDirective [n] = "per" [value] = "simulated.percent_change.rsv">
+                {{ simulated.percent_change.rsv | number: decimalFormat }} %</td>
+                <td appTdDirective [n] = "per" [value] = "simulated.percent_change.rsv">
+                  {{ simulated.percent_change.rp | number: decimalFormat }} %</td>
+                  <td appTdDirective [n] = "per" [value] = "simulated.percent_change.rsv">
+                    {{ simulated.percent_change.lsv | number: decimalFormat }} %</td>
+                    <td appTdDirective [n] = "per" [value] = "simulated.percent_change.rsv">
+                      {{ simulated.percent_change.te | number: decimalFormat }} %</td>
+                      <td appTdDirective [n] = "per" [value] = "simulated.percent_change.rsv">
+                        {{ simulated.percent_change.nsv | number: decimalFormat }} %</td>
+                        <td appTdDirective [n] = "per" [value] = "simulated.percent_change.rsv">
+                          {{ simulated.percent_change.mac | number: decimalFormat }} %</td>
+                          <td appTdDirective [n] = "per" [value] = "simulated.percent_change.rsv">
+                            {{ simulated.percent_change.cogs | number: decimalFormat }} %</td>
           </tr>
-          <tr>
-            <td>Trade Expense</td>
-            <td>0</td>
-            <td>0%</td>
-          </tr>
-          <tr>
-            <td>Net Sales Value</td>
-            <td>0</td>
-            <td>0%</td>
-          </tr>
-          <tr>
-            <td>COGS</td>
-            <td>0</td>
-            <td>0%</td>
-          </tr>
-          <tr>
-            <td>MARS MAC</td>
-            <td>0</td>
-            <td>0%</td>
-          </tr>
-          <tr>
-            <td>Retailer Margin</td>
-            <td>0</td>
-            <td>0%</td>
+          <tr class="tb-tr">
+            <td>Absolute Change</td>
+            <td appTdDirective [n] = "abs" [value] = "simulated.absolute_change.rsv">
+              {{simulated.absolute_change.tonnes |  convertTonnes}}</td>
+              <td appTdDirective [n] = "abs" [value] = "simulated.absolute_change.rsv">
+                {{simulated.absolute_change.rsv |  convertTonnes}}</td>
+                <td appTdDirective [n] = "abs" [value] = "simulated.absolute_change.rsv">
+                  {{simulated.absolute_change.rp |  convertTonnes}}</td>
+                  <td appTdDirective [n] = "abs" [value] = "simulated.absolute_change.rsv">
+                    {{simulated.absolute_change.lsv |  convertTonnes}}</td>
+                    <td appTdDirective [n] = "abs" [value] = "simulated.absolute_change.rsv">
+                      {{simulated.absolute_change.te |  convertTonnes}}</td>
+                      <td appTdDirective [n] = "abs" [value] = "simulated.absolute_change.rsv">
+                        {{simulated.absolute_change.nsv |  convertTonnes}}</td>
+                        <td appTdDirective [n] = "abs" [value] = "simulated.absolute_change.rsv">
+                          {{simulated.absolute_change.mac |  convertTonnes}}</td>
+                          <td appTdDirective [n] = "abs" [value] = "simulated.absolute_change.rsv">
+                            {{simulated.absolute_change.cogs |  convertTonnes}}</td>
           </tr>
         </tbody>
       </table>
+      
+      <!-- <table class="table table-sm table-striped" *ngIf="simulated">
+        <thead>
+          <tr style="height: 50px;">
+            <td><p class="text-muted">Metrics</p></td>
+            <td><p class="text-muted">Absolute</p></td>
+            <td><p class="text-muted">Percent</p></td>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="tb-tr">
+            <td>RSV</td>
+            <td appTdDirective [n] = "abs" [value] = "simulated.absolute_change.rsv">
+              {{simulated.absolute_change.rsv |  convertTonnes}}</td>
+            <td appTdDirective [n] = "per" [value] = "simulated.percent_change.rsv">
+              {{ simulated.percent_change.rsv | number: decimalFormat }} %</td>
+          </tr>
+          <tr class="tb-tr">
+            <td>LSV</td>
+            <td appTdDirective [n] = "abs" [value] = "simulated.absolute_change.lsv">
+              {{simulated.absolute_change.lsv |  convertTonnes}}</td>
+            <td appTdDirective [n] = "per" [value] = "simulated.percent_change.lsv">
+              {{ simulated.percent_change.lsv | number: decimalFormat }} %</td>
+          </tr>
+          <tr class="tb-tr">
+            <td>Trade Expense</td>
+            <td appTdDirective [n] = "abs" [value] = "simulated.absolute_change.te" [reverse]="true">{{ simulated.absolute_change.te |  convertTonnes }}</td>
+          <td appTdDirective [n] = "per" [value] = "simulated.percent_change.te" [reverse]="true">{{ simulated.percent_change.te | number: decimalFormat }} %</td>
+          </tr>
+          <tr class="tb-tr">
+            <td>Net Sales Value</td>
+            <td appTdDirective [n] = "abs" [value] = "simulated.absolute_change.nsv">{{ simulated.absolute_change.nsv|  convertTonnes }}</td>
+            <td appTdDirective [n] = "per" [value] = "simulated.percent_change.nsv">{{ simulated.percent_change.nsv | number: decimalFormat }} %</td>
+          </tr>
+          <tr class="tb-tr">
+            <td>COGS</td>
+            <td appTdDirective [n] = "abs" [value] = "simulated.absolute_change.cogs">{{ simulated.absolute_change.cogs|  convertTonnes }}</td>
+          <td appTdDirective [n] = "per" [value] = "simulated.percent_change.cogs">{{ simulated.percent_change.cogs | number: decimalFormat }} %</td>
+          </tr>
+          <tr class="tb-tr">
+            <td>MARS MAC</td>
+            <td appTdDirective [n] = "abs" [value] = "simulated.absolute_change.mac">{{ simulated.absolute_change.mac|  convertTonnes }}</td>
+          <td appTdDirective [n] = "abs" [value] = "simulated.percent_change.mac">{{ simulated.percent_change.mac | number: decimalFormat }} %</td>
+          </tr>
+          <tr class="tb-tr">
+            <td>Customer Margin</td>
+            <td appTdDirective [n] = "abs" [value] = "simulated.absolute_change.rp">{{ simulated.absolute_change.rp|  convertTonnes }}</td>
+          <td appTdDirective [n] = "abs" [value] = "simulated.percent_change.rp">{{ simulated.percent_change.rp | number: decimalFormat }} %</td>
+          </tr>
+        </tbody>
+      </table> -->
     </div>
     
 
   </div>
-   
-  <div class="d-flex mt-2">
+  <!-- <div class="d-flex justify-content-center mt-2 sec-h">
+    <p class="m-auto py-2">Retailer P&L Metric</p>
+  </div>
+    -->
+  <!-- <div class="d-flex">
      
     <div class="card bg-light mr-2" style="width: 50%;">
       <div class="d-flex flex-column">
-        <div class="d-flex justify-content-center">
-          <p style="font-family : 'mars-extra-bold'">Retailer PNL Metric</p>
-        </div>
+         
         <div class="d-flex justify-content-around">
-          <p style="font-family : 'mars-bold'">Base Scenario</p>
-          <h1>vs</h1>
-          <p style="font-family : 'mars-bold'">New Scenario</p>
+          <p  class="flex-fill">Base Scenario</p>
+          <p  class="flex-fill">VS</p>
+          <p class="flex-fill">New Scenario</p>
         </div>
         <div class="d-flex" style="height: 320px">
-          <div id="my_dataviz22"></div>
-          <div class="d-flex flex-column justify-content-start">
-            <button
-              type="button"
-              class="btn btn-light gb"
-              style="margin-top: 0px"
-            >
-              Retail Sales Value,RSV (W/o VAT)
-            </button>
-            <button type="button" class="btn btn-light gb">
-              Trade Expense
-            </button>
-            <button type="button" class="btn btn-light gb">
-              Net Sales Value
-            </button>
-            <button type="button" class="btn btn-light gb">COGS</button>
-            <button type="button" class="btn btn-light gb">Mars MAC</button>
-            <button type="button" class="btn gb">Retailer Margin</button>
+          <div class="flex-fill" id="my_dataviz11"></div>
+          <div class="d-flex flex-column justify-content-start flex-fill">
+            <button *ngFor="let p of sorted2"  type="button"
+class="btn btn-light gb">
+{{p}}
+</button>
           </div>
-          <div id="my_dataviz11"></div>
+          <div class="flex-fill" id="my_dataviz22"></div>
         </div>
       </div>
     </div>
         <div class="card flex-fill" style="width: 50%;">
-          <table class="table table-sm">
+          <table class="table table-sm table-striped" *ngIf="simulated">
             <thead>
-              <tr>
-                <th>Metrics</th>
-                <th>Absolute</th>
-                <th>Percent</th>
+              <tr style="height: 50px;">
+                <td><p class="text-muted">Metrics</p></td>
+                <td><p class="text-muted">Absolute</p></td>
+                <td><p class="text-muted">Percent</p></td>
               </tr>
             </thead>
             <tbody>
-              <tr>
+              <tr class="tb-tr">
                 <td>RSV</td>
-                <td>0</td>
-                <td>0%</td>
+                <td appTdDirective [n] = "abs" [value] = "simulated.absolute_change.rsv">
+                  {{simulated.absolute_change.rsv |  convertTonnes}}</td>
+                <td appTdDirective [n] = "per" [value] = "simulated.percent_change.rsv">
+                  {{ simulated.percent_change.rsv | number: decimalFormat }} %</td>
               </tr>
-              <tr>
+              <tr class="tb-tr">
                 <td>Trade Expense</td>
-                <td>0</td>
-                <td>0%</td>
+                <td appTdDirective [n] = "abs" [value] = "simulated.absolute_change.te" [reverse]="true">{{ simulated.absolute_change.te |  convertTonnes }}</td>
+              <td appTdDirective [n] = "per" [value] = "simulated.percent_change.te" [reverse]="true">{{ simulated.percent_change.te | number: decimalFormat }} %</td>
               </tr>
-              <tr>
+              <tr class="tb-tr">
                 <td>Net Sales Value</td>
-                <td>0</td>
-                <td>0%</td>
+                <td appTdDirective [n] = "abs" [value] = "simulated.absolute_change.nsv">{{ simulated.absolute_change.nsv|  convertTonnes }}</td>
+                <td appTdDirective [n] = "per" [value] = "simulated.percent_change.nsv">{{ simulated.percent_change.nsv | number: decimalFormat }} %</td>
               </tr>
-              <tr>
+              <tr class="tb-tr">
                 <td>COGS</td>
-                <td>0</td>
-                <td>0%</td>
+                <td appTdDirective [n] = "abs" [value] = "simulated.absolute_change.cogs">{{ simulated.absolute_change.cogs|  convertTonnes }}</td>
+              <td appTdDirective [n] = "per" [value] = "simulated.percent_change.cogs">{{ simulated.percent_change.cogs | number: decimalFormat }} %</td>
               </tr>
-              <tr>
+              <tr class="tb-tr">
                 <td>MARS MAC</td>
-                <td>0</td>
-                <td>0%</td>
+                <td appTdDirective [n] = "abs" [value] = "simulated.absolute_change.mac">{{ simulated.absolute_change.mac|  convertTonnes }}</td>
+              <td appTdDirective [n] = "abs" [value] = "simulated.percent_change.mac">{{ simulated.percent_change.mac | number: decimalFormat }} %</td>
               </tr>
-              <tr>
-                <td>Retailer Margin</td>
-                <td>0</td>
-                <td>0%</td>
+              <tr class="tb-tr">
+                <td>Customer Margin</td>
+                <td appTdDirective [n] = "abs" [value] = "simulated.absolute_change.rp">{{ simulated.absolute_change.rp|  convertTonnes }}</td>
+              <td appTdDirective [n] = "abs" [value] = "simulated.percent_change.rp">{{ simulated.percent_change.rp | number: decimalFormat }} %</td>
               </tr>
             </tbody>
           </table>
         </div>
      
   </div>
-  <!-- </div> -->
-  <!-- </div> -->
-  <!-- <div class="row">
-    <div class="col-4">
-      <div id="my_dataviz2"></div>
-    </div>
-    <div class="col-4">
-      <div class="d-flex flex-column justify-content-start">
-        <button
-          type="button"
-          class="btn btn-primary gb"
-          style="margin-top: 0px"
-        >
-          Retail Sales Value,RSV (W/o VAT)
-        </button>
-        <button type="button" class="btn btn-primary gb">Trade Expense</button>
-        <button type="button" class="btn btn-primary gb">
-          Net Sales Value
-        </button>
-        <button type="button" class="btn btn-primary gb">COGS</button>
-        <button type="button" class="btn btn-primary gb">Mars MAC</button>
-        <button type="button" class="btn btn-primary gb">
-          Retailer Margin
-        </button>
-      </div>
-    </div>
-    <div class="col-4">
-      <div id="my_dataviz"></div>
-      
-    </div>
-  </div> -->
+    -->
 </div>
-<!-- <div id="my_dataviz"></div> -->
-<!-- <div style="display: inline" id="my_dataviz"></div> -->
-
-<!-- <div class="row">
-  <div class="col">
-    <table class="table">
-      <tbody>
-        <tr>
-          <td>
-            <svg width="100" height="30">
-              <rect width="300" height="100" style="fill: rgb(0, 0, 255)" />
-            </svg>
-          </td>
-          <td>option1</td>
-          <td>
-            <svg width="100" height="30">
-              <rect width="300" height="100" style="fill: rgb(0, 0, 255)" />
-            </svg>
-          </td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>option2</td>
-          <td></td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-  <div class="col"></div>
-</div> -->
-
-<!-- 
-<div class="row">
-    <div class="col">
-      <div class="d-flex">
-        <div id="my_dataviz2"></div>
-        <div class="d-flex flex-column justify-content-start">
-          <button
-            type="button"
-            class="btn btn-primary gb"
-            style="margin-top: 0px"
-          >
-            Retail Sales Value,RSV (W/o VAT)
-          </button>
-          <button type="button" class="btn btn-primary gb">
-            Trade Expense
-          </button>
-          <button type="button" class="btn btn-primary gb">
-            Net Sales Value
-          </button>
-          <button type="button" class="btn btn-primary gb">COGS</button>
-          <button type="button" class="btn btn-primary gb">Mars MAC</button>
-          <button type="button" class="btn btn-primary gb">
-            Retailer Margin
-          </button>
-        </div>
-        <div id="my_dataviz"></div>
-      </div>
-    </div>
-     
-  </div> -->
+ 

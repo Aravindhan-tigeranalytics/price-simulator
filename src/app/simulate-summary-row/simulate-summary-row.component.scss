@@ -17,3 +17,17 @@ td {
 .color-success {
   color: green;
 }
+.color-danger::after{
+  font-family: "FontAwesome";
+  content: "\f063";  // both up and down
+  display: inline-block;
+  font-weight: 900; 
+  
+}
+.color-success::after{
+  font-family: "FontAwesome";
+  content: "\f062";  // both up and down
+  display: inline-block;
+  font-weight: 900; 
+  
+}

@@ -6,7 +6,7 @@ export const environment = {
   production: false,
   baseUrl : 'http://localhost:8000',
   // baseUrl : 'https://mars-russia-api.azurewebsites.net',
-  
+
   powerBI: {
     reportBaseURL: 'https://app.powerbi.com/reportEmbed',
     qnaBaseURL: 'https://app.powerbi.com/qnaEmbed',

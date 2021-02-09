@@ -1,224 +1,67 @@
 <td  style="text-align: left;" scope="row">
   <strong>{{ name }}</strong>
 </td>
-<td
-  [ngClass]="{
-    'color-danger ': obj.units < 0 && name == '% Change',
-    'color-success ': obj.units > 0 && name == '% Change'
-  }"
+<td appTdDirective [n] = "name" [value] = "val.units"
 >
-  {{ obj.units | convertTonnes }}
-  <i
-    *ngIf="name == '% Change'"
-    class="fa"
-    aria-hidden="true"
-    [ngClass]="{
-      'fa-arrow-down': obj.units < 0,
-      'fa-arrow-up': obj.units > 0
-    }"
-  ></i>
+  {{ val.units | convertTonnes }} <span *ngIf="name == '% Change'"> % </span>
+  
 </td>
-<td
-  [ngClass]="{
-    'color-danger ': obj.tonnes < 0 && name == '% Change',
-    'color-success ': obj.tonnes > 0 && name == '% Change'
-  }"
+<td appTdDirective [n] = "name" [value] = "val.tonnes"
 >
-  {{ obj.tonnes | convertTonnes }}
-  <i
-    *ngIf="name == '% Change'"
-    class="fa"
-    aria-hidden="true"
-    [ngClass]="{
-      'fa-arrow-down': obj.tonnes < 0,
-      'fa-arrow-up': obj.tonnes > 0
-    }"
-  ></i>
+  {{ val.tonnes | convertTonnes }} <span *ngIf="name == '% Change'"> % </span>
+  
 </td>
-<td
-  [ngClass]="{
-    'color-danger ': obj.lsv < 0 && name == '% Change',
-    'color-success ': obj.lsv > 0 && name == '% Change'
-  }"
->
-  {{ obj.lsv | convertTonnes}}  ₽
-  <i
-    *ngIf="name == '% Change'"
-    class="fa"
-    aria-hidden="true"
-    [ngClass]="{
-      'fa-arrow-down': obj.lsv < 0,
-      'fa-arrow-up': obj.lsv > 0
-    }"
-  ></i>
+
+<td appTdDirective [n] = "name" [value] = "val.rsv">
+  {{ val.rsv  | convertTonnes }} <span *ngIf="name == '% Change'"> % </span>
+  <span *ngIf="name != '% Change'"> ₽ </span>
 </td>
-<td
-  [ngClass]="{
-    'color-danger ': obj.rsv < 0 && name == '% Change',
-    'color-success ': obj.rsv > 0 && name == '% Change'
-  }"
->
-  {{ obj.rsv  | convertTonnes }} ₽
-  <i
-    *ngIf="name == '% Change'"
-    class="fa"
-    aria-hidden="true"
-    [ngClass]="{
-      'fa-arrow-down': obj.rsv < 0,
-      'fa-arrow-up': obj.rsv > 0
-    }"
-  ></i>
+<td appTdDirective [n] = "name" [value] = "val.rp">
+  {{ val.rp | convertTonnes }} <span *ngIf="name == '% Change'"> % </span>
+  <span *ngIf="name != '% Change'"> ₽ </span>
+   
 </td>
-<td
-  [ngClass]="{
-    'color-danger ': obj.nsv < 0 && name == '% Change',
-    'color-success ': obj.nsv > 0 && name == '% Change'
-  }"
+<td appTdDirective [n] = "name" [value] = "val.lsv"
 >
-  {{ obj.nsv | convertTonnes }} ₽
-  <i
-    *ngIf="name == '% Change'"
-    class="fa"
-    aria-hidden="true"
-    [ngClass]="{
-      'fa-arrow-down': obj.nsv < 0,
-      'fa-arrow-up': obj.nsv > 0
-    }"
-  ></i>
+  {{ val.lsv | convertTonnes}}  <span *ngIf="name == '% Change'"> % </span>
+  <span *ngIf="name != '% Change'"> ₽ </span>
 </td>
-<td
-  [ngClass]="{
-    'color-danger ': obj.nsv_tonnes < 0 && name == '% Change',
-    'color-success ': obj.nsv_tonnes > 0 && name == '% Change'
-  }"
->
-  {{ obj.nsv_tonnes | convertTonnes }} ₽
-  <i
-    *ngIf="name == '% Change'"
-    class="fa"
-    aria-hidden="true"
-    [ngClass]="{
-      'fa-arrow-down': obj.nsv_tonnes < 0,
-      'fa-arrow-up': obj.nsv_tonnes > 0
-    }"
-  ></i>
+
+<td appTdDirective [n] = "name" [value] = "val.te" [reverse] = "true">
+  {{ val.te | convertTonnes }} <span *ngIf="name == '% Change'"> % </span>
+  <span *ngIf="name != '% Change'"> ₽ </span>
 </td>
-<td
-  [ngClass]="{
-    'color-danger ': obj.te > 0 && name == '% Change',
-    'color-success ': obj.te < 0 && name == '% Change'
-  }"
->
-  {{ obj.te | convertTonnes }} ₽
-  <i
-    *ngIf="name == '% Change'"
-    class="fa"
-    aria-hidden="true"
-    [ngClass]="{
-      'fa-arrow-down': obj.te < 0,
-      'fa-arrow-up': obj.te > 0
-    }"
-  ></i>
+
+
+<td appTdDirective [n] = "name" [value] = "val.nsv">
+  {{ val.nsv | convertTonnes }} <span *ngIf="name == '% Change'"> % </span>
+  <span *ngIf="name != '% Change'"> ₽ </span>
 </td>
-<td
-  [ngClass]="{
-    'color-danger ': obj.te_percent_lsv > 0 && name == '% Change',
-    'color-success ': obj.te_percent_lsv < 0 && name == '% Change'
-  }"
->
-  {{ obj.te_percent_lsv | convertTonnes }} %
-  <i
-    *ngIf="name == '% Change'"
-    class="fa"
-    aria-hidden="true"
-    [ngClass]="{
-      'fa-arrow-down': obj.te_percent_lsv < 0,
-      'fa-arrow-up': obj.te_percent_lsv > 0
-    }"
-  ></i>
+<td appTdDirective [n] = "name" [value] = "val.mac">
+  {{ val.mac | convertTonnes }} <span *ngIf="name == '% Change'"> % </span>
+  <span *ngIf="name != '% Change'"> ₽ </span>
+   
 </td>
-<td
-  [ngClass]="{
-    'color-danger ': obj.te_units > 0 && name == '% Change',
-    'color-success ': obj.te_units < 0 && name == '% Change'
-  }"
->
-  {{ obj.te_units | convertTonnes }} ₽
-  <i
-    *ngIf="name == '% Change'"
-    class="fa"
-    aria-hidden="true"
-    [ngClass]="{
-      'fa-arrow-down': obj.te_units > 0,
-      'fa-arrow-up': obj.te_units < 0
-    }"
-  ></i>
+<!-- <td appTdDirective [n] = "name" [value] = "val.nsv_tonnes">
+  {{ val.nsv_tonnes | convertTonnes }} <span *ngIf="name == '% Change'"> % </span>
+  <span *ngIf="name != '% Change'"> ₽ </span>
 </td>
-<td
-  [ngClass]="{
-    'color-danger ': obj.mac < 0 && name == '% Change',
-    'color-success ': obj.mac > 0 && name == '% Change'
-  }"
+<td  appTdDirective [n] = "name" [value] = "val.te_units" [reverse] = "true"
 >
-  {{ obj.mac | convertTonnes }} ₽
-  <i
-    *ngIf="name == '% Change'"
-    class="fa"
-    aria-hidden="true"
-    [ngClass]="{
-      'fa-arrow-down': obj.mac < 0,
-      'fa-arrow-up': obj.mac > 0
-    }"
-  ></i>
+  {{ val.te_units | convertTonnes }} <span *ngIf="name == '% Change'"> % </span>
+  <span *ngIf="name != '% Change'"> ₽ </span>
+   
+</td> -->
+
+<td appTdDirective [n] = "name" [value] = "val.te_percent_lsv" [reverse] = "true">
+  {{ val.te_percent_lsv | convertTonnes }} <span *ngIf="name != 'ABS Change'"> % </span><span *ngIf="name == 'ABS Change'"> pp </span>
 </td>
-<td
-  [ngClass]="{
-    'color-danger ': obj.mac_percent_nsv < 0 && name == '% Change',
-    'color-success ': obj.mac_percent_nsv > 0 && name == '% Change'
-  }"
->
-  {{ obj.mac_percent_nsv | convertTonnes }} %
-  <i
-    *ngIf="name == '% Change'"
-    class="fa"
-    aria-hidden="true"
-    [ngClass]="{
-      'fa-arrow-down': obj.mac_percent_nsv < 0,
-      'fa-arrow-up': obj.mac_percent_nsv > 0
-    }"
-  ></i>
+
+<td appTdDirective [n] = "name" [value] = "val.mac_percent_nsv">
+  {{ val.mac_percent_nsv | convertTonnes }}  <span *ngIf="name != 'ABS Change'"> % </span><span *ngIf="name == 'ABS Change'"> pp </span>
 </td>
-<td
-  [ngClass]="{
-    'color-danger ': obj.rp < 0 && name == '% Change',
-    'color-success ': obj.rp > 0 && name == '% Change'
-  }"
->
-  {{ obj.rp | convertTonnes }} ₽
-  <i
-    *ngIf="name == '% Change'"
-    class="fa"
-    aria-hidden="true"
-    [ngClass]="{
-      'fa-arrow-down': obj.rp < 0,
-      'fa-arrow-up': obj.rp > 0
-    }"
-  ></i>
-</td>
-<td
-  [ngClass]="{
-    'color-danger ': obj.rp_percent_rsv < 0 && name == '% Change',
-    'color-success ': obj.rp_percent_rsv > 0 && name == '% Change'
-  }"
->
-  {{ obj.rp_percent_rsv | convertTonnes }} %
-  <i
-    *ngIf="name == '% Change'"
-    class="fa"
-    aria-hidden="true"
-    [ngClass]="{
-      'fa-arrow-down': obj.rp_percent_rsv < 0,
-      'fa-arrow-up': obj.rp_percent_rsv > 0
-    }"
-  ></i>
+
+<td appTdDirective [n] = "name" [value] = "val.rp_percent_rsv">
+  {{ val.rp_percent_rsv | convertTonnes }}  <span *ngIf="name != 'ABS Change'"> % </span><span *ngIf="name == 'ABS Change'"> pp </span>
+   
 </td>

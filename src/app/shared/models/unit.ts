@@ -277,6 +277,9 @@ export class UnitModel {
     // retailer_margin_percent_of_rsp,mars_mac,mars_mac_percent_of_nsv,mars_percent_of_total_profit_pool,
     // retailer_percent_of_total_profit_pool
   ) {
+    if(retailer == "X5" && product_group == "ORBIT OTC"){
+      // console.log(base_price_elasticity , "X5BSEU")
+    }
     this.category = category;
 
     this.product_group = product_group;
@@ -423,6 +426,9 @@ export class NewUnit extends UnitModel {
       // retailer_margin_percent_of_rsp,mars_mac,mars_mac_percent_of_nsv,mars_percent_of_total_profit_pool,
       // retailer_percent_of_total_profit_pool
     );
+    if(retailer == "X5" && product_group =="ORBIT OTC"){
+      // console.log(base_price_elasticity , "X5BPE")
+    }
     this.updateValues();
   }
   updateValues() {
@@ -600,5 +606,8 @@ export class NewUnit extends UnitModel {
       100;
     this.percent_mars_mac_$_chg =
       ((this.mars_mac_new - this.mars_mac) / this.mars_mac) * 100;
+
+      // console.log(this.base_price_elasticity , this.product_group , this.retailer , "BASEPRICE PRODUCT RETAILER")
   }
+  
 }

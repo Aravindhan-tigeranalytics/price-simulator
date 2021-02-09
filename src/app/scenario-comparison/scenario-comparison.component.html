@@ -1,4 +1,5 @@
 <div class="container-fluid">
+
   <!-- <div class="row first-row p-3 m-2 cust">
     <div
       class="d-flex flex-row justify-content-around align-items-baseline"
@@ -27,7 +28,7 @@
     </div>
   </div> -->
   <div
-    class="d-flex bd-highlight p-3 m-2 align-items-baseline neumorphic neumorphic--pressed"
+    class="d-flex bd-highlight p-1 m-1 align-items-baseline cust"
   >
     <div class="p-1">
       <label for="sel1">Saved Scenario:</label>
@@ -65,7 +66,7 @@
           <div class="d-flex justify-content-around reduce-opacity">
       
             <div class="">
-              <h5>sfsdfsdfsd</h5>
+              <p>sfsdfsdfsd</p>
             </div>
             <div class="">
               <i
@@ -75,14 +76,7 @@
               ></i>
             </div>
           </div>
-          <!-- <div class="clearfix reduce-opacity">
-            <div class="float-right mr-2 mt-1">
-              <i class="fa fa-window-close" aria-hidden="true"></i>
-            </div>
-            <div class="float-right mr-5">
-              <h4>Scenario</h4>
-            </div>
-          </div> -->
+           
           <div class="d-flex justify-content-end">
             <table class="table table-borderless border-tr">
               <tr class="reduce-opacity">
@@ -134,6 +128,7 @@
     </div>
     <div *ngFor="let i of simulatedArray" class="col-lg-2 col-md-2">
       <app-scenario-card
+      [filters]="scenarioArray"
         [simulated]="i"
         (removeEvent)="removeSce($event)"
       ></app-scenario-card>

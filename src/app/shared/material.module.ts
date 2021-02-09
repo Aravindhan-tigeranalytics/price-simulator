@@ -139,6 +139,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatTreeModule } from '@angular/material/tree';
 import { OverlayModule } from '@angular/cdk/overlay';
 import { MdePopoverModule } from '@material-extended/mde';
+import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
+
 
 @NgModule({
   exports: [
@@ -187,8 +189,8 @@ import { MdePopoverModule } from '@material-extended/mde';
     PortalModule,
     ScrollingModule,
     MdePopoverModule,
+    NgxMatSelectSearchModule
   ],
-  declarations: [],
 })
 export class MaterialModule {}
 

@@ -17,8 +17,8 @@ export class DashInputComponent implements OnInit {
 
   constructor(private api : ApiService) { }
   onSubmit(){
-    this.api.updateUnits(this.tableform);
-    console.log("asdas")
+    // this.api.updateUnits(this.tableform);
+    // console.log("asdas")
   
   }
 
@@ -28,7 +28,7 @@ export class DashInputComponent implements OnInit {
       lpi_increase : new FormControl('0.00'),
       rsp_increase : new FormControl('0.00'),
       cogs_increase : new FormControl('0.00'),
-      base_price_elasticity : new FormControl('-2.04'),
+      base_price_elasticity : new FormControl(''),
       base_price_elasticity_manual : new FormControl('0.00'),
       competition : new FormControl('Not Follows')
     }
@@ -36,7 +36,7 @@ export class DashInputComponent implements OnInit {
 
   ngOnInit(): void {
     this.tableform.valueChanges.subscribe(data=>{
-      console.log(data , "VALUE CHANGES DATA")
+      // console.log(data , "VALUE CHANGES DATA")
     })
     // this.tableform 
     

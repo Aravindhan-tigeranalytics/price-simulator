@@ -1,48 +1,33 @@
-<!-- <nav class="navbar navbar-expand-lg fixed-top">
-  <a class="navbar-brand" href="#">Home</a>
-  <button
-    class="navbar-toggler"
-    type="button"
-    data-toggle="collapse"
-    data-target="#navbarSupportedContent"
-    aria-controls="navbarSupportedContent"
-    aria-expanded="false"
-    aria-label="Toggle navigation"
-  >
-    <span class="navbar-toggler-icon"></span>
-  </button>
+<nav class="navbar navbar-expand-lg fixed-top">
+  <a class="navbar-brand" >Welcome {{user}} ! </a>
+  
   <div class="collapse navbar-collapse" id="navbarSupportedContent">
     <ul class="navbar-nav mr-4">
-      <li class="nav-item">
+      <!-- <li class="nav-item">
         <a class="nav-link" data-value="about" href="#">About</a>
-      </li>
+      </li> -->
+     
+      <!-- <li class="nav-item">
+        <a class="nav-link" data-value="team" href="#"> Glossary</a>
+      </li> -->
       <li class="nav-item">
-        <a class="nav-link" data-value="portfolio" href="#">Portfolio</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" data-value="blog" href="#">Blog</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" data-value="team" href="#"> Team</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" data-value="contact" href="#">Contact</a>
+        <a class="nav-link" data-value="contact" (click) = "logout()">Logout</a>
       </li>
     </ul>
   </div>
-</nav> -->
+</nav>
 
 <!-- <header class="header">
   <div class="overlay"></div>
   <div class="container"></div>
 </header> -->
-<div class="blog header">
+<div class="blog header mt-5">
   <div class="overlay"></div>
   <div class="container">
     <!-- <h1 class="text-center">Blog</h1> -->
     <div class="row py-5">
       <div class="col-md-3 col-lg-3 col-sm-12">
-        <div class="card">
+        <div class="card" routerLink="/scenario">
           <div class="card-img">
             <!-- <a>
             <img routerLink="/scenario"  src="../../assets/img/mars-background.jpg" class="img-fluid" />
@@ -69,13 +54,13 @@
         </div>
       </div>
       <div class="col-md-3 col-lg-3 col-sm-12">
-        <div class="card">
+        <div class="card" routerLink="/profitreport">
           <div class="card-img">
             <!-- <a target="_blank" href="https://app.powerbi.com/groups/3268f3d7-5cf6-4067-a92f-b8e07bc1c3f0/reports/40e321e8-509f-4a7b-b876-8d5971b9c614?ctid=2fc13e34-f03f-498b-982a-7cb446e25bc6">
             <img  src="../../assets/img/mars-products.jpg" class="img-fluid" />
           </a> -->
 
-          <a target="_blank" href="https://app.powerbi.com/groups/3268f3d7-5cf6-4067-a92f-b8e07bc1c3f0/reports/40e321e8-509f-4a7b-b876-8d5971b9c614?ctid=2fc13e34-f03f-498b-982a-7cb446e25bc6"  >
+          <a routerLink="/profitreport"  >
             <i class="fa fa-rub"></i>
             </a>
           </div>
@@ -97,12 +82,12 @@
         </div>
       </div>
       <div class="col-md-3 col-lg-3 col-sm-12">
-        <div class="card">
+        <div class="card"  routerLink="/pcreport">
           <div class="card-img">
             <!-- <a  target="_blank" href="https://app.powerbi.com/groups/3268f3d7-5cf6-4067-a92f-b8e07bc1c3f0/reports/117d13d3-abb5-43ff-8dc5-226a3574a13b?ctid=2fc13e34-f03f-498b-982a-7cb446e25bc6">
             <img src="../../assets/img/mars_chocolate.jpg" class="img-fluid" />
           </a> -->
-          <a target="_blank" href="https://app.powerbi.com/groups/3268f3d7-5cf6-4067-a92f-b8e07bc1c3f0/reports/40e321e8-509f-4a7b-b876-8d5971b9c614?ctid=2fc13e34-f03f-498b-982a-7cb446e25bc6"  >
+          <a routerLink="/pcreport"  >
             <i class="fa fa-line-chart"></i>
             </a>
           </div>
@@ -124,12 +109,12 @@
       </div>
 
       <div class="col-md-3 col-lg-3 col-sm-12">
-        <div class="card">
+        <div class="card" routerLink="/report">
           <div class="card-img">
             <!-- <a target="_blank" href="https://app.powerbi.com/groups/me/reports/1a45603b-db56-4fc4-b141-c70f657fbdd5/ReportSectionb518de2f474d1df56a34">
             <img src="../../assets/img/Sell-Malteasers-Bounty.jpg" class="img-fluid" />
             </a> -->
-            <a target="_blank" href="https://app.powerbi.com/groups/3268f3d7-5cf6-4067-a92f-b8e07bc1c3f0/reports/40e321e8-509f-4a7b-b876-8d5971b9c614?ctid=2fc13e34-f03f-498b-982a-7cb446e25bc6"  >
+            <a routerLink="/report"  >
               <i class="fa fa-area-chart"></i>
               </a>
           </div>

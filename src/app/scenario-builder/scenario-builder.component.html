@@ -1,24 +1,26 @@
-<!-- <div id="mySidenav" class="sidenav">
-  <a href="#" id="about"><span class="hide">Input</span> </a>
 
-  <a href="#" id="contact"><span class="hide">Scenario Compare</span> </a>
-</div> -->
-<!-- <app-header-side></app-header-side> -->
 <section id="create-head-section">
   <div class="container-fluid text-muted">
     <div class="row mx-2 cust" #filterHeader>
-      <div class="col-8">
+      <div class="col-9">
         <div
           #initElement
-          class="d-flex flex-row justify-content-between align-items-center"
+          class="d-flex flex-row justify-content-start align-items-center"
         >
           <div>
-            <mat-form-field appearance="fill">
-              <mat-label>Select Retailer</mat-label>
+            <mat-form-field appearance="fill" class="medium">
+              <mat-label>Retailer</mat-label>
               <mat-select [formControl]="retailers" multiple>
-                <mat-option [value]="'ALL'">All</mat-option>
+                <mat-option>
+                  <ngx-mat-select-search
+                  placeholderLabel="Search Retailers" 
+                   [formControl]="retailersFilterCtrl"></ngx-mat-select-search>
+                </mat-option>
+                <app-select-check-all [model]="retailers" 
+                [values]="filteredRetailers | async">
+</app-select-check-all>
                 <mat-option
-                  *ngFor="let retailer of retailer_filter"
+                  *ngFor="let retailer of filteredRetailers | async"
                   [value]="retailer"
                   >{{ retailer }}</mat-option
                 >
@@ -27,33 +29,108 @@
           </div>
           <div>
             <mat-form-field appearance="fill">
-              <mat-label>Select Category</mat-label>
+              <mat-label>Category</mat-label>
               <mat-select [formControl]="categories" multiple>
-                <mat-option [value]="'ALL'">All</mat-option>
+                <mat-option>
+                  <ngx-mat-select-search
+                  placeholderLabel="Search Categories" 
+                   [formControl]="categoriesFilterCtrl"></ngx-mat-select-search>
+                </mat-option>
+                <app-select-check-all [model]="categories" 
+                [values]="filteredCategories | async">
+</app-select-check-all>
                 <mat-option
-                  *ngFor="let category of categories_filter"
-                  [value]="category"
-                  >{{ category }}</mat-option
-                >
+                *ngFor="let category of filteredCategories | async"
+                [value]="category"
+                >{{ category }}</mat-option>
               </mat-select>
             </mat-form-field>
           </div>
           <div>
             <mat-form-field appearance="fill">
-              <mat-label>Select PPG</mat-label>
-              <mat-select [formControl]="products" multiple>
-                <mat-option [value]="'ALL'">All</mat-option>
+              <mat-label>Product Group</mat-label>
+              <mat-select [formControl]="products"  multiple
+              >
+                <mat-option>
+                  <ngx-mat-select-search
+                  placeholderLabel="Search Products" 
+                   [formControl]="productsFilterCtrl">
+                   <mat-icon ngxMatSelectSearchClear>
+                    <i
+                    class="fa fa-window-close"></i>
+                   </mat-icon>
+                  </ngx-mat-select-search>
+                </mat-option>
+                <app-select-check-all [model]="products" 
+                          [values]="filteredProducts | async">
+    </app-select-check-all>
                 <mat-option
-                  *ngFor="let product of product_filter"
+                  *ngFor="let product of filteredProducts | async"
                   [value]="product"
                   >{{ product }}</mat-option
                 >
               </mat-select>
             </mat-form-field>
           </div>
+
+          <div>
+            <mat-form-field appearance="fill" >
+              <mat-label>Strategic Cell</mat-label>
+              <mat-select [formControl]="categories" multiple>
+                <mat-option>
+                  <ngx-mat-select-search
+                  placeholderLabel="Search Categories" 
+                   [formControl]="categoriesFilterCtrl"></ngx-mat-select-search>
+                </mat-option>
+                <!-- <app-select-check-all [model]="categories" 
+                [values]="filteredCategories | async">
+</app-select-check-all> -->
+                <mat-option
+                
+                ></mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <div>
+            <mat-form-field appearance="fill">
+              <mat-label>Brand</mat-label>
+              <mat-select [formControl]="categories" multiple>
+                <mat-option>
+                  <ngx-mat-select-search
+                  placeholderLabel="Search Categories" 
+                   [formControl]="categoriesFilterCtrl"></ngx-mat-select-search>
+                </mat-option>
+                <!-- <app-select-check-all [model]="categories" 
+                [values]="filteredCategories | async">
+</app-select-check-all> -->
+                <mat-option
+                
+                ></mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <div>
+            <mat-form-field appearance="fill">
+              <mat-label>Brand Format</mat-label>
+              <mat-select [formControl]="categories" multiple>
+                <mat-option>
+                  <ngx-mat-select-search
+                  placeholderLabel="Search Categories" 
+                   [formControl]="categoriesFilterCtrl"></ngx-mat-select-search>
+                </mat-option>
+                
+                <mat-option
+               
+                ></mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+
         </div>
       </div>
-      <div class="col-4">
+      <div class="col-3">
         <div class="d-flex flex-row justify-content-start align-items-center">
           <div class="p-2 flex-fill">
             <a class="btn btn-primary btn-block" (click)="applyFilter()"
@@ -71,22 +148,46 @@
     <ul ngbNav #nav="ngbNav" [(activeId)]="active" class="nav-tabs mt-2 pt-2">
       <li [ngbNavItem]="1" class="pr-2">
         <a ngbNavLink (click)="ResetSummary()">Simulator Input</a>
+        <!-- (click)="ResetSummary()" -->
         <ng-template ngbNavContent>
-          <app-scenario-input
+          <!-- <app-scenario-input
             *ngIf="units.length > 0"
             [tableData]="tableData$"
             [simulteFlag]="simulateFlag$"
             [units] = "units"
-          ></app-scenario-input>
+            [productFilters] = "(productFilterSubject | async)"
+            [categoryFilters] = "(categoryFilterSubject | async)"
+            [retailerFilters] = "(retailerFilterSubject| async)"
+            [productAvailable] = "product_filter"
+            [categoryAvailable] = "categories_filter"
+            [retailerAvailable] = "retailer_filter"
+            (filtersEvent)="filtersEvent($event)"
+            (saveScenarioEvent) = "saveScenarioEvent($event)"
+
+          ></app-scenario-input>   *ngIf="units.length > 0"--> 
+          <app-scenario-input
+        
+       
+          [simulteFlag]="simulateFlag$"
+         
+          (filtersEvent)="filtersEvent($event)"
+          (saveScenarioEvent) = "saveScenarioEvent($event)"
+
+        ></app-scenario-input>
         </ng-template>
       </li>
-      <li [ngbNavItem]="2" class="pr-2">
-        <a ngbNavLink (click)="SimulateSummary()">Summary</a>
+      <li [ngbNavItem]="2" class="pr-2" >
+        <a ngbNavLink  (click)="SimulateSummary()" >Summary</a>
+        <!-- -->
         <ng-template ngbNavContent>
-          <app-scenario-summary></app-scenario-summary>
+          <app-scenario-summary
+          [productFilterSubject] = "productFilterSubject"
+          [categoryFilterSubject] = "categoryFilterSubject"
+          [retailerFilterSubject] = "retailerFilterSubject"
+          ></app-scenario-summary>
         </ng-template>
       </li>
-      <li [ngbNavItem]="3" class="pr-2">
+      <li [ngbNavItem]="3" class="pr-2" >
         <a ngbNavLink>Dashboard</a>
         <ng-template ngbNavContent>
           <app-line-chart></app-line-chart>
@@ -96,16 +197,6 @@
 
     <div [ngbNavOutlet]="nav" class="mt-2"></div>
 
-    <!-- <mat-tab-group mat-align-tabs="start">
-      <mat-tab label="Simulator input" class="act-tab">
-        <app-scenario-input></app-scenario-input>
-      </mat-tab>
-      <mat-tab label="Summary">
-        <app-scenario-comparison></app-scenario-comparison>
-      </mat-tab>
-      <mat-tab label="Dashboard">
-        <app-scenario-comparison></app-scenario-comparison>
-      </mat-tab>
-    </mat-tab-group> -->
+    
   </div>
 </section>

@@ -1,12 +1,111 @@
-.value-button {
+// "\f0dd"   only down
+  // "\f0de"   only up
+  //f0dc  up and down
+ 
+// .sortable::after{
+//   font-family: "FontAwesome";
+//   content: "\f0dd";  // both up and down
+//   display: inline-block;
+//   padding-left: 3px;
+//   vertical-align: middle;
+//   font-weight: 900; 
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
+}
+// }
+.disable{
+  cursor:not-allowed ; 
+  opacity: 0.6;
+}
+.modal-header .close{
+  outline: none;
+}
+.normal-size{
+  font-size: 13px;
+}
+.shrink-size{
+  font-size: 10px;
+  font-weight: bolder;
+}
+.blink::after{
+  font-family: "FontAwesome";
+  content: "\f062";  // both up and down
   display: inline-block;
+  padding-left: 0px;
+  // vertical-align: middle;
+  // font-weight: 900; 
+  // position: absolute;
+  margin-top:-3px;
+}
+
+.blink {
+  color: green;
+  // position: relative;
+  // font-size: 9px;
+  // animation: blinker 1s linear infinite;
+}
+.percent {
+  display: inline-block;
+  position: relative;
+  width: 35%;
+}
+.percent::after {
+  content: '%';
+  position: absolute;
+  top: 9px;
+  right: 1px;
+  transition: all .05s ease-in-out;
+}
+
+@keyframes blinker {
+  50% {
+    opacity: 0;
+  }
+}
+.w-35{
+  width: 35%;
+}
+.sortable::after{
+  font-family: "FontAwesome";
+  content: "\f0dc";  // both up and down
+  display: inline-block;
+  padding-left: 5px;
+  vertical-align: middle;
+  font-weight: 900; 
+}
+.asc::after{
+  font-family: "FontAwesome";
+  content: "\f0de";  // both up and down
+  display: inline-block;
+  padding-left: 5px;
+  vertical-align: middle;
+  font-weight: 900; 
+}
+.desc::after{
+  font-family: "FontAwesome";
+  content: "\f0dd";  // both up and down
+  display: inline-block;
+  padding-left: 5px;
+  vertical-align: middle;
+  font-weight: 900; 
+}
+.value-button {
+  // display: inline-block;
   border: 1px solid #ddd;
   margin: 0px;
-  width: 25px;
-  height: 39px;
+  width: 30%;
+  height: 38px;
   text-align: center;
+  align-items: center;
   vertical-align: middle;
-  padding: 11px 0;
+  padding: 8px 0;
   background: var(--color-amber-1);
   -webkit-touch-callout: none;
   -webkit-user-select: none;
@@ -21,13 +120,16 @@
 }
 
 #decrease {
+  // width: ;
   // margin-right: -4px;
-  border-radius: 8px 0 0 8px;
+  border-radius: 0 8px 8px 0px;
+ 
 }
 
 #increase {
   // margin-left: -4px;
-  border-radius: 0 8px 8px 0;
+  border-radius: 8px 0px 0 8px;
+ 
 }
 
 ::ng-deep .mat-form-field-underline {
@@ -181,8 +283,12 @@ th {
 // .btn-primary:visited {
 //   background-color: var(--color-pink) !important;
 // }
+::ng-deep .mat-form-field:not(.mat-form-field-appearance-legacy) .mat-form-field-prefix .mat-icon-button, .mat-form-field:not(.mat-form-field-appearance-legacy) .mat-form-field-suffix .mat-icon-button{
+outline: none;
+}
 ::ng-deep .mat-icon-button {
   color: var(--color-blue-1);
+  outline: none;
 }
 
 // .btn-primary,
@@ -202,26 +308,27 @@ th {
 
 table tbody tr td input {
   //   position: absolute;
-  padding: 0;
+  padding-left: 0px;
   border: none;
   vertical-align: middle;
   border-top: 1px solid #ddd;
   border-bottom: 1px solid #ddd;
   margin: 0px;
-  display: inline-block;
+  // display: inline-block;
   top: 0;
   left: 0;
-  height: 40px;
+  // height: 40px;
   margin: 0;
   // height: 100% !important;
-  width: 35%;
+  // width: 40%;
   // border-radius: 10px !important;
   // border: var(--color-amber-1) 3px solid;
   // padding: 10px;
   box-sizing: border-box;
-  text-align: center;
+  text-align: unset;
   vertical-align: bottom;
 }
+
 
 table tbody tr td .ip {
   //   position: absolute;
@@ -235,8 +342,8 @@ table tbody tr td .ip {
   left: 0;
   // height: 40px;
   margin: 0;
-  height: 55% !important;
-  width: 65%;
+  height: 60% !important;
+  width: 60%;
   border-radius: 10px !important;
   border: var(--color-amber-1) 3px solid;
   // padding: 10px;
@@ -278,6 +385,8 @@ th .mat-form-field {
 }
 .fa-download{
   color : var(--color-blue-1);
+  position: relative;
+    top: 0.07em;
 }
 .table-bordered thead tr {
   // border-radius: 5px;

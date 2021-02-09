@@ -1,11 +1,9 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import * as Highcharts from 'highcharts';
-import addMore from 'highcharts/highcharts-more';
-import { MatAccordion } from '@angular/material/expansion';
+ 
+import * as d3 from 'd3';
 import { ApiService } from '../../shared/services/api.service';
-import { UnitModel, NewUnit } from '../../shared/models/unit';
-import { Observable, of, from, BehaviorSubject, combineLatest } from 'rxjs';
-
+ 
+import * as Utils from '../../shared/utils/utils'
 import {
   distinct,
   distinctUntilChanged,
@@ -14,859 +12,811 @@ import {
   filter,
   tap,
 } from 'rxjs/operators';
-// import { ParseError } from '@angular/compiler';
-addMore(Highcharts);
+
+function getRandomArbitrary(min, max) {
+  return Math.random() * (max - min) + min;
+}
+
+function getRandomInt(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
 @Component({
   selector: 'app-dash-home',
   templateUrl: './dash-home.component.html',
   styleUrls: ['./dash-home.component.scss'],
 })
 export class DashHomeComponent implements OnInit {
-  @ViewChild(MatAccordion) accordion: MatAccordion;
-  isToggle = false;
+   ele = '#my_dataviz';
+  margin = { top: 20, right: 20, bottom: 30, left: 10 };
+  width = 890 - this.margin.left - this.margin.right;
+  height = 300 - this.margin.top - this.margin.bottom;
+      
+svg = d3.select(this.ele).append("svg")
+.attr("width", this.width + this.margin.left + this.margin.right)
+.attr("height", this.height + this.margin.top + this.margin.bottom)
 
-  currency_symbol = '₽';
+g = this.svg.append("g")
+.attr("transform", "translate(" + this.margin.left + "," +  this.margin.top + ")");
 
-  tableData: NewUnit[];
-  tableData$: Observable<NewUnit[]>;
-  categoryFilter = new BehaviorSubject(null);
-  productFilter = new BehaviorSubject(null);
-  retailerFilter = new BehaviorSubject(null);
-  tableDataFilter: NewUnit[];
-  categories_filter = [];
-  retailer_filter = [];
-  product_filter = [];
-  selected_category = null;
-  selected_retailer = null;
-  selected_product = null;
-  total_rsv = 0;
-  total_rsv_new = 0;
-  total_trade_expense = 0;
-  total_trade_expense_new = 0;
-  total_nsv = 0;
-  total_nsv_new = 0;
-  total_cogs = 0;
-  total_cogs_new = 0;
-  total_mars_mac = 0;
-  total_mars_mac_new = 0;
-  total_retailer_margin = 0;
-  total_retailer_margin_new = 0;
-  total_base_units = 0;
-  total_weight_in_tons = 0;
-  rsv_w_o_vat_$_chg = 0;
-  trade_expense_$_chg = 0;
-  nsv_$_chg = 0;
-  cogs_$_chg = 0;
-  mars_mac_$_chg = 0;
-  retailer_margin_$_chg = 0;
-  rsv_w_o_vat_$_chg_percent = 0;
-  trade_expense_$_chg_percent = 0;
-  nsv_$_chg_percent = 0;
-  cogs_$_chg_percent = 0;
-  mars_mac_$_chg_percent = 0;
-  retailer_margin_$_chg_percent = 0;
+x0 = d3.scaleBand()
+.rangeRound([0, this.width])
+.paddingInner(0.1);
 
-  highcharts = Highcharts;
-  categories = [
-    'Retail Sales Value,RSV(w/o VAT)',
-    'Trade Expense',
-    'Net Sales Value, NSV',
-    'COGS',
-    'Mars MAC',
-    'Retailer Margin',
-  ];
-  categories_perton = [
-    'RSV(w/o VAT)/Ton',
-    'Trade Expense / Ton',
-    'NSV/Ton',
-    'COGS/Ton',
-    'Mars MAC/Ton',
-    'Retailer Margin/Ton',
-  ];
-  data = [
-    [0, this.total_rsv],
-    [this.total_nsv, this.total_nsv + this.total_trade_expense],
-    [0, this.total_nsv],
-    [0, this.total_cogs],
-    [this.total_cogs, this.total_cogs + this.total_mars_mac],
-    [
-      this.total_cogs + this.total_mars_mac,
-      this.total_cogs + this.total_mars_mac + this.total_retailer_margin,
-    ],
-  ];
-  data_new = [
-    [0, this.total_rsv_new],
-    [this.total_nsv_new, this.total_nsv_new + this.total_trade_expense_new],
-    [0, this.total_nsv_new],
-    [0, this.total_cogs_new],
-    [this.total_cogs_new, this.total_cogs_new + this.total_mars_mac_new],
-    [
-      this.total_cogs_new + this.total_mars_mac_new,
-      this.total_cogs_new +
-        this.total_mars_mac_new +
-        this.total_retailer_margin_new,
-    ],
-  ];
-  // data_perton = [ [0,0.679],
-  // [0.407, 0.407 + 0.160],
-  // [0,0.407],
-  // [0,0.183],
-  // [0.183,0.183 + 0.224],
-  // [0.407 , 0.407+0.272],
-  // ]
-  data_perton = [
-    [0, 0],
-    [0, 0 + 0],
-    [0, 0],
-    [0, 0],
-    [0, 0 + 0],
-    [0.407, 0.407 + 0.272],
-  ];
+x1 = d3.scaleBand()
+.padding(0.05);
 
-  categories_2 = ['Mars MAC,% of NSV', 'Retailer Margin,% of RSP'];
-  categories_3 = ['Base Units', 'New Units'];
-  category_change = [
-    'RSV w/o VAT $ chg',
-    'Trade expense $ chg',
-    'NSV $ chg',
-    'COGS $ chg',
-    'Mars MAC $ chg',
-    'Retailer Margin $ chg',
-  ];
-  data_2 = [55.03, 40.1];
-  data_3 = [this.total_base_units, this.total_base_units];
+y =  d3.scaleLinear()
+.rangeRound([this.height, 0]);
 
-  data_change = [
-    [
-      this.rsv_w_o_vat_$_chg,
-      this.trade_expense_$_chg,
-      this.nsv_$_chg,
-      this.cogs_$_chg,
-      this.mars_mac_$_chg,
-      this.retailer_margin_$_chg,
-    ],
-    [
-      this.rsv_w_o_vat_$_chg_percent,
-      this.trade_expense_$_chg_percent,
-      this.nsv_$_chg_percent,
-      this.cogs_$_chg_percent,
-      this.mars_mac_$_chg_percent,
-      this.retailer_margin_$_chg_percent,
-    ],
-  ];
-  chartOptions = this.getChartOption(
-    'Base scenario',
-    this.categories,
-    this.data,
-    'columnrange'
-  );
-  chartOptions_1 = this.getChartOption(
-    'New scenario',
-    this.categories,
-    this.data_new,
-    'columnrange'
-  );
-  chartOptions_2 = this.getChartOptionColumn(
-    'Base scenario',
-    this.categories_2,
-    this.data_2,
-    'column'
-  );
-  chartOptions_3 = this.getChartOptionColumn(
-    'New scenario',
-    this.categories_2,
-    this.data_2,
-    'column'
-  );
-  chartOptions_4 = this.getChartOptionColumn(
-    'Change in Units',
-    this.categories_3,
-    this.data_3,
-    'column'
-  );
-  chartOptions_change = this.getChartOptionColumnYaxis(
-    'change',
-    this.category_change,
-    this.data_change,
-    'column'
-  );
-  chartOptionPerTonBase = this.getChartOption(
-    'Base scenario',
-    this.categories_perton,
-    this.data_perton,
-    'columnrange'
-  );
-  chartOptionPerTonNew = this.getChartOption(
-    'New scenario',
-    this.categories_perton,
-    this.data_perton,
-    'columnrange'
-  );
+z = d3.scaleOrdinal()
+.range(["var(--color-blue-1)","var(--color-amber-1)"]);
 
-  chartOptionBase = this.chartOptions;
-  chanrtOptionsNew = this.chartOptions_1;
-  chartOptionsChange = this.chartOptions_change;
-  chartRetailerMars = this.chartOptions_2;
-  constructor(private apiservice: ApiService) {}
+xAxisGroup =  this.g.append("g")
+.attr("class", "axis")
+.attr("transform", "translate(0," + this.height + ")")
 
+yAxisGroup =   this.g.append("g")
+.attr("class", "axis")
+
+text1 =   this.g.append('g')
+text2 =  this.g.append('g') 
+
+ rect = this.g.append("g")
+ .selectAll("g")
+ legend;
+
+   constructor(private apiservice: ApiService) {}
+   gen(){
+    if (getRandomInt(0,1) == 0){
+      console.log(0 , "random data1")
+      this.update(this.getData1(),this.x0,this.x1,this.y,this.g,this.height,this.width,
+      this.z,this.svg,this.xAxisGroup,this.yAxisGroup,this.text1,this.text2,this.rect,this.legend)
+    }
+    else{
+      console.log(1 , "random data2")
+      this.update(this.getData2(),this.x0,this.x1,this.y,this.g,this.height,this.width,this.z,
+      this.svg,this.xAxisGroup,this.yAxisGroup,this.text1,this.text2,this.rect,this.legend)
+    }
+   }
   ngOnInit(): void {
-    // let y:UnitModel[] = this.apiservice.getData<UnitModel[]>(UnitModel);
-    // console.log( y, "YYYYY")
-    this.tableData$ = this.apiservice.getUnits();
-    this.tableData$.subscribe((data) => {
-      console.log(data, 'New unit LENGTH TABLE DATA');
-      this.tableData = data;
-      console.log(data.length, 'LENGTH TABLE DATA');
-      this.populateFilter(this.tableData);
-      this.filterData(this.tableData);
-    });
+    this.ele = '#my_dataviz';
+    this.margin = { top: 20, right: 20, bottom: 30, left: 10 };
+  this.width = 890 - this.margin.left - this.margin.right;
+  this.height = 300 - this.margin.top - this.margin.bottom;
+      
+  this.svg = d3.select(this.ele).append("svg")
+.attr("width", this.width + this.margin.left + this.margin.right)
+.attr("height", this.height + this.margin.top + this.margin.bottom)
 
-    //  setTimeout(()=>{
-    //    this.tableData = []
+this.g = this.svg.append("g")
+.attr("transform", "translate(" + this.margin.left + "," +  this.margin.top + ")");
 
-    //  },5000)
+this.x0 = d3.scaleBand()
+.rangeRound([0, this.width])
+.paddingInner(0.1);
 
-    // .subscribe((data:UnitModel[])=>{
-    //   if(data){
-    //     console.log(data , "DATA FROM JSO FILE")
+this.x1 = d3.scaleBand()
+.padding(0.05);
 
-    //   }
+this.y =  d3.scaleLinear()
+.rangeRound([this.height, 0]);
 
-    // });
-    // this.api.get
+this.z = d3.scaleOrdinal()
+.range(["var(--color-blue-1)","var(--color-amber-1)"]);
 
-    // this.
-    //.replace(/,/g, '')
-  }
+this.xAxisGroup =  this.g.append("g")
+.attr("class", "axis")
+.attr("transform", "translate(0," + this.height + ")")
 
-  toggleChange(e) {
-    this.isToggle = e.checked;
-    this.reRender();
-    if (this.isToggle) {
-      this.chartOptionBase = this.chartOptionPerTonBase;
-      this.chanrtOptionsNew = this.chartOptionPerTonNew;
-      this.chartOptionsChange = this.chartOptions_change;
-      this.chartRetailerMars = this.chartOptions_2;
-    } else {
-      this.chartOptionBase = this.chartOptions;
-      this.chanrtOptionsNew = this.chartOptions_1;
-      this.chartOptionsChange = this.chartOptions_change;
-      this.chartRetailerMars = this.chartOptions_2;
+this.yAxisGroup =   this.g.append("g")
+.attr("class", "axis")
+
+this.text1 =   this.g.append('g')
+this.text2 =  this.g.append('g') 
+
+ this.rect = this.g.append("g")
+ .selectAll("g")
+ this.legend = this.g.append("g")
+ .attr("class", "legend")
+ .attr("font-family", "sans-serif")
+ .attr("font-size", 10)
+ .attr("text-anchor", "end")
+ 
+   this.update(this.getData1(),this.x0,this.x1,this.y,this.g,this.height,this.width,this.z,
+   this.svg,this.xAxisGroup,this.yAxisGroup,this.text1,this.text2,this.rect,this.legend)
+     
+     }
+     update(data,x0,x1,y,g,height,width,z,svg , xAxisGroup,yAxisGroup,text1,text2,rects ,legend){
+       const trans = d3.transition().duration(750)
+      var keys = Object.keys(data[0]).slice(1);
+      legend
+
+              .selectAll("g")
+              .data(keys.slice().reverse())
+              .remove()
+              .exit()
+
+       
+      x0.domain(data.map(function (d) { return d.State; }));
+      x1.domain(keys).rangeRound([0, x0.bandwidth()]);
+      console.log(legend , "legend data")
+      console.log(keys , "KEYS ")
+      // const rects
+      g.selectAll("rect")
+      .remove()
+     
+      .exit()
+     
+      .data(data)	
+      .transition(trans)
+ 
+      text1.selectAll("text")
+      .remove()
+      .exit()
+      .data(data)	
+      text2.selectAll("text")
+      .remove()
+      .exit()
+      .data(data)	
+      
+  
+    
+      
+      y.domain([0, d3.max(data,
+         function (d) { return d3.max(keys, function (key) { return d[key]; }); })]).nice();
+  
+        
+  
+  
+    
+     
+    rects.data(data).enter().append("g")
+    .attr("transform", function (d) { return "translate(" + x0(d.State) + ",0)"; })
+    .selectAll("rect")
+    .data(function (d) { return keys.map(function (key) { return { key: key, value: d[key] }; }); })
+    .enter().append("rect")
+    .transition(trans)
+    .attr("x", function (d) { return x1(d.key); })
+    
+    .attr("width", x1.bandwidth())
+    .attr("y", y(0))
+    .attr("height",0)
+    
+    .transition(trans)
+    .attr("y", function (d) { return y(d.value); })
+    .attr("height", function (d) { return height - y(d.value); })
+    .attr("fill", function (d) { return z(d.key); })
+    .attr("fill-opacity" , 1)
+    // .transition(d3.transition().duration(500))
+    
+    
+  
+  
+    xAxisGroup.transition(trans).call(d3.axisBottom(x0));
+   
+ var t =  legend
+
+              .selectAll("g")
+              .data(keys.slice().reverse())
+ 
+              
+              .enter().append("g")
+              .attr("transform", function (d, i) { 
+                console.log(d,i , "DDIIDDDII")
+                return "translate(0," + i * 20 + ")"; 
+              })
+  
+          t.append("rect")
+              .attr("x", width - 19)
+              .attr("width", 19)
+              .attr("height", 19)
+              .attr("fill", z)
+             
+              t.append("text")
+              .attr("x", width - 24)
+              .attr("y", 9.5)
+              .attr("dy", "0.32em")
+              .attr("fill", z)
+              .text(function (d) { 
+                console.log(d,"DDDDDDDDDDDDDDDD")
+                return d; 
+              });
+  
+  console.log(legend , "Legend text")
+            text1.selectAll("text")
+            
+              .data(data)
+              .enter()
+              .append('text')
+              .text(function(d){
+                console.log(d , "TEXT1")
+                return Utils.convertCurrency(d.Base)
+              } )
+              .attr('x', function(d,i){
+                // debugger
+                
+                return x0(d.State) + 10
+              } )
+              .attr('y', function(d,i){
+                console.log(d,i , "TEXYT")
+                
+                return y(d.Base) - 10
+              })
+              .style('fill' , function(data){
+                     return 'black'
+              })
+              .style('font-size' , '12px') 
+             
+             text2
+             .selectAll("text")
+              .data(data)
+              .enter()
+              .append('text')
+              .text(function(d){
+                console.log(d , "TEXT2")
+                // debugger
+                 return Utils.convertCurrency(d.Simulated)
+              }  )
+              .attr('x', function(d,i){
+               
+                return x0(d.State) + x1.bandwidth() + 10
+              } )
+              .attr('y', function(d,i){
+                console.log(d,i , "TEXYT")
+                
+                return y(d.Simulated) -10
+              })
+              .style('fill' , function(data){
+                     return 'black'
+              })
+              .style('font-size' , '12px') 
+             
+  
     }
-  }
-  populateFilter(datas) {
-    of(...datas)
-      .pipe(distinct((unit: UnitModel) => unit.category))
-      .subscribe((data) => {
-        this.categories_filter.push(data.category);
-      });
-    of(...datas)
-      .pipe(distinct((unit: UnitModel) => unit.retailer))
-      .subscribe((data) => {
-        this.retailer_filter.push(data.retailer);
-      });
-    of(...datas)
-      .pipe(distinct((unit: UnitModel) => unit.product_group))
-      .subscribe((data) => {
-        this.product_filter.push(data.product_group);
-      });
-  }
-  resetFilter(name) {
-    console.log(name);
-
-    if (name == 'category') {
-      this.selected_category = null;
-      this.categoryFilter.next(null);
+     getData1(){
+      let num = 0;
+      let num2 = 0;
+     
+      let d = [
+        
+              {
+        "State": "Customer Margin",
+       
+        "Base":  10+ num,
+        "Simulated":  15+ num2,
+     
+     },
+          {
+             "State": "LSV",
+             
+             "Base": 56 + num,
+             "Simulated": 23 + num2,
+            
+          },
+        
+          {
+             "State": "Trade Expense",
+            
+             "Base": 90 + num,
+             "Simulated":  87 + num2,
+            
+          },
+          {
+             "State": "Net Sales Value",
+           
+             "Base":  87 + num,
+             "Simulated": 34 + num2,
+            
+          },
+          {
+            "State": "MARS MAC",
+           
+            "Base": 77 + num,
+            "Simulated":  90 + num2,
+          
+         },
+          {
+             "State": "COGS",
+             
+             "Base": 44 + num ,
+             "Simulated": 55 + num2,
+            
+          },
+       
+         
+       ]
+                return d
+    
     }
-    if (name == 'product') {
-      this.selected_product = null;
-      this.productFilter.next(null);
+  
+     getData2(){
+      let num = 100;
+      let num2 = 100;
+     
+      let d = [
+        
+              {
+        "State": "Customer Margin",
+       
+        "Base":  10+ num,
+        "Simulated":  15+ num2,
+     
+     },
+        //   {
+        //      "State": "LSV",
+             
+        //      "Base": 56 + num,
+        //      "Simulated": 23 + num2,
+            
+        //   },
+        
+        //   {
+        //      "State": "Trade Expense",
+            
+        //      "Base": 90 + num,
+        //      "Simulated":  87 + num2,
+            
+        //   },
+        //   {
+        //      "State": "Net Sales Value",
+           
+        //      "Base":  87 + num,
+        //      "Simulated": 34 + num2,
+            
+        //   },
+        //   {
+        //     "State": "MARS MAC",
+           
+        //     "Base": 77 + num,
+        //     "Simulated":  90 + num2,
+          
+        //  },
+        //   {
+        //      "State": "COGS",
+             
+        //      "Base": 44 + num ,
+        //      "Simulated": 55 + num2,
+            
+        //   },
+       
+         
+       ]
+                return d
+    
     }
-    if (name == 'retail') {
-      this.selected_retailer = null;
-      this.retailerFilter.next(null);
+  
+  
+     draw3(){
+      var margin = {top: 50, right: 50, bottom: 50, left: 70},
+      width = 960 - margin.left - margin.right,
+      height = 500 - margin.top - margin.bottom;
+ 
+  var svg = d3.select("#my_dataviz")
+    .append("svg")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+      .attr("transform",
+            "translate(" + margin.left + "," + margin.top + ")");
+
+    const dataset = [
+      { 'apples': 6940, 'oranges': 131 },
+      { 'apples': 1636, 'oranges': 7 },
+      { 'apples': 4157, 'oranges': 11 },
+      { 'apples': 1870, 'oranges': 31 },
+      { 'apples': 2288, 'oranges': 19 },
+      { 'apples': 2783, 'oranges': 119 },
+    ];
+    var colors = ['var(--color-amber-1)', 'var(--color-blue-1)']
+
+    var colorss = d3.scaleOrdinal(colors)
+     
+    var stack = d3.stack()
+    .keys([ "apples", "oranges" ])
+    console.log(stack , "STACK")
+
+    var series = stack(dataset)
+    console.log(dataset , "DATA SET TTTT")
+    console.log(series , "SERIES")
+
+  
+    var xScale =  d3
+    .scaleLinear()
+        .domain([ 0, d3.max(dataset, d => d.apples + (d.oranges)  )])
+        .range([0,width]);
+    
+    var yScale = d3
+    .scaleBand()
+    .range([0,height])
+    .domain(d3.range(dataset.length))
+    .paddingInner(0.1);
+   
+    var axis = svg.append('g')
+    .attr('class', 'axis')
+
+var bars = svg.append('g')
+    .attr('class', 'bars')
+
+    var rangeData= d3.range(10, 100, 10)
+    console.log(rangeData , "RANGE DATA ")
+
+    // var grid = axis.append('g').attr('class', 'grid')
+
+    // grid.selectAll('line.grid-line')
+    // .data(rangeData)
+    // .enter()
+    // .append('line')
+    // .attr('x1', '0%')
+    // .attr('x2', width)
+    // .attr('y1', d => yScale(d))
+    // .attr('y2', d => yScale(d))
+    // .attr('stroke-width', 1)
+    // .attr('stroke', 'rgb(207, 207, 207)')
+
+    svg.append('g')
+    .attr('transform', 'translate(0,' + height + ')')
+    .call(d3.axisBottom(xScale)
+    .tickPadding(12)
+    .tickSizeInner(0)
+    .tickSizeOuter(0))
+
+    svg.append('g')
+    .call(d3.axisLeft(yScale)
+    .ticks(10)
+    .tickPadding(12)
+    .tickSizeInner(0)
+    .tickSizeOuter(0))
+  
+
+    var groups = bars.selectAll("g")
+    .data(series)
+    .enter()
+    .append("g")
+    .style("fill", (d, i) => colorss(i))
+    console.log(groups , "GROUP")
+  
+    var rects = groups.selectAll("rect")
+    .data(d => d)
+    .enter()
+    .append("rect")
+    .attr("x", function(d,i){
+      console.log( xScale(d[1]) , "XSCALE XX")
+      console.log(d, i , "D I XXXX")
+     
+      let xs = xScale(d[0])
+     
+      return xs
+    })
+    .attr("y", function(d,i){
+      let ys = yScale(i)
+      console.log(d, "D YYYY")
+      console.log(ys , "Y SCALE ")
+      return ys
+    })
+    
+    .attr("height",  function(d){
+      let ysc = yScale.bandwidth()
+      console.log(ysc , "Y SCALE")
+      return ysc
+    })
+    .attr("width", function(d,i){
+      
+      let wid = (xScale(d[1]) - xScale(d[0]));
+      console.log(d , i ,"D I WIDTH ")
+      console.log( xScale(d[0]) , "WIDTH d[0]")
+      console.log( xScale(d[1]) , "WIDTH d[1]")
+      
+      console.log(wid , "WIDTH ")
+      return wid
+    })
+   
+   
+    
+  
+
+     }
+
+     draw2(){
+      var margin = {top: 50, right: 50, bottom: 50, left: 70},
+      width = 960 - margin.left - margin.right,
+      height = 500 - margin.top - margin.bottom;
+ 
+  var svg = d3.select("#my_dataviz")
+    .append("svg")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+      .attr("transform",
+            "translate(" + margin.left + "," + margin.top + ")");
+
+    const dataset = [
+      { 'apples': 6940, 'oranges': 131 },
+      { 'apples': 1636, 'oranges': 7 },
+      { 'apples': 4157, 'oranges': 11 },
+      { 'apples': 1870, 'oranges': 31 },
+      { 'apples': 2288, 'oranges': 19 },
+      { 'apples': 2783, 'oranges': 119 },
+    ];
+    var colors = ['var(--color-amber-1)', 'var(--color-blue-1)']
+
+    var colorss = d3.scaleOrdinal(colors)
+     
+    var stack = d3.stack()
+    .keys([ "apples", "oranges" ])
+    console.log(stack , "STACK")
+
+    var series = stack(dataset)
+    console.log(dataset , "DATA SET TTTT")
+    console.log(series , "SERIES")
+
+  
+    var xScale =  d3
+    .scaleLinear()
+        .domain([ 0, d3.max(dataset, d => d.apples + (d.oranges)  )])
+        .range([width, 0]);
+    
+    var yScale = d3
+    .scaleBand()
+    .range([height, 0])
+    .domain(d3.range(dataset.length))
+    .paddingInner(0.1);
+   
+    var axis = svg.append('g')
+    .attr('class', 'axis')
+
+var bars = svg.append('g')
+    .attr('class', 'bars')
+
+    var rangeData= d3.range(10, 100, 10)
+    console.log(rangeData , "RANGE DATA ")
+
+    // var grid = axis.append('g').attr('class', 'grid')
+
+    // grid.selectAll('line.grid-line')
+    // .data(rangeData)
+    // .enter()
+    // .append('line')
+    // .attr('x1', '0%')
+    // .attr('x2', width)
+    // .attr('y1', d => yScale(d))
+    // .attr('y2', d => yScale(d))
+    // .attr('stroke-width', 1)
+    // .attr('stroke', 'rgb(207, 207, 207)')
+
+    svg.append('g')
+    .attr('transform', 'translate(0,' + height + ')')
+    .call(d3.axisBottom(xScale)
+    .tickPadding(12)
+    .tickSizeInner(0)
+    .tickSizeOuter(0))
+
+    svg.append('g')
+    .call(d3.axisLeft(yScale)
+    .ticks(10)
+    .tickPadding(12)
+    .tickSizeInner(0)
+    .tickSizeOuter(0))
+  
+
+    var groups = bars.selectAll("g")
+    .data(series)
+    .enter()
+    .append("g")
+    .style("fill", (d, i) => colorss(i))
+    console.log(groups , "GROUP")
+  
+    var rects = groups.selectAll("rect")
+    .data(d => d)
+    .enter()
+    .append("rect")
+    .attr("x", function(d,i){
+     
+      let xs = xScale(d[1])
+      console.log(xs , "XSCALE XX")
+      console.log(d, i , "D I XXXX")
+      return xs
+    })
+    .attr("y", function(d,i){
+      let ys = yScale(i)
+      console.log(d, "D YYYY")
+      console.log(ys , "Y SCALE ")
+      return ys
+    })
+    
+    .attr("height",  function(d){
+      let ysc = yScale.bandwidth()
+      console.log(ysc , "Y SCALE")
+      return ysc
+    })
+    .attr("width", function(d,i){
+      
+      let wid = (xScale(d[0]) - xScale(d[1]));
+      console.log(d , i ,"D I WIDTH ")
+      console.log( xScale(d[0]) , "WIDTH d[0]")
+      console.log( xScale(d[1]) , "WIDTH d[1]")
+      
+      console.log(wid , "WIDTH ")
+      return wid
+    })
+   
+   
+    
+  
+
+     }
+     draw(){
+      var margin = {top: 50, right: 50, bottom: 50, left: 70},
+      width = 960 - margin.left - margin.right,
+      height = 500 - margin.top - margin.bottom;
+  
+  // append the svg object to the body of the page
+  var svg = d3.select("#my_dataviz")
+    .append("svg")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+      .attr("transform",
+            "translate(" + margin.left + "," + margin.top + ")");
+  
+  // Parse the Data
+  
+    // group,Nitrogen,normal,stress
+    // banana,12,1,13
+    // poacee,6,6,33
+    // sorgho,11,28,12
+    // triticum,19,6,1
+    // const dataset = [
+    //   { apples: 5, oranges: 10, grapes: 4, pears: 10, bananas: 6 },
+    //   { apples: 4, oranges: 12, grapes: 7, pears: 13, bananas: 32 },
+    //   { apples: 21, oranges: 19, grapes: 2, pears: 2, bananas: 7 },
+    //   { apples: 7, oranges: 23, grapes: 8, pears: 4, bananas: 3 },
+    //   { apples: 5, oranges: 10, grapes: 12, pears: 5, bananas: 9 },
+    //   { apples: 4, oranges: 12, grapes: 8, pears: 7, bananas: 3 },
+    //   { apples: 15, oranges: 10, grapes: 14, pears: 8, bananas: 0 },
+    //   { apples: 4, oranges: 12, grapes: 44, pears: 21, bananas: 11 },
+    //   { apples: 21, oranges: 19, grapes: 11, pears: 10, bananas: 11 },
+    //   { apples: 7, oranges: 23, grapes: 43, pears: 2, bananas: 7 },
+    //   { apples: 23, oranges: 19, grapes: 22, pears: 11, bananas: 6 },
+    //   { apples: 7, oranges: 23, grapes: 5, pears: 8, bananas: 3 },
+    //   { apples: 5, oranges: 10, grapes: 12, pears: 5, bananas: 9 },
+    //   { apples: 4, oranges: 12, grapes: 8, pears: 7, bananas: 3 },
+    //   { apples: 15, oranges: 10, grapes: 14, pears: 8, bananas: 0 },
+    //   { apples: 23, oranges: 17, grapes: 17, pears: 17, bananas: 1 }
+    // ];
+
+    const dataset = [
+      { 'apples': 10, 'oranges': 5 },
+      { 'apples': 10, 'oranges': 5 },
+      { 'apples': 10, 'oranges': 5 },
+      { 'apples': 10, 'oranges': 5 },
+      { 'apples': 10, 'oranges': 5 },
+      // { apples: 4, oranges: 12, grapes: 8, pears: 7, bananas: 3 },
+      // { apples: 15, oranges: 10, grapes: 14, pears: 8, bananas: 0 },
+      // { apples: 4, oranges: 12, grapes: 44, pears: 21, bananas: 11 },
+      // { apples: 21, oranges: 19, grapes: 11, pears: 10, bananas: 11 },
+      // { apples: 7, oranges: 23, grapes: 43, pears: 2, bananas: 7 },
+      // { apples: 23, oranges: 19, grapes: 22, pears: 11, bananas: 6 },
+      // { apples: 7, oranges: 23, grapes: 5, pears: 8, bananas: 3 },
+      // { apples: 5, oranges: 10, grapes: 12, pears: 5, bananas: 9 },
+      // { apples: 4, oranges: 12, grapes: 8, pears: 7, bananas: 3 },
+      // { apples: 15, oranges: 10, grapes: 14, pears: 8, bananas: 0 },
+      // { apples: 23, oranges: 17, grapes: 17, pears: 17, bananas: 1 }
+    ];
+    var colors = ['var(--color-amber-1)', 'var(--color-blue-1)']
+
+    var colorss = d3.scaleOrdinal(colors)
+     
+    var stack = d3.stack()
+    .keys([ "apples", "oranges" ])
+    console.log(stack , "STACK")
+
+    var series = stack(dataset)
+    console.log(dataset , "DATASET ")
+  console.log(series , "SERIES ")
+    var xScale = d3.scaleBand()
+    .domain(d3.range(dataset.length))
+    .range([0, width])
+    .paddingInner(0.25)
+    .paddingOuter(0.35)
+    var yScale = d3.scaleLinear()
+    .domain([0, d3.max(dataset, d => d.apples + d.oranges  )])
+    .range([height, 0])
+  
+    // Add X axis
+    var axis = svg.append('g')
+    .attr('class', 'axis')
+
+var bars = svg.append('g')
+    .attr('class', 'bars')
+
+    var rangeData= d3.range(10, 100, 10)
+    console.log(rangeData , "RANGE DATA ")
+
+    var grid = axis.append('g').attr('class', 'grid')
+
+    grid.selectAll('line.grid-line')
+    .data(rangeData)
+    .enter()
+    .append('line')
+    .attr('x1', '0%')
+    .attr('x2', width)
+    .attr('y1', d => yScale(d))
+    .attr('y2', d => yScale(d))
+    .attr('stroke-width', 1)
+    .attr('stroke', 'rgb(207, 207, 207)')
+
+    svg.append('g')
+    .attr('transform', 'translate(0,' + height + ')')
+    .call(d3.axisBottom(xScale)
+    .tickPadding(12)
+    .tickSizeInner(0)
+    .tickSizeOuter(0))
+
+    svg.append('g')
+    .call(d3.axisLeft(yScale)
+    .ticks(10)
+    .tickPadding(12)
+    .tickSizeInner(0)
+    .tickSizeOuter(0))
+  
+    svg.append('text')
+    .attr('class', 'label')
+    .attr("transform", "translate(" + (width / 2) + " ," + (height + margin.top) + ")")
+    .style('text-anchor', 'middle')
+    .text('Label')
+  
+    svg.append('text')
+    .attr('class', 'label')
+    .attr('transform', 'rotate(-90)')
+    .attr('y', 4 - margin.left)
+    .attr('x', 0 - (height / 2))
+    .attr('dy', '1em')
+    .style('text-anchor', 'middle')
+    .text('Label')
+  
+
+    var groups = bars.selectAll("g")
+    .data(series)
+    .enter()
+    .append("g")
+    .style("fill", (d, i) => colorss(i))
+    console.log(groups, "GROups")
+  
+    var rects = groups.selectAll("rect")
+    .data(d => d)
+    .enter()
+    .append("rect")
+    .attr("x", function(d,i){
+      let x =  xScale(i)
+      console.log(x, " XXXX")
+      console.log(d ,i , "D I XXXX")
+      return x
+    })
+    .attr("y", function(d , i){
+      let y = yScale(d[1])
+      console.log(y , "YYYYY")
+      console.log(d, i , "D I YYY ")
+      return y
+    })
+    .attr("height",function(d){
+     let t =   yScale(d[0]) - yScale(d[1])
+  
+     console.log(t , "HEIht T")
+      console.log(d , "HEIGHT D ")
+      return t
+    })
+    .attr("width",function(){
+     let xs =  xScale.bandwidth()
+     console.log(xs, "XSCALE")
+     return xs
+    })
+   
+ 
+  
+
+     }
     }
-  }
-  applyFilter() {
-    this.categoryFilter.next(this.selected_category);
-    this.productFilter.next(this.selected_product);
-    this.retailerFilter.next(this.selected_retailer);
-    combineLatest([
-      this.tableData$,
-      this.categoryFilter,
-      this.productFilter,
-      this.retailerFilter,
-    ])
-      .pipe(
-        map(([units, category, product, retailer]) => {
-          if (category) {
-            units = units.filter((unit) => unit.category === category);
-          }
-          if (product) {
-            units = units.filter((unit) => unit.product_group === product);
-          }
-          if (retailer) {
-            units = units.filter((unit) => unit.retailer === retailer);
-          }
-
-          return units;
-        })
-      )
-      .subscribe((data) => {
-        this.filterData(data);
-        console.log(data.length, 'LENGTH TABLE DATA');
-      });
-
-    // if(this.selected_category){
-    //   this.tableData$.pipe(
-    //   map(units=> units.filter(unit=> unit.category === this.selected_category))
-    //   )
-
-    // }
-    // if(this.selected_product){
-    //   this.tableData$.pipe(
-    //     map(units=> units.filter(unit=> unit.product_group === this.selected_product))
-    //     )
-
-    // }
-    // if(this.selected_retailer){
-    //   this.tableData$.pipe(
-    //     map(units=> units.filter(unit=> unit.retailer === this.selected_retailer))
-    //     )
-
-    // }
-    // this.tableData$.subscribe(data=>{
-    //   console.log(data.length , "LENGTH TABLE DATA")
-    // })
-    // And represent the current value of the two filters using
-    // BehaviourSubjects
-
-    // // combineLatest allows us to compose a stream of streams
-    // const combineFilters = (
-    //   items,
-    //   this.filter1,
-    //   this.filter2
-    // ) =>
-
-    // const filteredItems = combineFilters.subscribe();
-  }
-  onWriterChange() {
-    alert('wewe');
-  }
-  filterData(units: NewUnit[]) {
-    let totalrsv$ = of(...units).pipe(
-      reduce((a, b) => a + b.total_rsv_w_o_vat, 0)
-    );
-
-    let trade_expense$ = of(...units).pipe(
-      reduce((a, b) => a + b.trade_expense, 0)
-    );
-    let total_nsv$ = of(...units).pipe(reduce((a, b) => a + b.total_nsv, 0));
-    let total_cogs$ = of(...units).pipe(reduce((a, b) => a + b.total_cogs, 0));
-    let mars_mac$ = of(...units).pipe(reduce((a, b) => a + b.mars_mac, 0));
-    let retailer_margin$ = of(...units).pipe(
-      reduce((a, b) => a + b.retailer_margin, 0)
-    );
-    let total_base$ = of(...units).pipe(reduce((a, b) => a + b.base_units, 0));
-    let total_weight_in_tons$ = of(...units).pipe(
-      reduce((a, b) => a + b.total_weight_in_tons, 0)
-    );
-    let rsv_vat_new$ = of(...units).pipe(
-      reduce((a, b) => a + b.total_rsv_w_o_vat_new, 0)
-    );
-    let trade_expense_new$ = of(...units).pipe(
-      reduce((a, b) => a + b.trade_expense_new, 0)
-    );
-    let total_nsv_new$ = of(...units).pipe(
-      reduce((a, b) => a + b.total_nsv_new, 0)
-    );
-    let total_cogs_new$ = of(...units).pipe(
-      reduce((a, b) => a + b.total_cogs_new, 0)
-    );
-    let mars_mac_new$ = of(...units).pipe(
-      reduce((a, b) => a + b.mars_mac_new, 0)
-    );
-    let retailer_margin_new$ = of(...units).pipe(
-      reduce((a, b) => a + b.retailer_margin_new, 0)
-    );
-    combineLatest([
-      totalrsv$,
-      trade_expense$,
-      total_nsv$,
-      total_cogs$,
-      mars_mac$,
-      retailer_margin$,
-      total_base$,
-      total_weight_in_tons$,
-      rsv_vat_new$,
-      trade_expense_new$,
-      total_nsv_new$,
-      total_cogs_new$,
-      mars_mac_new$,
-      retailer_margin_new$,
-    ]).subscribe(
-      ([
-        totalrsv,
-        tradeexpense,
-        totalnsv,
-        totalcogs,
-        marsmc,
-        retailermargin,
-        totalbase,
-        totalweightintons,
-        rsv_vat_new,
-        trade_expense_new,
-        total_nsv_new,
-        total_cogs_new,
-        mars_mac_new,
-        retailer_margin_new,
-      ]) => {
-        console.log(totalweightintons, 'totalweightintons');
-        // console.log(rsv_vat_new , "RSV NEW");
-        this.total_rsv = Math.ceil(totalrsv / 1000000);
-        this.total_nsv = Math.ceil(totalnsv / 1000000);
-        this.total_trade_expense = Math.ceil(tradeexpense / 1000000);
-        this.total_cogs = Math.ceil(totalcogs / 1000000);
-        this.total_mars_mac = Math.ceil(marsmc / 1000000);
-        this.total_retailer_margin = Math.ceil(retailermargin / 1000000);
-        this.total_base_units = Math.ceil(totalbase / 1000000);
-        this.total_weight_in_tons = Math.ceil(totalweightintons);
-        this.total_rsv_new = Math.ceil(rsv_vat_new / 1000000);
-        this.total_trade_expense_new = Math.ceil(trade_expense_new / 1000000);
-        this.total_cogs_new = Math.ceil(total_cogs_new / 1000000);
-        this.total_nsv_new = Math.ceil(total_nsv_new / 1000000);
-        this.total_mars_mac_new = Math.ceil(mars_mac_new / 1000000);
-        this.total_retailer_margin_new = Math.ceil(
-          retailer_margin_new / 1000000
-        );
-        this.rsv_w_o_vat_$_chg = -(this.total_rsv_new - this.total_rsv);
-        this.trade_expense_$_chg = -(
-          this.total_trade_expense_new - this.total_trade_expense
-        );
-        this.nsv_$_chg = -(this.total_nsv_new - this.total_nsv);
-        this.cogs_$_chg = -(this.total_cogs_new - this.total_cogs);
-        this.mars_mac_$_chg = -(this.total_mars_mac_new - this.total_mars_mac);
-        this.retailer_margin_$_chg = -(
-          this.total_retailer_margin_new - this.total_retailer_margin
-        );
-
-        this.rsv_w_o_vat_$_chg_percent =
-          (this.rsv_w_o_vat_$_chg / this.total_rsv) * 100;
-        this.trade_expense_$_chg_percent =
-          (this.trade_expense_$_chg / this.total_trade_expense) * 100;
-        this.nsv_$_chg_percent = (this.nsv_$_chg / this.total_nsv) * 100;
-        this.cogs_$_chg_percent = (this.cogs_$_chg / this.total_cogs) * 100;
-        this.mars_mac_$_chg_percent =
-          (this.mars_mac_$_chg / this.total_mars_mac) * 100;
-        this.retailer_margin_$_chg_percent =
-          (this.retailer_margin_$_chg / this.total_retailer_margin) * 100;
-
-        console.log(trade_expense_new, 'trade_expense_new NEW');
-        console.log(total_cogs_new, 'total_cogs_new NEW');
-        console.log(total_nsv_new, 'total_nsv_new NEW');
-        console.log(mars_mac_new, 'mars_mac_new NEW');
-        console.log(retailer_margin_new, 'retailer_margin_new NEW');
-        this.reRender();
-      }
-    );
-  }
-  reRender() {
-    this.data = [
-      [0, this.total_rsv],
-      [this.total_nsv, this.total_nsv + this.total_trade_expense],
-      [0, this.total_nsv],
-      [0, this.total_cogs],
-      [this.total_cogs, this.total_cogs + this.total_mars_mac],
-      [
-        this.total_cogs + this.total_mars_mac,
-        this.total_cogs + this.total_mars_mac + this.total_retailer_margin,
-      ],
-    ];
-    this.data_perton = [
-      [0, this.total_rsv / this.total_weight_in_tons],
-      [
-        this.total_nsv / this.total_weight_in_tons,
-        this.total_nsv / this.total_weight_in_tons +
-          this.total_trade_expense / this.total_weight_in_tons,
-      ],
-      [0, this.total_nsv / this.total_weight_in_tons],
-      [0, this.total_cogs / this.total_weight_in_tons],
-      [
-        this.total_cogs / this.total_weight_in_tons,
-        this.total_cogs / this.total_weight_in_tons +
-          this.total_mars_mac / this.total_weight_in_tons,
-      ],
-      [
-        this.total_cogs / this.total_weight_in_tons +
-          this.total_mars_mac / this.total_weight_in_tons,
-        this.total_cogs / this.total_weight_in_tons +
-          this.total_mars_mac / this.total_weight_in_tons +
-          this.total_retailer_margin / this.total_weight_in_tons,
-      ],
-    ];
-    console.log(this.total_weight_in_tons, 'TOTAL WEIGH');
-    console.log(this.data_perton, 'PER TON');
-    console.log(this.data, 'DATA');
-    this.data_new = [
-      [0, this.total_rsv_new],
-      [this.total_nsv_new, this.total_nsv_new + this.total_trade_expense_new],
-      [0, this.total_nsv_new],
-      [0, this.total_cogs_new],
-      [this.total_cogs_new, this.total_cogs_new + this.total_mars_mac_new],
-      [
-        this.total_cogs_new + this.total_mars_mac_new,
-        this.total_cogs_new +
-          this.total_mars_mac_new +
-          this.total_retailer_margin_new,
-      ],
-    ];
-    this.data_change = [
-      [
-        this.rsv_w_o_vat_$_chg,
-        this.trade_expense_$_chg,
-        this.nsv_$_chg,
-        this.cogs_$_chg,
-        this.mars_mac_$_chg,
-        this.retailer_margin_$_chg,
-      ],
-      [
-        this.rsv_w_o_vat_$_chg_percent,
-        this.trade_expense_$_chg_percent,
-        this.nsv_$_chg_percent,
-        this.cogs_$_chg_percent,
-        this.mars_mac_$_chg_percent,
-        this.retailer_margin_$_chg_percent,
-      ],
-    ];
-    console.log(this.data_change, 'DATA CJANGE');
-    this.data_3 = [this.total_base_units, this.total_base_units];
-    this.data_2 = [
-      parseFloat(((this.total_mars_mac / this.total_nsv) * 100).toFixed(2)),
-      parseFloat(((this.total_mars_mac / this.total_nsv) * 100).toFixed(2)),
-    ];
-    this.chartOptions = this.getChartOption(
-      'Base scenario',
-      this.categories,
-      this.data,
-      'columnrange'
-    );
-    this.chartOptions_1 = this.getChartOption(
-      'New scenario',
-      this.categories,
-      this.data_new,
-      'columnrange'
-    );
-    this.chartOptions_4 = this.getChartOptionColumn(
-      'Change in Units',
-      this.categories_3,
-      this.data_3,
-      'column'
-    );
-    this.chartOptions_2 = this.getChartOptionColumn(
-      'Base scenario',
-      this.categories_2,
-      this.data_2,
-      'column'
-    );
-    this.chartOptions_3 = this.getChartOptionColumn(
-      'New scenario',
-      this.categories_2,
-      this.data_2,
-      'column'
-    );
-    this.chartOptionPerTonBase = this.getChartOption(
-      'Base scenario',
-      this.categories_perton,
-      this.data_perton,
-      'columnrange'
-    );
-    this.chartOptionPerTonNew = this.getChartOption(
-      'New scenario',
-      this.categories_perton,
-      this.data_perton,
-      'columnrange'
-    );
-    this.chartOptions_change = this.getChartOptionColumnYaxis(
-      'change',
-      this.category_change,
-      this.data_change,
-      'column'
-    );
-    this.chartOptionBase = this.chartOptions;
-    this.chanrtOptionsNew = this.chartOptions_1;
-    this.chartOptionsChange = this.chartOptions_change;
-    this.chartRetailerMars = this.chartOptions_2;
-  }
-  getChartOptionColumn(title, categories, data_array, type) {
-    return {
-      chart: {
-        backgroundColor: {
-          linearGradient: [0, 0, 500, 500],
-          stops: [
-            [0, 'rgb(255, 255, 255)'],
-            [1, 'rgb(200, 200, 255)'],
-          ],
-        },
-        type: type,
-      },
-
-      title: {
-        text: title,
-      },
-      xAxis: {
-        categories: categories,
-      },
-      yAxis: {
-        title: {
-          text: 'Percentage',
-        },
-      },
-
-      tooltip: {
-        formatter: function () {
-          return this.y + '%';
-        },
-      },
-
-      plotOptions: {
-        series: {
-          dataLabels: {
-            enabled: true,
-            formatter: function () {
-              return this.y + '%';
-            },
-          },
-        },
-      },
-
-      legend: {
-        enabled: false,
-      },
-      credits: {
-        enabled: false,
-      },
-      series: [
-        {
-          data: data_array,
-        },
-      ],
-    };
-  }
-
-  getChartOptionColumnYaxis(title, categories, data_array, type) {
-    return {
-      chart: {
-        backgroundColor: {
-          linearGradient: [0, 0, 500, 500],
-          stops: [
-            [0, 'rgb(255, 255, 255)'],
-            [1, 'rgb(200, 200, 255)'],
-          ],
-        },
-        zoomType: 'xy',
-      },
-
-      title: {
-        text: title,
-      },
-      // subtitle: {
-      //   text: 'change'
-      // },
-      xAxis: {
-        categories: categories,
-        crosshair: true,
-      },
-
-      yAxis: [
-        {
-          // Primary yAxis
-          labels: {
-            format: '{value}$',
-            style: {
-              color: Highcharts.getOptions().colors[1],
-            },
-          },
-          title: {
-            text: 'Value Changes(Millions)',
-            style: {
-              color: Highcharts.getOptions().colors[1],
-            },
-          },
-        },
-        {
-          // Secondary yAxis
-          title: {
-            text: '% Change',
-            style: {
-              color: Highcharts.getOptions().colors[0],
-            },
-          },
-          labels: {
-            format: '{value} %',
-            style: {
-              color: Highcharts.getOptions().colors[0],
-            },
-          },
-          opposite: true,
-        },
-      ],
-
-      tooltip: {
-        formatter: function () {
-          return this.y + '%';
-        },
-      },
-
-      plotOptions: {
-        series: {
-          dataLabels: {
-            enabled: true,
-            formatter: function () {
-              return this.y + '%';
-            },
-          },
-        },
-      },
-
-      // legend: {
-      //   enabled: true
-      // },
-      legend: {
-        layout: 'vertical',
-        // align: 'left',
-        // x: 120,
-        verticalAlign: 'top',
-        // y: 100,
-        // floating: true,
-        // backgroundColor:
-        //   Highcharts.defaultOptions.legend.backgroundColor || // theme
-        //   'rgba(255,255,255,0.25)'
-      },
-      credits: {
-        enabled: false,
-      },
-      series: [
-        {
-          name: 'Value Changes',
-          type: 'column',
-          yAxis: 1,
-          data: data_array[0],
-          tooltip: {
-            valueSuffix: '$',
-          },
-        },
-        {
-          name: '% change',
-          type: 'spline',
-          data: data_array[1],
-          tooltip: {
-            valueSuffix: '%',
-          },
-        },
-      ],
-      //     series: [{
-      //       name:"Value change",
-      //       data : data_array[0],
-      //        zones: [{
-      //          value: 1,
-      //          color: '#47475C',
-      //      } , {
-
-      //      }]
-      //    },
-      //  {
-      //   name : '% Change',
-      //    data: data_array[1],
-      //    yAxis: 1,
-
-      //  }
-      // ]
-    };
-  }
-
-  getChartOption(title, categories, data_array, type) {
-    console.log(data_array, 'DATAARRAY');
-    return {
-      chart: {
-        backgroundColor: {
-          linearGradient: [0, 0, 500, 500],
-          stops: [
-            [0, 'rgb(255, 255, 255)'],
-            [1, 'rgb(200, 200, 255)'],
-          ],
-        },
-        type: type,
-      },
-
-      title: {
-        text: title,
-      },
-      xAxis: {
-        categories: categories,
-      },
-      yAxis: {
-        title: {
-          text: 'Millions',
-        },
-      },
-
-      // yAxis: {
-
-      // },
-      tooltip: {
-        formatter: function () {
-          // console.log(this.point , "POINT")
-          return (
-            '<b>' + (this.point.high - this.point.low).toFixed(3) + ' ₽</b>'
-          );
-        },
-      },
-
-      plotOptions: {
-        series: {
-          dataLabels: {
-            enabled: true,
-            formatter: function () {
-              // console.log("FORMATTER " , this)
-              if (this.y != this.point.low) {
-                let value = this.point.high - this.point.low;
-                if (value % 1 != 0) {
-                  return value.toFixed(3) + '₽';
-                } else {
-                  return String(value) + '₽';
-                }
-              }
-            },
-          },
-        },
-      },
-
-      legend: {
-        enabled: false,
-      },
-      credits: {
-        enabled: false,
-      },
-      series: [
-        {
-          data: data_array,
-          zones: [
-            {
-              value: 0.1,
-              color: '#ffbf00',
-            },
-            {
-              // value: 0.1,
-              // color: '#47475C',
-            },
-          ],
-        },
-        // {
-        //   data: data_array,
-        //   yAxis: 1,
-        //   name : 'Millions'
-        // }
-      ],
-    };
-  }
-}
+  

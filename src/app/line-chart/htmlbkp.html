@@ -1,0 +1,158 @@
+<!-- <svg width="600" height="500"></svg> -->
+<!-- <div id="my_dataviz"></div> -->
+<div class="container-fluid">
+    <div class="d-flex justify-content-center sec-h">
+      <p class="m-auto py-2">Mars P&L Metric</p>
+    </div>
+    <div class="d-flex ">
+  
+      <div class="card bg-light mr-2 " style="width: 50%;">
+        <div class="d-flex flex-column">
+         
+          <div class="d-flex justify-content-around">
+            <p class="flex-fill">Base Scenario</p>
+            <p class="flex-fill">VS</p>
+            <p class="flex-fill">New Scenario</p>
+          </div>
+  
+          <div class="d-flex" style="height: 320px">
+            <div class="flex-fill" id="my_dataviz"></div>
+            <div class="d-flex flex-column justify-content-start flex-fill">
+               
+  <button *ngFor="let p of sorted"  type="button"
+  class="btn btn-light gb">
+  {{p}}
+  </button>
+            </div>
+            <div class="flex-fill" id="my_dataviz2"></div>
+           
+          </div>
+         
+        </div>
+      </div>
+      <div class="card bg-light  flex-fill  " style="width: 50%;">
+        <table class="table table-sm table-striped" *ngIf="simulated">
+          <thead>
+            <tr style="height: 50px;">
+              <td><p class="text-muted">Metrics</p></td>
+              <td><p class="text-muted">Absolute</p></td>
+              <td><p class="text-muted">Percent</p></td>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="tb-tr">
+              <td>LSV</td>
+              <td appTdDirective [n] = "abs" [value] = "simulated.absolute_change.lsv">
+                {{simulated.absolute_change.lsv |  convertTonnes}}</td>
+              <td appTdDirective [n] = "per" [value] = "simulated.percent_change.lsv">
+                {{ simulated.percent_change.lsv | number: decimalFormat }} %</td>
+            </tr>
+            <tr class="tb-tr">
+              <td>Trade Expense</td>
+              <td appTdDirective [n] = "abs" [value] = "simulated.absolute_change.te" [reverse]="true">{{ simulated.absolute_change.te |  convertTonnes }}</td>
+            <td appTdDirective [n] = "per" [value] = "simulated.percent_change.te" [reverse]="true">{{ simulated.percent_change.te | number: decimalFormat }} %</td>
+            </tr>
+            <tr class="tb-tr">
+              <td>Net Sales Value</td>
+              <td appTdDirective [n] = "abs" [value] = "simulated.absolute_change.nsv">{{ simulated.absolute_change.nsv|  convertTonnes }}</td>
+              <td appTdDirective [n] = "per" [value] = "simulated.percent_change.nsv">{{ simulated.percent_change.nsv | number: decimalFormat }} %</td>
+            </tr>
+            <tr class="tb-tr">
+              <td>COGS</td>
+              <td appTdDirective [n] = "abs" [value] = "simulated.absolute_change.cogs">{{ simulated.absolute_change.cogs|  convertTonnes }}</td>
+            <td appTdDirective [n] = "per" [value] = "simulated.percent_change.cogs">{{ simulated.percent_change.cogs | number: decimalFormat }} %</td>
+            </tr>
+            <tr class="tb-tr">
+              <td>MARS MAC</td>
+              <td appTdDirective [n] = "abs" [value] = "simulated.absolute_change.mac">{{ simulated.absolute_change.mac|  convertTonnes }}</td>
+            <td appTdDirective [n] = "abs" [value] = "simulated.percent_change.mac">{{ simulated.percent_change.mac | number: decimalFormat }} %</td>
+            </tr>
+            <tr class="tb-tr">
+              <td>Customer Margin</td>
+              <td appTdDirective [n] = "abs" [value] = "simulated.absolute_change.rp">{{ simulated.absolute_change.rp|  convertTonnes }}</td>
+            <td appTdDirective [n] = "abs" [value] = "simulated.percent_change.rp">{{ simulated.percent_change.rp | number: decimalFormat }} %</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      
+  
+    </div>
+    <div class="d-flex justify-content-center mt-2 sec-h">
+      <p class="m-auto py-2">Retailer P&L Metric</p>
+    </div>
+     
+    <div class="d-flex">
+       
+      <div class="card bg-light mr-2" style="width: 50%;">
+        <div class="d-flex flex-column">
+          <!-- <div class="d-flex justify-content-center">
+            <p style="font-family : 'mars-extra-bold'"></p>
+          </div> -->
+          <div class="d-flex justify-content-around">
+            <p  class="flex-fill">Base Scenario</p>
+            <p  class="flex-fill">VS</p>
+            <p class="flex-fill">New Scenario</p>
+          </div>
+          <div class="d-flex" style="height: 320px">
+            <div class="flex-fill" id="my_dataviz11"></div>
+            <div class="d-flex flex-column justify-content-start flex-fill">
+              <button *ngFor="let p of sorted2"  type="button"
+  class="btn btn-light gb">
+  {{p}}
+  </button>
+            </div>
+            <div class="flex-fill" id="my_dataviz22"></div>
+          </div>
+        </div>
+      </div>
+          <div class="card flex-fill" style="width: 50%;">
+            <table class="table table-sm table-striped" *ngIf="simulated">
+              <thead>
+                <tr style="height: 50px;">
+                  <td><p class="text-muted">Metrics</p></td>
+                  <td><p class="text-muted">Absolute</p></td>
+                  <td><p class="text-muted">Percent</p></td>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="tb-tr">
+                  <td>RSV</td>
+                  <td appTdDirective [n] = "abs" [value] = "simulated.absolute_change.rsv">
+                    {{simulated.absolute_change.rsv |  convertTonnes}}</td>
+                  <td appTdDirective [n] = "per" [value] = "simulated.percent_change.rsv">
+                    {{ simulated.percent_change.rsv | number: decimalFormat }} %</td>
+                </tr>
+                <tr class="tb-tr">
+                  <td>Trade Expense</td>
+                  <td appTdDirective [n] = "abs" [value] = "simulated.absolute_change.te" [reverse]="true">{{ simulated.absolute_change.te |  convertTonnes }}</td>
+                <td appTdDirective [n] = "per" [value] = "simulated.percent_change.te" [reverse]="true">{{ simulated.percent_change.te | number: decimalFormat }} %</td>
+                </tr>
+                <tr class="tb-tr">
+                  <td>Net Sales Value</td>
+                  <td appTdDirective [n] = "abs" [value] = "simulated.absolute_change.nsv">{{ simulated.absolute_change.nsv|  convertTonnes }}</td>
+                  <td appTdDirective [n] = "per" [value] = "simulated.percent_change.nsv">{{ simulated.percent_change.nsv | number: decimalFormat }} %</td>
+                </tr>
+                <tr class="tb-tr">
+                  <td>COGS</td>
+                  <td appTdDirective [n] = "abs" [value] = "simulated.absolute_change.cogs">{{ simulated.absolute_change.cogs|  convertTonnes }}</td>
+                <td appTdDirective [n] = "per" [value] = "simulated.percent_change.cogs">{{ simulated.percent_change.cogs | number: decimalFormat }} %</td>
+                </tr>
+                <tr class="tb-tr">
+                  <td>MARS MAC</td>
+                  <td appTdDirective [n] = "abs" [value] = "simulated.absolute_change.mac">{{ simulated.absolute_change.mac|  convertTonnes }}</td>
+                <td appTdDirective [n] = "abs" [value] = "simulated.percent_change.mac">{{ simulated.percent_change.mac | number: decimalFormat }} %</td>
+                </tr>
+                <tr class="tb-tr">
+                  <td>Customer Margin</td>
+                  <td appTdDirective [n] = "abs" [value] = "simulated.absolute_change.rp">{{ simulated.absolute_change.rp|  convertTonnes }}</td>
+                <td appTdDirective [n] = "abs" [value] = "simulated.percent_change.rp">{{ simulated.percent_change.rp | number: decimalFormat }} %</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+       
+    </div>
+     
+  </div>
+   

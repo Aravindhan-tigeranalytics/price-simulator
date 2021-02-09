@@ -1,28 +1,29 @@
-import { Component, OnInit } from '@angular/core';
-import { ApiService } from '../shared/services/api.service';
-import { NewUnit } from '../shared/models/unit';
-import {
-  SimulatorInput,
-  SimulatedSummary,
-  SimulatedArray,
-} from '../shared/models/input';
-import {
-  Observable,
-  of,
-  from,
-  BehaviorSubject,
-  combineLatest,
-  pipe,
-} from 'rxjs';
-import {
-  distinct,
-  distinctUntilChanged,
-  map,
-  reduce,
-  filter,
-  tap,
-} from 'rxjs/operators';
-import { ExcelServicesService } from '../shared/services/excel.service';
+  import { Component, OnInit } from '@angular/core';
+  import { ApiService } from '../shared/services/api.service';
+  import { PriceScenarioService } from '../shared/services/price-scenario.service';
+  import { NewUnit } from '../shared/models/unit';
+  import {
+    SimulatorInput,
+    SimulatedSummary,
+    SimulatedArray,
+  } from '../shared/models/input';
+  import {
+    Observable,
+    of,
+    from,
+    BehaviorSubject,
+    combineLatest,
+    pipe,
+  } from 'rxjs';
+  import {
+    distinct,
+    distinctUntilChanged,
+    map,
+    reduce,
+    filter,
+    tap,
+  } from 'rxjs/operators';
+  import { ExcelServicesService } from '../shared/services/excel.service';
 @Component({
   selector: 'app-scenario-comparison',
   templateUrl: './scenario-comparison.component.html',
@@ -40,19 +41,22 @@ export class ScenarioComparisonComponent implements OnInit {
   simulatedArray: SimulatedArray[] = new Array();
   constructor(
     private api: ApiService,
+    private priceScenarioService:PriceScenarioService,
     private excelService: ExcelServicesService
   ) {}
 
   ngOnInit(): void {
-    this.tableData$ = this.api.getUnits();
+    this.tableData$ = this.priceScenarioService.getUnits()
+    //  this.api.getUnits();
     this.tableData$.subscribe((data: NewUnit[]) => {
       this.units = data;
+      // console.log(this.units , 'UNITSSS')
     });
     this.api.getScenario().subscribe((data: any[]) => {
-      console.log(data, 'GET DATA');
+      // console.log(data, 'GET DATA');
       this.scenarios = data;
-      this.scenarioArray = data.map((d) => ({ name: d.name, id: d.id }));
-      console.log(this.scenarioArray, 'SELECTED SCENARIO');
+      this.scenarioArray = data.map((d) => ({ name: d.name, id: d.id ,dump : JSON.parse(d.savedump)}));
+      // console.log(this.scenarioArray, 'SELECTED SCENARIO');
     });
   }
   exportAsXLSX(): void {
@@ -88,24 +92,27 @@ export class ScenarioComparisonComponent implements OnInit {
     window.open(url);
   }
   removeSce(val) {
-    console.log(val, 'remove id');
-    console.log(this.simulatedArray);
+    // console.log(val, 'remove id');
+    // console.log(this.simulatedArray);
     this.simulatedArray = this.simulatedArray.filter((arr) => arr.key != val);
-    console.log(this.simulatedArray);
+    // console.log(this.simulatedArray);
     this.selectComparearr = new Array(5 - this.simulatedArray.length);
     // this.scenarioArray = this.scenarioArray.filter((p) => p.name === val);
   }
 
   selectCompare() {
-    console.log(this.selectedScenario, 'SSSSSSSSSSS');
+    // console.log(this.selectedScenario, 'SSSSSSSSSSS');
     let selected = this.scenarios.find((p) => p.id === this.selectedScenario);
-    console.log(JSON.parse(selected.savedump));
-    console.log(selected, 'Selected');
+    // console.log(JSON.parse(selected.savedump).formArray);
+    // console.log(selected, 'Selected');
     // this.selectedScenario
 
-    let new_unit: NewUnit[] = this.api.updateSimulatedvalue(
+    let new_unit: NewUnit[] = 
+    this.priceScenarioService.updateSimulatedvalue(
       this.units,
-      JSON.parse(selected.savedump)
+      null,
+      JSON.parse(selected.savedump).formArray,
+      // ''
     );
     this.populateSummary(new_unit, selected.name);
   }
@@ -115,6 +122,13 @@ export class ScenarioComparisonComponent implements OnInit {
     // let totalrsv$ =  of(...units).pipe(
     //      reduce((a, b) => a + ((b.base_units)), 0)
     //      )
+
+    let category$ = of(...units)
+    .pipe(distinct((unit) => unit.category))
+  let retailer$ = of(...units)
+    .pipe(distinct((unit) => unit.retailer))
+  let product$ = of(...units)
+    .pipe(distinct((unit) => unit.product_group))
     let total_base$ = of(...units).pipe(reduce((a, b) => a + b.base_units, 0));
     let total_base_new$ = of(...units).pipe(
       // filter(data=>data.category === category),
@@ -140,6 +154,8 @@ export class ScenarioComparisonComponent implements OnInit {
     let total_nsv_new$ = of(...units).pipe(
       reduce((a, b) => a + b.total_nsv_new, 0)
     );
+    let total_cogs$ = of(...units).pipe(reduce((a, b) => a + b.total_cogs, 0));
+    let total_cogs_new$ = of(...units).pipe(reduce((a, b) => a + b.total_cogs_new, 0));
 
     let trade_expense$ = of(...units).pipe(
       reduce((a, b) => a + b.trade_expense, 0)
@@ -170,12 +186,17 @@ export class ScenarioComparisonComponent implements OnInit {
       total_rsv_new$,
       total_nsv$,
       total_nsv_new$,
+      total_cogs$,
+      total_cogs_new$,
       trade_expense$,
       trade_expense_new$,
       mars_mac$,
       mars_mac_new$,
       retailer_margin$,
       retailer_margin_new$,
+      retailer$,
+      category$,
+      product$
     ]).subscribe(
       ([
         total_base,
@@ -188,12 +209,17 @@ export class ScenarioComparisonComponent implements OnInit {
         total_rsv_new,
         total_nsv,
         total_nsv_new,
+        total_cogs,
+        total_cogs_new,
         trade_expense,
         trade_expense_new,
         mars_mac,
         mars_mac_new,
         retailer_margin,
         retailer_margin_new,
+        retialer,
+        category,
+        product
       ]) => {
         let baseSummary = new SimulatedSummary(
           total_base,
@@ -201,6 +227,7 @@ export class ScenarioComparisonComponent implements OnInit {
           total_lsv,
           total_rsv,
           total_nsv,
+          total_cogs,
           trade_expense,
           mars_mac,
           retailer_margin
@@ -211,17 +238,20 @@ export class ScenarioComparisonComponent implements OnInit {
           total_lsv_new,
           total_rsv_new,
           total_nsv_new,
+          total_cogs_new,
           trade_expense_new,
           mars_mac_new,
           retailer_margin_new
         );
-        console.log(key, 'FOR KEY');
-        console.log(baseSummary, 'BASE SUMMARY');
-        console.log(SimulateSummary, 'SIMULATED SUMMARY');
+        // console.log(key, 'FOR KEY');
+        // console.log(baseSummary, 'BASE SUMMARY');
+        // console.log(SimulateSummary, 'SIMULATED SUMMARY');
 
         this.simulatedArray.push(
           new SimulatedArray(
             key,
+            category,
+            retialer,
             baseSummary,
             SimulateSummary,
             baseSummary.get_absolute(SimulateSummary),
@@ -230,7 +260,7 @@ export class ScenarioComparisonComponent implements OnInit {
         );
         this.selectComparearr = new Array(5 - this.simulatedArray.length);
 
-        console.log(this.simulatedArray, 'Simulated array');
+        // console.log(this.simulatedArray, 'Simulated array');
       }
     );
   }

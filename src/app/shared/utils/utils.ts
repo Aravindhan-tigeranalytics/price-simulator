@@ -1,3 +1,35 @@
+export function convertCurrency(value , per?){
+  if(value){
+    let symbol = " ₽"
+    let str = value.toFixed(2).split(".")[0]
+    let strlen = str.length
+    let final = value
+    let curr = ""
+    if(strlen >=4 && strlen <=6){
+      final = value / 1000;
+      curr = "K"
+
+    }
+    else if (strlen >=7 && strlen <=9){
+      final = value / 1000000
+      curr = "M"
+    }
+    else if(strlen >= 10){
+      final = value / 1000000000
+      curr = "B"
+    }
+    // console.log(value , "ACTUAL")
+    // console.log(strlen , "ACTUAL LEN")
+    // console.log(final , "FINAL")
+    if(per){
+      symbol = " %"
+    }
+    return  final.toFixed(1) + curr + symbol
+
+  }
+  return 0
+}
+
 export function stringToParseConversion(str: string): number {
   let s = str.replace(/,-/g, '').trim();
   if (s == '-') {
@@ -8,7 +40,7 @@ export function stringToParseConversion(str: string): number {
 }
 
 export function NanCheck(dividend, divisor) {
-  if (isNaN(dividend / divisor)) {
+  if (!isFinite(dividend / divisor)) {
     return 0;
   }
   return dividend / divisor;
@@ -81,7 +113,7 @@ export function getChartOptionColumn(title, categories, data_array, type) {
 }
 
 export function getChartOption(title, categories, data_array, type) {
-  console.log(data_array, 'DATAARRAY');
+  // console.log(data_array, 'DATAARRAY');
   return {
     chart: {
       backgroundColor: {

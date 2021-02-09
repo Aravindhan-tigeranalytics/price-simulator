@@ -1,12 +1,16 @@
-import { Component } from '@angular/core';
+import { Component,ChangeDetectorRef } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
-
+import {SpinnerService} from "./shared/services/spinner.service"
+import {
+ delay
+} from 'rxjs/operators';
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
 })
 export class AppComponent {
+  showSpinner: boolean;
   title = 'price-simulator';
   profit_pool = false;
   hide = false;
@@ -19,7 +23,7 @@ export class AppComponent {
   ];
   home = ['/', '/home'];
 
-  constructor(private router: Router) {
+  constructor(private spinnerService: SpinnerService,private router: Router,private cd: ChangeDetectorRef) {
     this.router.events.subscribe((val) => {
       if (val instanceof NavigationEnd) {
         // console.log(val, 'VAL OF ROUTER ');
@@ -38,5 +42,14 @@ export class AppComponent {
         }
       }
     });
+
+    this.spinnerService.getSpin().pipe(delay(0)).subscribe(data=>{
+      this.showSpinner = data
+    })
   }
+
+  ngAfterViewInit() {
+    // this.cd.detectChanges();
+}
+ 
 }

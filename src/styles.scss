@@ -102,6 +102,12 @@ $theme: mat-light-theme($primary, $accent);
   // box-sizing:inherit;
   // box-sizing: border-box;
 }
+.cdk-global-overlay-wrapper, .cdk-overlay-container { z-index: 9999!important; }
+
+.mat-form-field-appearance-fill .mat-form-field-infix{
+  font-family: "mars-extra-bold";
+  width:130px!important;
+}
 html {
   /* font-size: 10px; */
   // font-size: 62.5%;
@@ -113,6 +119,7 @@ body {
   font-weight: 400;
   font-size: 16px;
   color: var(--color-grey-dark-1);
+  margin : 0;
   // font-size: 62.5%;
   // line-height: 1.7;
   // color : #777;

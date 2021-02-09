@@ -1,6 +1,13 @@
 <!-- <app-header></app-header> -->
+<!-- <mat-progress-bar color="accent" mode="indeterminate" *ngIf="showSpinner"></mat-progress-bar> -->
 <div class="container-fluid">
   <div class="content">
+    <div class="overlay" *ngIf="showSpinner">
+    <div class="center" >
+      <mat-spinner [diameter]="100"  mode="indeterminate" ></mat-spinner>
+  </div>
+</div>
+   
     <app-header-side *ngIf="!hide"></app-header-side>
     <app-profit-pool-header *ngIf="profit_pool"></app-profit-pool-header>
     <!-- <app-header-side ></app-header-side> -->

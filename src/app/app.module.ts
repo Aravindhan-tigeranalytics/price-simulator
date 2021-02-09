@@ -1,5 +1,5 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
+import { ErrorHandler, NgModule } from '@angular/core';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -19,6 +19,8 @@ import { AuthService } from './shared/services/auth.services';
 import { ProfitPoolService } from './shared/services/profit-pool.service';
 import {PriceScenarioService} from './shared/services/price-scenario.service'
 import { ExcelServicesService } from './shared/services/excel.service';
+import { GlobalErrorHandler } from './shared/services/global-error-handler.service';
+import {FormService} from './shared/services/form.service'
 import { AuthGuard } from './shared/services/auth-guard.service';
 import { ScenarioComparisonComponent } from './scenario-comparison/scenario-comparison.component';
 import { ScenarioCardComponent } from './scenario-card/scenario-card.component';
@@ -44,6 +46,15 @@ import { RemoveUnderPipe } from './remove-under.pipe';
 import { ConvertTonnesPipe } from './convert-tonnes.pipe';
 import { ChangeColorDirective } from './change-color.directive';
 import { PowerbiComponent } from './powerbi/powerbi.component';
+import { ProfitreportComponent } from './profitreport/profitreport.component';
+import { PcreportComponent } from './pcreport/pcreport.component';
+import {NgbdSortableHeader} from './scenario-input/scenario-input.component'
+import { SelectCheckAllComponent } from './shared/component/select-check-all.component';
+import { TdDirectiveDirective } from './shared/directives/td-directive.directive';
+import { ScenarioComparisonTableComponent } from './scenario-comparison-table/scenario-comparison-table.component';
+import { ComparePipePipe } from './compare-pipe.pipe';
+import { ToastrModule } from 'ngx-toastr';
+import { ScIpSimulatedTdComponent } from './sc-ip-simulated-td/sc-ip-simulated-td.component';
 // import {} from './dashboard/'
 
 const routes: Routes = [
@@ -60,10 +71,14 @@ const routes: Routes = [
     component: PowerbiComponent,
   },
   {
-    path: 'scenario',
-    component: ScenarioBuilderComponent,
-    canActivate: [AuthGuard],
+    path: 'pcreport',
+    component: PcreportComponent,
   },
+  {
+    path: 'profitreport',
+    component: ProfitreportComponent,
+  },
+ 
   {
     path: 'dashboard',
     component: DashHomeComponent,
@@ -88,11 +103,24 @@ const routes: Routes = [
   //   // canActivate: [AuthGuard],
   //   // loadChildren: () => import('./dashboard/dashboard.module').then(m => m.DashboardModule)
   // },
+  // {
+  //   path: 'compare',
+  //   component: ScenarioComparisonComponent,
+  //   canActivate: [AuthGuard],
+  //   // loadChildren: () => import('./dashboard/dashboard.module').then(m => m.DashboardModule)
+  // },
   {
-    path: 'compare',
-    component: ScenarioComparisonComponent,
+    path: 'scenario',
+    // component: ScenarioBuilderComponent,
+    children: [
+      { path: '', redirectTo: 'overview', pathMatch: 'full' },
+      { path: '', component: ScenarioBuilderComponent },
+      { path: 'compare', component: ScenarioComparisonComponent },
+      { path: 'compare-table', component: ScenarioComparisonTableComponent },
+      // { path: 'yearly-trends', component: YearlyTrendsComponent },
+      // { path: 'summ', component: ProfitSummaryTableComponent },
+    ],
     canActivate: [AuthGuard],
-    // loadChildren: () => import('./dashboard/dashboard.module').then(m => m.DashboardModule)
   },
   {
     path: 'pricepool',
@@ -123,10 +151,12 @@ const routes: Routes = [
 
 @NgModule({
   declarations: [
+    TdDirectiveDirective,
     AppComponent,
     AuthComponent,
     HeaderComponent,
     DashInputComponent,
+    NgbdSortableHeader,
     DashHomeComponent,
     ScenarioComparisonComponent,
     ScenarioCardComponent,
@@ -148,6 +178,12 @@ const routes: Routes = [
     ConvertTonnesPipe,
     ChangeColorDirective,
     PowerbiComponent,
+    ProfitreportComponent,
+    PcreportComponent,
+    SelectCheckAllComponent,
+    ScenarioComparisonTableComponent,
+    ComparePipePipe,
+    ScIpSimulatedTdComponent
   ],
   imports: [
     BrowserModule,
@@ -159,6 +195,7 @@ const routes: Routes = [
     ReactiveFormsModule,
     HighchartsChartModule,
     NgbModule,
+    ToastrModule.forRoot(),
     RouterModule.forRoot(routes),
   ],
   providers: [
@@ -167,11 +204,16 @@ const routes: Routes = [
     ProfitPoolService,
     PriceScenarioService,
     ExcelServicesService,
+    FormService,
     {
       provide: HTTP_INTERCEPTORS,
       useClass: CustomHttpInterceptor,
       multi: true,
     },
+    {
+      provide : ErrorHandler,
+      useClass : GlobalErrorHandler
+    }
   ],
   bootstrap: [AppComponent],
 })

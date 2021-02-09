@@ -1,0 +1,43 @@
+<div
+[ngClass]="{
+ 'color-danger':
+   value < 0  ,
+ 'color-success':
+  value > 0 
+}">
+ <span *ngIf="!isCHG"> 
+   {{
+     value
+       | convertTonnes: isCHG
+      
+   }}
+   <i
+       class="fa"
+       aria-hidden="true"
+       [ngClass]="{
+         'color-danger fa-arrow-down':
+           value < 0  ,
+         'color-success fa-arrow-up':
+        value > 0 
+       }"
+     ></i>
+ </span><span *ngIf="isCHG"> 
+   {{
+     value  | number: decimalFormat
+         
+   }}
+ </span>
+ <span *ngIf="isCHG && value"
+     >%
+     <i
+       class="fa"
+       aria-hidden="true"
+       [ngClass]="{
+         'color-danger fa-arrow-down':
+           value < 0  ,
+         'color-success fa-arrow-up':
+        value > 0 
+       }"
+     ></i>
+   </span>
+ </div>

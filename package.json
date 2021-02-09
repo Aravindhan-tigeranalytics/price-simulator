@@ -2,9 +2,10 @@
   "name": "price-simulator",
   "version": "0.0.0",
   "scripts": {
+    
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build",
+    "build": "ng build --prod",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
@@ -30,6 +31,8 @@
     "font-awesome": "^4.7.0",
     "highcharts": "^8.2.2",
     "highcharts-angular": "^2.8.0",
+    "ngx-mat-select-search": "^3.2.0",
+    "ngx-toastr": "^13.2.0",
     "powerbi-client": "^2.15.1",
     "rxjs": "~6.6.0",
     "tslib": "^2.0.0",

@@ -1,0 +1,218 @@
+<div class="container-fluid">
+
+
+    <div class="d-flex bd-highlight p-1 m-1 align-items-baseline cust">
+        <div class="p-1">
+            <label for="sel1">Saved Scenario:</label>
+        </div>
+        <div class="p-1">
+            <select class="form-control select2" id="sel1" [(ngModel)]="selectedScenario">
+                <option value="">Select</option>
+                <option *ngFor="let c of scenarioArray" [ngValue]="c.id">
+                    {{ c.name }}
+                </option>
+            </select>
+        </div>
+
+        <div class="p-1">
+            <a (click)="selectCompare()" class="btn btn-primary"><i class="fa fa-plus pr-1" aria-hidden="true"></i>Add
+                to compare</a>
+        </div>
+        <div class="p-1 ml-auto align-self-stretch download">
+            <div>
+                <a (click)="downloadExcel()" class="btn"><i class="fa fa-download pr-1" aria-hidden="true"></i></a>
+            </div>
+        </div>
+    </div>
+<div class="table-responsive"> 
+    <div *ngIf="simulatedArray.length == 0" class="d-flex justify-content-center align-items-center" style="height:90vh;">
+        <div class=""> Select Scenarios from above and add to compare</div>    
+    </div>
+    <div class="row mt-3" *ngIf="simulatedArray.length > 0">
+       
+
+        <div class="comparison " >
+
+            <table class="table table-borderless">
+                <thead>
+                    <tr>
+                        <th class="tl tl2"> </th>
+
+                        <th colspan="4" class="qbo">
+                            Absolute Change
+                            <mat-slide-toggle (change)="toggleChange($event)"></mat-slide-toggle>
+                            Percent Change
+                        </th>
+                    </tr>
+                    <tr>
+                        <th class="compare-heading">
+                          <mat-form-field appearance="fill" style="width: 100%;">
+                            <mat-label>Manage Metrics</mat-label>
+                            <mat-select multiple (selectionChange)="metricChange($event.value)">
+                                <mat-option *ngFor="let p of additional_metrics" [value]="p">
+                                    {{ p.total }}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+
+                           
+                        </th>
+                        <ng-template #tipContent>
+
+                            <ul style="list-style-type: none;">
+                                <li class="heading">Product</li>
+                                <ul  *ngIf="filter_used.productFilter; else pAll"
+                                 >
+                                <li  *ngFor="let product of filter_used.productFilter">{{product}}</li>
+                                </ul>
+                                <ng-template #pAll>
+                                <ul>
+                                <li>All</li>
+                                </ul>
+                              </ng-template>
+                                <li class="heading">Retailer</li>
+                                <ul *ngIf="filter_used.retailerFilter; else rAll" 
+                                  >
+                                <li *ngFor="let product of filter_used.retailerFilter">{{product}}</li>
+                                </ul>
+                                <ng-template #rAll>
+                                  <ul>
+                                  <li>All</li>
+                                  </ul>
+                                </ng-template>
+                                <li class="heading">Category</li>
+                                <ul   *ngIf="filter_used.categoryFilter; else cAll"
+                                  >
+                                <li *ngFor="let product of filter_used.categoryFilter">{{product}}</li>
+                                </ul>
+                                <ng-template #cAll>
+                                  <ul>
+                                  <li>All</li>
+                                  </ul>
+                                </ng-template>
+                                
+                            </ul>
+                        </ng-template>
+                        <th *ngFor="let input of simulatedArray" class="compare-heading">
+                          <div class="d-flex">
+                            <div class="flex-fill"> {{input.key}} <i class="fa fa-info-circle" aria-hidden="true"
+
+                              (mouseover) = "selectFilters(input.key)"
+                              [ngbTooltip]="tipContent"
+                              ></i></div>
+                            <div class="">
+                              <i class="fa fa-trash" aria-hidden="true"
+                              style="color:red"
+                              (click) = "removeSce(input.key)"
+                              ></i>
+                            </div>
+                          </div>
+                           
+                        </th>
+                     
+                    </tr>
+                    <tr>
+                        <th>
+                          <mat-radio-group aria-label="Select an option"  [(ngModel)]="radioModel"
+                          (change)="modelChangeFn($event)">
+                            <mat-radio-button class="mr-1" [value]="'total'">Total Value</mat-radio-button>
+                            <mat-radio-button class="mr-1" [value]="'per ton'">Per Ton</mat-radio-button>
+                            <mat-radio-button class="mr-1" [value]="'per unit'">Per Unit</mat-radio-button>
+                          </mat-radio-group>
+ 
+                        </th>
+                        <th class="price-info" *ngFor="let input of simulatedArray">
+                            <div class="d-flex justify-content-around align-items-baseline">
+                                <div class="flex-even text-center mr-">Current Value</div>
+                                <div class="flex-even text-center mr-">Simulated Value</div>
+                                <div   *ngIf="!is_per" class="flex-even text-center mr-">Absolute Change</div>
+                                <div  *ngIf="is_per" class="flex-even text-center mr-">Percent Change</div>
+                            </div>
+                        </th>
+                    
+                    </tr>
+                </thead>
+                <tbody >
+                    <ng-container *ngFor="let m of metrics;let i =index;">
+                        <tr>
+                            <td></td>
+                            <td colspan="4">LSV</td>
+                        </tr>
+                        <tr [ngClass]="{
+            'wb': i%2 === 0
+             
+          }">
+          <!-- <container-element [ngSwitch]="switch_expression">
+           
+            <some-element *ngSwitchCase="match_expression_1">...</some-element>
+            <some-element *ngSwitchCase="match_expression_2">...</some-element>
+            <some-other-element *ngSwitchCase="match_expression_3">...</some-other-element>
+            
+            <some-element *ngSwitchDefault>...</some-element>
+          </container-element> -->
+          <ng-container [ngSwitch]="radioModel">
+            <td *ngSwitchCase="'total'">{{m.total}}</td>
+            <td *ngSwitchCase="'per ton'">{{m.ton}}</td>
+            <td *ngSwitchCase="'per unit'">{{m.units}}</td>
+            <td *ngSwitchDefault>{{m.total}}</td>
+
+          </ng-container>
+                            
+                            <td *ngFor="let input of simulatedArray" style="padding-left: 2px;padding-right: 2px;">
+                                <div class="d-flex justify-content-around align-items-baseline"
+                                >
+                                    <div class="flex-even text-left mr-"><span appTdDirective [n]="abs" [value]="input | comparePipe : m.total : 'curr'"
+                                            [reverse]="m.total.includes('TE')">{{input | comparePipe : m.total : 'curr' : radioModel |
+                                            convertTonnes }} <span *ngIf="isCurrency(m.total)">₽</span></span>
+                                        </div>
+                                    <div 
+                                     class="flex-even text-left mr-"><span appTdDirective [n]="per" [value]="input | comparePipe : m.total : 'sim'"
+                                            [reverse]="m.total.includes('TE')">{{input | comparePipe : m.total : 'sim'  : radioModel | 
+                                            convertTonnes }} <span *ngIf="isCurrency(m.total)">₽</span></span>
+                                          </div>
+                                          <div
+                                           *ngIf="!is_per" class="flex-even text-left mr-"><span appTdDirective [n]="abs" [value]="input | comparePipe : m.total : 'abs'"
+                                            [reverse]="m.total.includes('TE')">{{input | comparePipe : m.total : 'abs'  : radioModel | 
+                                            convertTonnes }} <span *ngIf="isCurrency(m.total)">₽</span></span>
+                                          </div>
+                                          <div   
+                                           *ngIf="is_per" class="flex-even text-left mr-"><span appTdDirective [n]="per" [value]="input | comparePipe : m.total : 'per'"
+                                            [reverse]="m.total.includes('TE')">{{input | comparePipe : m.total : 'per'  : radioModel | 
+                                            convertTonnes }} % </span>
+                                          </div>
+                                </div>
+                            </td>
+                     
+                        </tr>
+                    </ng-container>
+                  
+
+
+
+                </tbody>
+            </table>
+
+        </div>
+
+
+    </div>
+  </div>
+    <!-- <div class="row cust" #scrollHeader> -->
+      <div
+        class="d-flex bd-highlight p-1 justify-content-end align-items-baseline cust"
+      >
+        <div class="p-1">
+          <div>
+            <a routerLink="/scenario" class="btn btn-primary eq-size"> Input</a>
+          </div>
+        </div>
+    
+      
+    </div>
+   <!-- <div class="p-1 mx-2">
+        <div>
+          <a routerLink="/dashboard" class="btn btn-primary eq-size">Dashboard</a>
+        </div>
+      </div> -->
+    <!-- </div> -->
+</div>
