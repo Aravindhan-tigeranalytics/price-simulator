@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { ApiService } from '../shared/services/api.service';
 import { PriceScenarioService } from '../shared/services/price-scenario.service';
 import { NewUnit } from '../shared/models/unit';
@@ -14,6 +15,7 @@ import {
   BehaviorSubject,
   combineLatest,
   pipe,
+  forkJoin,
 } from 'rxjs';
 import {
   distinct,
@@ -22,6 +24,8 @@ import {
   reduce,
   filter,
   tap,
+  switchMap,
+
 } from 'rxjs/operators';
 import { ExcelServicesService } from '../shared/services/excel.service';
 import {convertCurrency} from '../shared/utils/utils'
@@ -31,9 +35,13 @@ import {convertCurrency} from '../shared/utils/utils'
   styleUrls: ['./scenario-comparison-table.component.scss']
 })
 export class ScenarioComparisonTableComponent implements OnInit {
+  year=[]
+  selectedYear=null
+  simulatedYearly = []
   decimalFormat = '1.0-1';
   abs = "ABS Change"
   per = "% Change"
+  is_yearly;
   reverse_metric = ['TE','TE,%LSV','TE/Units']
   arr = [];
   filter_used
@@ -68,7 +76,8 @@ export class ScenarioComparisonTableComponent implements OnInit {
   constructor(
     private api: ApiService,
     private priceScenarioService:PriceScenarioService,
-    private excelService: ExcelServicesService
+    private excelService: ExcelServicesService,
+    private route: ActivatedRoute
   ) {}
   modelChangeFn($event){
     // console.log($event.value)
@@ -93,6 +102,18 @@ toggleChange($event){
 
 }
   ngOnInit(): void {
+    this.route.queryParams.pipe(
+      map(d=> "yearly" in d),
+      tap(is_yearly=>this.is_yearly = is_yearly),
+      switchMap(data=>this.api.getScenario(String(data)))
+    ).subscribe((data:any[])=>{
+      
+      this.scenarios = data;
+      this.scenarioArray = data.map((d) => ({ name: d.name, id: d.id ,dump : JSON.parse(d.savedump)}));
+      console.log(this.scenarioArray, 'SELECTED SCENARIO');
+    })
+       
+       
     // debugger
     this.metrics = this.init_metrics
   
@@ -102,12 +123,12 @@ toggleChange($event){
       this.units = data;
       // console.log(this.units , 'UNITSSS')
     });
-    this.api.getScenario().subscribe((data: any[]) => {
+    // this.api.getScenario().subscribe((data: any[]) => {
       // console.log(data, 'GET DATA');
-      this.scenarios = data;
-      this.scenarioArray = data.map((d) => ({ name: d.name, id: d.id ,dump : JSON.parse(d.savedump)}));
+      // this.scenarios = data;
+      // this.scenarioArray = data.map((d) => ({ name: d.name, id: d.id ,dump : JSON.parse(d.savedump)}));
       // console.log(this.scenarioArray, 'SELECTED SCENARIO');
-    });
+    // });
   }
   exportAsXLSX(): void {
     console.log(this.simulatedArray)
@@ -190,14 +211,81 @@ toggleChange($event){
     this.selectComparearr = new Array(5 - this.simulatedArray.length);
     // this.scenarioArray = this.scenarioArray.filter((p) => p.name === val);
   }
+  populateYearDropDown(yearForm){
+    console.log(yearForm ,"YEAR FRM")
+    yearForm.forEach(element => {
+      if(!this.year.includes(element.year)){
+        this.year.push(element.year)
+      }
+    });
+    if(!this.selectedYear){
+      this.selectedYear = this.year[0]
+    }
+    console.log(this.year , "year value")
 
-  selectCompare() {
-    // console.log(this.selectedScenario, 'SSSSSSSSSSS');
-    let selected = this.scenarios.find((p) => p.id === this.selectedScenario);
-    // console.log(JSON.parse(selected.savedump).formArray);
-    // console.log(selected, 'Selected');
-    // this.selectedScenario
 
+  }
+  chooseYearlyData(){
+    this.simulatedArray = []
+    // this.simulatedArray = 
+
+      console.log(this.simulatedYearly , "simulated value ")
+      this.simulatedYearly.forEach(e=>{
+        let val = e.find(d=>d.year == this.selectedYear)
+        if(val){
+          this.simulatedArray.push(val.value)
+
+        }
+        
+      
+      })
+      console.log(this.simulatedArray , "simulated array final")
+       
+
+  }
+  yearlyCalculation(selected){
+    this.populateYearDropDown(JSON.parse(selected.savedump).yearlyForm)
+    console.log(JSON.parse(selected.savedump).yearlyForm , "selected")
+    let res  = this.priceScenarioService.updateSimulatedvalueYearly(JSON.parse(selected.savedump).yearlyForm)
+    console.log(res , "RESULT FINAL /yarlty")
+    let obs$ = []
+    res.map(d=>{ obs$.push(this.priceScenarioService.populateSummary(d,selected.name))})
+
+    forkJoin(obs$).subscribe(data=>{
+      console.log(data , "DATA FORKJOIN")
+       
+     this.simulatedYearly.push(data.map(d=>{
+      return  { 
+        'value':this.priceScenarioService.calculateAggregate(d),
+        'year' : d[18]
+    }
+      }
+        ))
+        console.log(this.simulatedYearly , "yearly data")
+// this.chooseYearlyData()
+// this.simulatedYearly
+this.simulatedArray = []
+this.simulatedYearly.forEach(e=>{
+  let val = e.find(d=>d.year == this.selectedYear)
+  if(val){
+    this.simulatedArray.push(val.value)
+  }
+  
+
+})
+
+this.selectComparearr = new Array(5 - this.simulatedArray.length);
+      
+      
+    })
+    
+
+  }
+  onChangeYear(){
+    this.chooseYearlyData()
+
+  }
+  oneYearCalculation(selected){
     let new_unit: NewUnit[] = 
     this.priceScenarioService.updateSimulatedvalue(
       this.units,
@@ -205,7 +293,32 @@ toggleChange($event){
       JSON.parse(selected.savedump).formArray,
       // ''
     );
-    this.populateSummary(new_unit, selected.name);
+    this.priceScenarioService.populateSummary(new_unit,selected.name).subscribe(data=>{
+      console.log(data, "DATA INSIDE SERVICE")
+      this.simulatedArray.push(
+        this.priceScenarioService.calculateAggregate(data)
+         
+      );
+      this.selectComparearr = new Array(5 - this.simulatedArray.length);
+    })
+   
+    
+
+    console.log(this.simulatedArray, 'Simulated array');
+    // this.populateSummary(new_unit, selected.name);
+
+  }
+
+  selectCompare() {
+    // console.log(this.selectedScenario, 'SSSSSSSSSSS');
+    let selected = this.scenarios.find((p) => p.id === this.selectedScenario);
+    // console.log(JSON.parse(selected.savedump).formArray);
+    console.log(selected, 'Selected');
+    console.log(this.is_yearly , "is yearly")
+    this.is_yearly ? this.yearlyCalculation(selected) : this.oneYearCalculation(selected)
+    // this.selectedScenario
+
+   
   }
   
   populateSummary(units: NewUnit[], key) {

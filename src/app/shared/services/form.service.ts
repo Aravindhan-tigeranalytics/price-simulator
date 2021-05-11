@@ -8,11 +8,22 @@ import { FormBuilder, FormGroup, FormArray } from '@angular/forms';
 
 @Injectable()
 export class FormService {
-    private myForm : FormGroup;
+    // private myForm : FormGroup;
     private formObservable = new BehaviorSubject<any>(null);
     private forms ={}
+    private formYear = []
   constructor() {
     
+  }
+  public setFormYear(value){
+    this.formYear =  this.formYear.filter(d=>d.year != value.year)
+    this.formYear.push(value)
+  }
+  public updateFormYear(form:Array<any>){
+    this.formYear = [...this.formYear,...form]
+  }
+  public getFormYear(){
+    return this.formYear
   }
 public setForms(forms){
     // console.log(forms , "FORMS SET")
@@ -49,16 +60,16 @@ public getForms(){
     return this.forms
 
 }
-  public setForm(form : FormGroup){
-    //   console.log(form , "SETTING INCOMMIN FORM SERVICE")
-      this.myForm = form
-    //   console.log(this.myForm , "SETTING FORM VALUES INSIDE SERVICE")
-  }
-  public getForm() : FormGroup {
-    //   console.log(this.myForm , "GET FORM VALUE INSIDE SERVICES")
-      return this.myForm
+  // public setForm(form : FormGroup){
+  //   //   console.log(form , "SETTING INCOMMIN FORM SERVICE")
+  //     this.myForm = form
+  //   //   console.log(this.myForm , "SETTING FORM VALUES INSIDE SERVICE")
+  // }
+  // public getForm() : FormGroup {
+  //   //   console.log(this.myForm , "GET FORM VALUE INSIDE SERVICES")
+  //     return this.myForm
 
-  }
+  // }
 
  
 }

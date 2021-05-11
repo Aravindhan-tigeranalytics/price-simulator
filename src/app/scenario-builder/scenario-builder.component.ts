@@ -21,10 +21,12 @@ import {
   reduce,
   filter,
   tap,
+  take
 } from 'rxjs/operators';
 import { ApiService } from '../shared/services/api.service';
 import {PriceScenarioService} from '../shared/services/price-scenario.service'
 import { NewUnit } from '../shared/models/unit';
+import { Options } from "@angular-slider/ngx-slider";
 interface Bank {
   id: string;
   name: string;
@@ -36,6 +38,12 @@ interface Bank {
 })
 
 export class ScenarioBuilderComponent implements OnInit {
+  // value = 2019;
+  // options: Options = {
+  //   showTicksValues: true,
+  //   stepsArray: [
+  //   ]
+  // };
   active = 1;
   filters
   arr = [1, 2, 3, 4, 5];
@@ -135,6 +143,10 @@ export class ScenarioBuilderComponent implements OnInit {
     }
     this.allDisabled = true
   }
+  changeYear(event){
+    this.applyFilter()
+    //  console.log(this.value , "value changed")
+  }
 
   ngOnInit(): void {
     
@@ -195,7 +207,7 @@ export class ScenarioBuilderComponent implements OnInit {
     this.tableData$ = this.priceScenario.getUnits();
     this.tableData$.subscribe((data: NewUnit[]) => {
       // setTimeout(()=>{
-        // console.log(data , "units....")
+        console.log(data , "UNITSSSSSSSSSSSSSSSS")
         this.units = data
         // this.inputList = this.aggregate(this.units);
        
@@ -204,8 +216,15 @@ export class ScenarioBuilderComponent implements OnInit {
       
      
     });
+    this.priceScenario.getInitUnits().
+    pipe(
+      filter(data => data.length > 0)
+    ).subscribe(data=>{
+      // console.log(data , "UNITSSSSSSSSSSSSSSSS TAKE")
+      this.populateFilter( data);
+    })
    
-      this.populateFilter( this.priceScenario.getUnitValue());
+      // this.populateFilter( this.priceScenario.getUnitValue());
    
   }
   private filterProduct(){
@@ -372,13 +391,22 @@ export class ScenarioBuilderComponent implements OnInit {
       .subscribe((data) => {
         this.combination.push(data)
          
-       },err=>{
-
-      },()=>{
-        // console.log(this.combination , "COMBINATION...")
+       });
+      //  of(...datas)
+      //  .pipe(distinct((unit: NewUnit) => unit.year))
+      //  .subscribe((data) => {
+      //   console.log(data, "STEP ARRY")
         
-         
-      });
+      //    this.options.stepsArray.push({ value:data.year })
+        
+      //  },()=>{},()=>{
+      //   let arr = this.options.stepsArray
+      //   if(arr.length > 0){
+      //     this.value = arr[0].value
+      //     this.applyFilter()
+           
+      //   }
+      //  });
       
     
   }
@@ -416,13 +444,13 @@ export class ScenarioBuilderComponent implements OnInit {
    // let arr = this.products.value;
    this.productFilterSubject.next(this.products.value);
  }
-console.log(this.productFilterSubject.getValue() , "FILTERED PRODUCT")
-console.log(this.categoryFilterSubject.getValue() , "category PRODUCT")
-console.log(this.retailerFilterSubject.getValue() , "retialer PRODUCT")
+// console.log(this.productFilterSubject.getValue() , "FILTERED PRODUCT")
+// console.log(this.categoryFilterSubject.getValue() , "category PRODUCT")
+// console.log(this.retailerFilterSubject.getValue() , "retialer PRODUCT")
  this.priceScenario.filterTableData(this.categoryFilterSubject.getValue(),
  this.productFilterSubject.getValue() ,
- this.retailerFilterSubject.getValue()
-
+ this.retailerFilterSubject.getValue(),
+// this.value
  )
 // debugger;
 // console.log(this.productFilterSubject.getValue() , "FILTERED PRODUCT")

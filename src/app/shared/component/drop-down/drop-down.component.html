@@ -1,0 +1,21 @@
+<div class="custom-drop">
+    <mat-form-field appearance="fill" class="medium">
+      <mat-label>{{name}}</mat-label>
+      <mat-select [formControl]="formControl1" multiple>
+        <mat-option>
+          <ngx-mat-select-search
+          placeholderLabel="{{placeholder}}" 
+          noEntriesFoundLabel = "{{noentries}}"
+           [formControl]="filterCtrl"></ngx-mat-select-search>
+        </mat-option>
+        <app-select-check-all [model]="formControl1" 
+        [values]="filtered | async">
+</app-select-check-all>
+        <mat-option
+          *ngFor="let val of filtered | async"
+          [value]="val"
+          >{{ val }}</mat-option
+        >
+      </mat-select>
+    </mat-form-field>
+  </div>

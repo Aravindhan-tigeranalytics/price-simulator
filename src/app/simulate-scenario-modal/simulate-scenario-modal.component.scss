@@ -1,0 +1,66 @@
+.modal-header{
+    border-bottom: 0px;
+    background-color: var(--color-blue-1);
+    color: var(--color-grey-light-1);
+}
+.modal-header .close{
+    color: var(--color-grey-light-1);
+    opacity: 1;
+}
+.table-responsive{
+    height: 520px;
+}
+.table td{
+    text-align: center;
+}
+.table .variable-class{
+    text-align: center;
+    // padding: 3px;
+    min-width: 100px;
+    vertical-align: middle;
+}
+// .modal-lg::before {
+         
+//             display: inline-block; 
+//             content: ''; 
+//             height: 100%; 
+//             vertical-align: middle; 
+//   }
+//   .modal-dialog { 
+//     display: inline-block; 
+//     vertical-align: middle; 
+// } 
+.modal-lg   {
+    max-width: 95%;
+//     position: absolute;
+//   left: 50%;
+//   top: 50%;
+//   transform: translate(-50%, -50%);
+    // padding: 20px 20px 20px 20px; 
+    //         -webkit-animation-name: modal-animation; 
+    //         -webkit-animation-duration: 0.5s; 
+    //         animation-name: modal-animation; 
+    //         animation-duration: 0.5s; 
+  }
+
+//   @-webkit-keyframes modal-animation { 
+//     from { 
+//         top: -100px; 
+//         opacity: 0; 
+//     } 
+//     to { 
+//         top: 0px; 
+//         opacity: 1; 
+//     } 
+// } 
+  
+// @keyframes modal-animation { 
+//     from { 
+//         top: -100px; 
+//         opacity: 0; 
+//     } 
+//     to { 
+//         top: 0px; 
+//         opacity: 1; 
+//     } 
+// } 

@@ -15,8 +15,7 @@
         </div>
 
         <div class="p-1">
-            <a (click)="selectCompare()" class="btn btn-primary"><i class="fa fa-plus pr-1" aria-hidden="true"></i>Add
-                to compare</a>
+            <a (click)="selectCompare()" class="btn btn-primary"><i class="fa fa-plus pr-1" aria-hidden="true"></i>Add to compare</a>
         </div>
         <div class="p-1 ml-auto align-self-stretch download">
             <div>
@@ -36,12 +35,36 @@
             <table class="table table-borderless">
                 <thead>
                     <tr>
-                        <th class="tl tl2"> </th>
+                        <th class="tl tl2">
+                          
+                          
+                        </th>
 
                         <th colspan="4" class="qbo">
-                            Absolute Change
-                            <mat-slide-toggle (change)="toggleChange($event)"></mat-slide-toggle>
-                            Percent Change
+                          <div class="d-flex align-items-baseline justify-content-start">
+                            <ng-container *ngIf="is_yearly">
+                            <div class="p-1">
+                                <label for="sel1">Select Year:</label>
+                            </div>
+                            <div class="p-1" >
+                                <select class="form-control select2" id="sel1"
+                                (change)="onChangeYear()"
+                                [(ngModel)]="selectedYear">
+                                    <option value="">Select</option>
+                                    <option *ngFor="let c of year" [ngValue]="c">
+                                        {{ c }}
+                                    </option>
+                                </select>
+                            </div>
+                          </ng-container>
+                            <div class="flex-fill">
+                              Absolute Change
+                              <mat-slide-toggle (change)="toggleChange($event)"></mat-slide-toggle>
+                              Percent Change
+                            </div>
+                            </div>
+
+                           
                         </th>
                     </tr>
                     <tr>
@@ -123,8 +146,8 @@
                         </th>
                         <th class="price-info" *ngFor="let input of simulatedArray">
                             <div class="d-flex justify-content-around align-items-baseline">
-                                <div class="flex-even text-center mr-">Current Value</div>
-                                <div class="flex-even text-center mr-">Simulated Value</div>
+                                <div class="flex-even text-center mr-">Base Value</div>
+                                <div class="flex-even text-center mr-">New Value</div>
                                 <div   *ngIf="!is_per" class="flex-even text-center mr-">Absolute Change</div>
                                 <div  *ngIf="is_per" class="flex-even text-center mr-">Percent Change</div>
                             </div>
@@ -142,14 +165,7 @@
             'wb': i%2 === 0
              
           }">
-          <!-- <container-element [ngSwitch]="switch_expression">
-           
-            <some-element *ngSwitchCase="match_expression_1">...</some-element>
-            <some-element *ngSwitchCase="match_expression_2">...</some-element>
-            <some-other-element *ngSwitchCase="match_expression_3">...</some-other-element>
-            
-            <some-element *ngSwitchDefault>...</some-element>
-          </container-element> -->
+  
           <ng-container [ngSwitch]="radioModel">
             <td *ngSwitchCase="'total'">{{m.total}}</td>
             <td *ngSwitchCase="'per ton'">{{m.ton}}</td>
@@ -161,12 +177,16 @@
                             <td *ngFor="let input of simulatedArray" style="padding-left: 2px;padding-right: 2px;">
                                 <div class="d-flex justify-content-around align-items-baseline"
                                 >
-                                    <div class="flex-even text-left mr-"><span appTdDirective [n]="abs" [value]="input | comparePipe : m.total : 'curr'"
+                                    <!-- <div class="flex-even text-left mr-"><span appTdDirective [n]="abs" [value]="input | comparePipe : m.total : 'curr'"
                                             [reverse]="m.total.includes('TE')">{{input | comparePipe : m.total : 'curr' : radioModel |
                                             convertTonnes }} <span *ngIf="isCurrency(m.total)">₽</span></span>
-                                        </div>
+                                        </div> -->
+                                        <div style="font-family: mars-bold;font-weight: bold;" class="flex-even text-left mr-"><span 
+                                          >{{input | comparePipe : m.total : 'curr' : radioModel |
+                                          convertTonnes }} <span *ngIf="isCurrency(m.total)">₽</span></span>
+                                      </div>
                                     <div 
-                                     class="flex-even text-left mr-"><span appTdDirective [n]="per" [value]="input | comparePipe : m.total : 'sim'"
+                                     class="flex-even text-left mr-"><span appTdDirective [n]="per" [value]="input | comparePipe : m.total : 'abs'"
                                             [reverse]="m.total.includes('TE')">{{input | comparePipe : m.total : 'sim'  : radioModel | 
                                             convertTonnes }} <span *ngIf="isCurrency(m.total)">₽</span></span>
                                           </div>

@@ -24,6 +24,7 @@
 }
 .flex-even {
   flex: 1;
+  align-self: center;
 }
 ul > .heading {
   color : var(--color-amber-1);

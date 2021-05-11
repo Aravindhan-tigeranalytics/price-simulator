@@ -155,6 +155,9 @@ export class UnitModel {
   // @propertyMap("Retailer")
   retailer: string;
   // @propertyMap("Year")
+  brand_filter:string;
+  brand_format_filter:string;
+  strategic_cell_filter:string;
   year: number;
   // @propertyMap("Date")
   date: Date;
@@ -252,6 +255,9 @@ export class UnitModel {
     category,
     product_group,
     retailer,
+    brand_filter,
+    brand_format_filter,
+    strategic_cell_filter,
     year,
     date,
     lpi_percent,
@@ -284,6 +290,10 @@ export class UnitModel {
 
     this.product_group = product_group;
     this.retailer = retailer;
+    this.brand_filter = brand_filter;
+    this.brand_format_filter = brand_format_filter;
+    this.strategic_cell_filter = strategic_cell_filter;
+    
 
     this.year = year;
 
@@ -372,6 +382,9 @@ export class NewUnit extends UnitModel {
     category,
     product_group,
     retailer,
+    brand_filter,
+    brand_format_filter,
+    strategic_cell_filter,
     year,
     date,
     lpi_percent,
@@ -401,6 +414,9 @@ export class NewUnit extends UnitModel {
       category,
       product_group,
       retailer,
+      brand_filter,
+      brand_format_filter,
+      strategic_cell_filter,
       year,
       date,
       lpi_percent,

@@ -52,11 +52,11 @@ export class ScenarioComparisonComponent implements OnInit {
       this.units = data;
       // console.log(this.units , 'UNITSSS')
     });
-    this.api.getScenario().subscribe((data: any[]) => {
-      // console.log(data, 'GET DATA');
+    this.api.getScenario('true').subscribe((data: any[]) => {
+      console.log(data, 'GET DATA');
       this.scenarios = data;
       this.scenarioArray = data.map((d) => ({ name: d.name, id: d.id ,dump : JSON.parse(d.savedump)}));
-      // console.log(this.scenarioArray, 'SELECTED SCENARIO');
+      console.log(this.scenarioArray, 'SELECTED SCENARIO');
     });
   }
   exportAsXLSX(): void {

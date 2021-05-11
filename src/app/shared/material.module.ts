@@ -141,6 +141,10 @@ import { OverlayModule } from '@angular/cdk/overlay';
 import { MdePopoverModule } from '@material-extended/mde';
 import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 
+import { NgxSliderModule } from '@angular-slider/ngx-slider';
+// import { DropDownComponent } from './component/drop-down/drop-down.component';
+
+
 
 @NgModule({
   exports: [
@@ -189,8 +193,11 @@ import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
     PortalModule,
     ScrollingModule,
     MdePopoverModule,
-    NgxMatSelectSearchModule
+    NgxMatSelectSearchModule,
+    NgxSliderModule,
+    // DropDownComponent
   ],
+  declarations: [],
 })
 export class MaterialModule {}
 

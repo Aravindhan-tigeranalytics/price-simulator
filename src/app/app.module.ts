@@ -1,6 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { ErrorHandler, NgModule } from '@angular/core';
-
+import { CommonModule } from '@angular/common';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { AuthComponent } from './auth/auth.component';
@@ -55,6 +55,11 @@ import { ScenarioComparisonTableComponent } from './scenario-comparison-table/sc
 import { ComparePipePipe } from './compare-pipe.pipe';
 import { ToastrModule } from 'ngx-toastr';
 import { ScIpSimulatedTdComponent } from './sc-ip-simulated-td/sc-ip-simulated-td.component';
+import { YearPlanComponent } from './year-plan/year-plan.component';
+import { SimulateScenarioModalComponent } from './simulate-scenario-modal/simulate-scenario-modal.component';
+import { ScenarioYearPlanComponent } from './scenario-year-plan/scenario-year-plan.component';
+import { DropDownComponent } from './shared/component/drop-down/drop-down.component';
+import { ScenarioInputYearlyComponent } from './scenario-input-yearly/scenario-input-yearly.component';
 // import {} from './dashboard/'
 
 const routes: Routes = [
@@ -117,6 +122,7 @@ const routes: Routes = [
       { path: '', component: ScenarioBuilderComponent },
       { path: 'compare', component: ScenarioComparisonComponent },
       { path: 'compare-table', component: ScenarioComparisonTableComponent },
+      {path:'year-plan' , component:ScenarioYearPlanComponent}
       // { path: 'yearly-trends', component: YearlyTrendsComponent },
       // { path: 'summ', component: ProfitSummaryTableComponent },
     ],
@@ -183,9 +189,15 @@ const routes: Routes = [
     SelectCheckAllComponent,
     ScenarioComparisonTableComponent,
     ComparePipePipe,
-    ScIpSimulatedTdComponent
+    ScIpSimulatedTdComponent,
+    YearPlanComponent,
+    SimulateScenarioModalComponent,
+    ScenarioYearPlanComponent,
+    DropDownComponent,
+    ScenarioInputYearlyComponent
   ],
   imports: [
+    CommonModule,
     BrowserModule,
     BrowserAnimationsModule,
     HttpClientModule,

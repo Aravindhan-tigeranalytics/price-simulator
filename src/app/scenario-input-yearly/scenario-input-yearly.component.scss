@@ -1,3 +1,13 @@
+
+::ng-deep {
+  
+    .ngx-slider {
+      .ngx-slider-pointer {
+        background:var(--color-blue-1) !important;
+      }
+    }
+  
+  }
 // "\f0dd"   only down
   // "\f0de"   only up
   //f0dc  up and down
@@ -270,7 +280,7 @@ th {
 }
 
 .table-responsive {
-  height: 65vh;
+  height: 75vh;
   width: 100%;
   overflow-y: auto;
   overflow-x: hidden !important;

@@ -2,7 +2,6 @@
   "name": "price-simulator",
   "version": "0.0.0",
   "scripts": {
-    
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build --prod",
@@ -13,6 +12,7 @@
   },
   "private": true,
   "dependencies": {
+    "@angular-slider/ngx-slider": "^2.0.3",
     "@angular/animations": "^10.2.0",
     "@angular/cdk": "^10.2.6",
     "@angular/common": "~10.2.0",

@@ -146,7 +146,8 @@ option = this.TOTAL_OPTIONS_TONNES
       );
 
     })
-    // console.log(arr1 , "ARR2")
+    console.log(arr1 , "ARR2")
+    console.log(this.form , "FINAL FORM")
     // arr1.clear()
     // console.log(arr1 , "ARR3")
         // debugger

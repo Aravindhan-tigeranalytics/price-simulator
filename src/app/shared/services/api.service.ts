@@ -27,6 +27,9 @@ export class ApiService {
   constructor(private http: HttpClient) {
     console.log('SERVICE CONSTRUCTOR');
     this.getData();
+    // this.getScenarioMetrics().subscribe(data=>{
+    //   console.log(data , "METRIC DATA")
+    // })
   }
   public getData()  {
     // debugger;
@@ -34,6 +37,9 @@ export class ApiService {
     ipdata['Sheet1'].forEach(data=>{
 
       t1.push(new NewUnit(
+        data['Category'],
+        data['Product Group'],
+        data['Retailer'],
         data['Category'],
         data['Product Group'],
         data['Retailer'],
@@ -66,6 +72,36 @@ export class ApiService {
     return t1
      
   }
+  public getScenarioMetrics(){
+    return this.http.get(environment.baseUrl+ '/api/scenario/scenario-metrics/').pipe(
+      map((data:any )=> {
+        let t1 : NewUnit[] = []
+         
+        data.forEach(d=>{
+          t1.push(new NewUnit(
+            d.category,d.product_group,d.retailer,
+            d.brand_filter , d.brand_format_filter , d.strategic_cell_filter
+            ,d.year,new Date(d.date),0.0,0.0,0.0,Number(d.base_price_elasticity),
+            d.cross_elasticity ,d.net_elasticity ,'Not Follows' , 
+            Utils.stringToParseConversion(d.base_units.replace(/,/g, '')) ,
+            Utils.stringToParseConversion(d.list_price.replace(/,/g, '')),
+            Utils.stringToParseConversion(d.retailer_median_base_price.replace(/,/g, '')),
+            Utils.stringToParseConversion(d.retailer_median_base_price_w_o_vat.replace(/,/g, '')),
+            Utils.stringToParseConversion(d.on_inv_percent),Utils.stringToParseConversion(d.off_inv_percent),
+            Utils.stringToParseConversion(d.tpr_percent),Utils.stringToParseConversion(d.gmac_percent_lsv),
+            Utils.stringToParseConversion(d.product_group_weight)
+    
+            ))
+
+        }) 
+        return t1 
+      }
+    
+
+        )
+    );
+
+  }
   private checkForChanges(obj) {
     return (
       Number(obj.lpi_increase) &&
@@ -81,25 +117,32 @@ export class ApiService {
      
     );
   }
-  public editScenario(id,name, comment, form) {
+  public editScenario(id,name, comment, form,yearly?) {
     // console.log(form, 'FORMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM');
+    // ?yearly=${ is_yearly ? 'True' : 'False'}`
     let formData: FormData = new FormData();
     formData.append('name', name);
     formData.append('comments', comment);
     formData.append('savedump', JSON.stringify(form));
+    if(yearly){
+      formData.append('is_yearly', yearly);
+    }
     // formData.append('password', credentials.password);
     return this.http.put(
-       environment.baseUrl+ '/api/scenario/savedscenario/' + id + "/",
+       environment.baseUrl+ `/api/scenario/savedscenario/${id}/?yearly=${ yearly ? 'True' : 'False'}`,
       formData
     );
   }
   
-    public saveScenario(name, comment, form) {
+    public saveScenario(name, comment, form,yearly?) {
     // console.log(form, 'FORMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM'); 
     let formData: FormData = new FormData();
     formData.append('name', name);
     formData.append('comments', comment);
     formData.append('savedump', JSON.stringify(form));
+    if(yearly){
+      formData.append('is_yearly', yearly);
+    }
     // formData.append('password', credentials.password);
     return this.http.post(
        environment.baseUrl+ '/api/scenario/savedscenario/',
@@ -107,8 +150,9 @@ export class ApiService {
     );
   }
 
-  public getScenario() {
-    return this.http.get(  environment.baseUrl+ '/api/scenario/savedscenario/');
+  public getScenario(is_yearly='false') {
+    // const yearly = 
+    return this.http.get( environment.baseUrl+ `/api/scenario/savedscenario/?yearly=${ is_yearly}`);
   }
   // public getExcel() {
   //   return this.http.get( environment.baseUrl + '/api/scenario/download/', {

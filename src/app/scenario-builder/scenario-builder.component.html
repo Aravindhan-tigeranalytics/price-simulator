@@ -7,7 +7,7 @@
           #initElement
           class="d-flex flex-row justify-content-start align-items-center"
         >
-          <div>
+          <div class="custom-drop">
             <mat-form-field appearance="fill" class="medium">
               <mat-label>Retailer</mat-label>
               <mat-select [formControl]="retailers" multiple>
@@ -27,7 +27,7 @@
               </mat-select>
             </mat-form-field>
           </div>
-          <div>
+          <div class="custom-drop">
             <mat-form-field appearance="fill">
               <mat-label>Category</mat-label>
               <mat-select [formControl]="categories" multiple>
@@ -46,7 +46,7 @@
               </mat-select>
             </mat-form-field>
           </div>
-          <div>
+          <div class="custom-drop">
             <mat-form-field appearance="fill">
               <mat-label>Product Group</mat-label>
               <mat-select [formControl]="products"  multiple
@@ -73,7 +73,7 @@
             </mat-form-field>
           </div>
 
-          <div>
+          <div class="custom-drop">
             <mat-form-field appearance="fill" >
               <mat-label>Strategic Cell</mat-label>
               <mat-select [formControl]="categories" multiple>
@@ -92,7 +92,7 @@
             </mat-form-field>
           </div>
 
-          <div>
+          <div class="custom-drop">
             <mat-form-field appearance="fill">
               <mat-label>Brand</mat-label>
               <mat-select [formControl]="categories" multiple>
@@ -111,7 +111,7 @@
             </mat-form-field>
           </div>
 
-          <div>
+          <div class="custom-drop">
             <mat-form-field appearance="fill">
               <mat-label>Brand Format</mat-label>
               <mat-select [formControl]="categories" multiple>
@@ -166,7 +166,7 @@
 
           ></app-scenario-input>   *ngIf="units.length > 0"--> 
           <app-scenario-input
-        
+        [year] = "value"
        
           [simulteFlag]="simulateFlag$"
          
@@ -193,6 +193,13 @@
           <app-line-chart></app-line-chart>
         </ng-template>
       </li>
+      <!-- <li class="pr-2" style="width: 68%;" >
+        
+        <div  class="d-flex justify-content-end year-data" >
+        <button routerLink="/scenario/year-plan" class="btn btn-primary">3 Year plan</button>  
+        </div>
+       
+      </li> -->
     </ul>
 
     <div [ngbNavOutlet]="nav" class="mt-2"></div>

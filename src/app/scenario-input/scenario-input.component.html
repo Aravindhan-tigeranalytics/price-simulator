@@ -59,27 +59,7 @@
                       aria-hidden="true"
                     ></i
                   ></span>
-                  <!-- <mat-chip
-                >11/24/20
-              
-              </mat-chip> -->
-                  <!-- <div class="d-flex flex-column custome-input">
-                
-                <mat-form-field color="accent" appearance="fill">
-                  <mat-label>Choose Date</mat-label>
-                  <input
-                    matInput
-                    [(ngModel)]="date"
-                    [matDatepicker]="picker1"
-                  />
-                  <mat-datepicker-toggle
-                    matSuffix
-                    [for]="picker1"
-                  ></mat-datepicker-toggle>
-                  <mat-datepicker #picker1 color="primary"></mat-datepicker>
-                </mat-form-field>
-              </div> -->
-                </th>
+                                </th>
                 <th
                   scope="col"
                   style="padding: 0; vertical-align: middle;"
@@ -125,17 +105,7 @@
                       aria-hidden="true"
                     ></i
                   ></span>
-                  <!-- <div class="d-flex flex-column custome-input">
-                <mat-form-field color="accent" appearance="fill">
-                  <mat-label>Choose Date</mat-label>
-                  <input matInput [matDatepicker]="picker2" />
-                  <mat-datepicker-toggle
-                    matSuffix
-                    [for]="picker2"
-                  ></mat-datepicker-toggle>
-                  <mat-datepicker #picker2 color="primary"></mat-datepicker>
-                </mat-form-field>
-              </div> -->
+                  
                 </th>
                 <th scope="col" style="padding: 0; vertical-align: middle;">
                   <mde-popover
@@ -179,17 +149,7 @@
                       aria-hidden="true"
                     ></i
                   ></span>
-                  <!-- <div class="d-flex flex-column custome-input">
-                <mat-form-field color="accent" appearance="fill">
-                  <mat-label>Choose Date</mat-label>
-                  <input matInput [matDatepicker]="picker3" />
-                  <mat-datepicker-toggle
-                    matSuffix
-                    [for]="picker3"
-                  ></mat-datepicker-toggle>
-                  <mat-datepicker #picker3 color="primary"></mat-datepicker>
-                </mat-form-field>
-              </div> -->
+                  
                 </th>
                 <th scope="col">
                   <div
@@ -232,32 +192,16 @@
                    
                   </div>
                 </th>
-                <!-- <th scope="col"></th> -->
+                 
                 <th scope="col" style="width: 115px"></th>
-                <!-- <th scope="col"></th>
-            <th scope="col"></th> -->
-                <!-- <th scope="col"></th> -->
-                <!-- <th colspan="3" scope="col">
-                  ANNULAIZED IMPACT
-                  <mat-slide-toggle
-                    [(ngModel)]="isCHG"
-                    (change)="toggleChange($event)"
-                    [ngModelOptions]="{ standalone: true }"
-                    >%CHG</mat-slide-toggle
-                  >
-                </th> -->
-                <!-- <th class="custom"  scope="col"></th> -->
-              </tr>
+                              </tr>
             </thead>
             <thead class="header-table">
               <tr style="height: 85px">
                 <th style="text-align: left" scope="col" >
                   <span class="" sortable="product_group" (sort)="onSort($event)">Product Group</span>
                 </th> 
-                  <!-- <span>
-                    <i class="fa fa-angle-down" aria-hidden="true"></i>
-                    <i class="fa fa-angle-up" aria-hidden="true"></i>
-                  </span></th> -->
+                  
                 <th scope="col" >
                   <span class="" sortable="current_lpi" (sort)="onSort($event)">List Pice</span>
                 </th>
@@ -281,32 +225,11 @@
                   <div>Base Price Elasticity</div>
                 </th>
                 <th scope="col">Competition</th>
-                <!-- <th scope="col">MAC</th>
-                <th scope="col">RP</th>
-                <th scope="col">TE</th> -->
+                 
               </tr>
             </thead>
             <tbody>
-              <!-- <div *ngIf="inputForm">
-                <form [formGroup]="inputForm">
-                  <div *ngFor="let control of inputForm.controls | keyvalue">
-                     
-                    <div formGroupName="{{ control.key }}">
-                      <input matInput formControlName="product_group_retailer" />
-                    </div>
-                  </div>
-                </form>
-              </div>  inputFormArray --> 
-              <!-- <ng-container *ngIf="inputFormArray.controls.length > 0">
-                <div  *ngFor="let input of inputFormArray.controls;let i =index;" >
-                  <div [formGroupName]="i">
-                  {{i}}
-                   
-                  {{input.controls.base_price_elasticity.value}}
-                  </div>
-                </div>
-              </ng-container>  -->
-             
+               
               <ng-container formArrayName="inputFormArray"
                *ngFor="let input of myForm.get('inputFormArray').controls;index as i">
                 <tr style="height: 80px"  [formGroupName]="i" >
@@ -352,8 +275,7 @@
                      </div>
                     </div>
                     
-                    <!-- {{ input.controls.current_rsp.value | number: decimalFormat}}
-                    <strong> ₽</strong> -->
+                    
                   </td>
                   <td style="font-size: 1rem;padding: 0;">
                     <div class="d-flex flex-column">
@@ -373,20 +295,13 @@
                      </div>
                     </div>
                     
-                    <!-- {{
-                      input.controls.current_cogs.value
-                        | number: decimalFormat
-                    }}
-                    <strong> ₽</strong> -->
+                    
                   </td>
                   <td class="p-1" >
-                    <!-- <div  class="d-flex"> -->
+                    
                     <div class="d-flex align-items-center "> 
                     
-                    <!-- [ngClass]="{
-                      'w-35': !expanded_flag,
-                      'w-75': expanded_flag
-                    }" -->
+                    
                     
                     <div
                     class="value-button"
@@ -425,29 +340,12 @@
                 </div>
                   
                   </div>
-                  <!-- <div class="align-self-center w-75">
-                    <span  [ngClass]="{
-                      'blink': input.controls.current_lpi.value < input.controls.increased_lpi.value,
-                      'normal-size': !expanded_flag,
-                      'shrink-size': expanded_flag
-                      
-                      
-                    }">{{
-                      input.controls.increased_lpi.value
-                        | number: decimalFormat
-                    }}  <strong> ₽</strong>
-                  </span>
-                  </div> -->
-                <!-- </div> -->
-
+                 
                   </td>
                   <td class="p-1" >
-                    <!-- <div  class="d-flex"> -->
+                  
                     <div class="d-flex align-items-center"> 
-                    <!-- [ngClass]="{
-                      'w-35': !expanded_flag,
-                      'w-75': expanded_flag
-                    }"> -->
+                   
                     <div
                     class="value-button"
                     id="increase"
@@ -484,27 +382,12 @@
                   </div>
                    
                     </div>
-                    <!-- <div class="align-self-center w-75">
-                      <span  [ngClass]="{
-                        'blink': input.controls.current_rsp.value < input.controls.increased_rsp.value,
-                        'normal-size': !expanded_flag,
-                        'shrink-size': expanded_flag
-                        
-                      }">{{
-                        input.controls.increased_rsp.value
-                          | number: decimalFormat
-                      }}  <strong> ₽</strong>
-                    </span>
-                    </div> -->
-                    <!-- </div> -->
+                   
                   </td>
                   <td class="p-1" >
-                    <!-- <div  class="d-flex "> -->
+                    
                     <div class="d-flex align-items-center"> 
-                    <!-- [ngClass]="{
-                      'w-35': !expanded_flag,
-                      'w-75': expanded_flag
-                    }"> -->
+                     
                     <div
                       class="value-button"
                       id="increase"
@@ -541,19 +424,7 @@
                   </div>
                     
                     </div>
-                    <!-- <div class="align-self-center w-75">
-                      <span  [ngClass]="{
-                        'blink': input.controls.current_cogs.value < input.controls.increased_cogs.value,
-                        'normal-size': !expanded_flag,
-                        'shrink-size': expanded_flag
-                        
-                      }">{{
-                        input.controls.increased_cogs.value
-                          | number: decimalFormat
-                      }}  <strong> ₽</strong>
-                    </span>
-                    </div> -->
-                    <!-- </div> -->
+                   
                   </td>
                   <td style="padding: 0;">
                     <input
@@ -581,137 +452,7 @@
  
                 </tr>
               </ng-container>
-<!-- 
-              <ng-container *ngFor="let input of inputForm.controls | keyvalue: sortNull">
-                <tr style="height: 80px" formGroupName="{{ input.key }}">
-                  <td scope="row" style="text-align: left">
-                    <strong>{{
-                      input.value.controls.product_group_retailer.value
-                        | removeUnder
-                    }}</strong>
-                  </td>
-                  <td style="font-size: 1rem;">
-                    {{ input.value.controls.current_lpi.value }}
-                    <strong> ₽</strong>
-                  </td>
-                  <td style="font-size: 1rem;">
-                    {{ input.value.controls.current_rsp.value }}
-                    <strong> ₽</strong>
-                  </td>
-                  <td style="font-size: 1rem;">
-                    {{
-                      input.value.controls.current_cogs.value
-                        | number: decimalFormat
-                    }}
-                    <strong> ₽</strong>
-                  </td>
-                  <td style="padding: 0px">
-                    <div class="d-flex flex-column align-items-center">
-                    <div
-                      class="value-button"
-                      id="decrease"
-                      value="Decrease Value"
-                      (click)="decreaseValue(input.key, 'lpi_increase')"
-                    >
-                      <i class="fa fa-minus" aria-hidden="true"></i>
-                    </div>
-                    <input
-                      type="text"
-                      class="form-control"
-                      placeholder="%"
-                      value="0"
-                      formControlName="lpi_increase"
-                    />
-                    <div
-                      class="value-button"
-                      id="increase"
-                      (click)="increaseValue(input.key, 'lpi_increase')"
-                      value="Increase Value"
-                    >
-                      <i class="fa fa-plus" aria-hidden="true"></i>
-                    </div>
-                  </div>
-                  </td>
-                  <td style="padding: 0px">
-                    <div class="d-flex flex-column align-items-center">
-                    <div
-                      class="value-button"
-                      id="decrease"
-                      value="Decrease Value"
-                      (click)="decreaseValue(input.key, 'rsp_increase')"
-                    >
-                      <i class="fa fa-minus" aria-hidden="true"></i>
-                    </div>
-                    <input
-                      type="text"
-                      class="form-control"
-                      placeholder="%"
-                      value="0"
-                      formControlName="rsp_increase"
-                    />
-                    <div
-                      class="value-button"
-                      id="increase"
-                      (click)="increaseValue(input.key, 'rsp_increase')"
-                      value="Increase Value"
-                    >
-                      <i class="fa fa-plus" aria-hidden="true"></i>
-                    </div>
-                    </div>
-                  </td>
-                  <td style="padding: 0px">
-                    <div class="d-flex flex-column align-items-center">
-                    <div
-                      class="value-button"
-                      id="decrease"
-                      value="Decrease Value"
-                      (click)="decreaseValue(input.key, 'cogs_increase')"
-                    >
-                      <i class="fa fa-minus" aria-hidden="true"></i>
-                    </div>
-                    <input
-                      type="text"
-                      class="form-control"
-                      placeholder="%"
-                      formControlName="cogs_increase"
-                    />
-                    <div
-                      class="value-button"
-                      id="increase"
-                      (click)="increaseValue(input.key, 'cogs_increase')"
-                      value="Increase Value"
-                    >
-                      <i class="fa fa-plus" aria-hidden="true"></i>
-                    </div>
-                    </div>
-                  </td>
-                  <td style="padding: 0;">
-                    <input
-                      type="text"
-                      class="form-control ip"
-                      [ngClass]="{
-                        'color-change': update,
-                        '': !update
-                      }"
-                      placeholder="%"
-                      value="0"
-                      formControlName="base_price_elasticity"
-                    />
-                  </td>
-                  <td style="padding: 0;">
-                    <mat-form-field class="demo-full-width" appearance="fill">
-                      <select matNativeControl formControlName="competition" 
-                      (change)="competitionChange($event.target.value , input)">
-                        <option value=""></option>
-                        <option value="Follows">Follows</option>
-                        <option value="Not Follows">Not Follows</option>
-                      </select>
-                    </mat-form-field>
-                  </td>
- 
-                </tr>
-              </ng-container> -->
-            </tbody>
+             </tbody>
           </table>
          
           <div class="align-self-center">
@@ -836,7 +577,11 @@
         <a (click)="simulateFn(true)" class="btn btn-primary mx-2 eq"
           >Simulate Scenario
         </a>
+        <!-- <a (click)="open(loadModals, 'large')" class="btn btn-primary mx-2 eq"
+          >Simulate Scenario
+        </a> -->
       </div>
+
       <a (click)="resetFormGroup()" class="btn btn-primary mx-2 eq"
         >Reset Scenario</a
       >
@@ -982,4 +727,9 @@
     </button>
     
   </div>
+</ng-template>
+
+<ng-template #loadModals let-modal>
+  <app-simulate-scenario-modal></app-simulate-scenario-modal>
+   
 </ng-template>

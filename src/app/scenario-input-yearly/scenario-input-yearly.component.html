@@ -1,0 +1,750 @@
+<div class="container-fluid">
+   
+    <div class="row mb-1">
+   
+      <ng-container *ngIf="myForm">
+       
+        <form [formGroup]="myForm">
+         
+         
+          <div class="col table-responsive d-flex">
+            <table class="table table-bordered table-striped table-hover">
+              <thead class="no-border-head">
+                <tr style="height: 65px;background-color: var(--color-light-grey-1);color: var(--color-blue-1);">
+                  <th scope="col" style="width: 130px;">
+                    
+                  </th>
+                  <th colspan="3">
+
+                     <div class="d-flex ">
+           <div style="width: 20%;text-align: center;font-family: 'mars-extra-bold'" class="align-self-center">Simulate for Year:</div>
+        <div   class="ml-2 flex-fill year-data" >
+            <ngx-slider *ngIf="value" [(value)]="value" [options]="options" (valueChange)="ChangeYear($event)"></ngx-slider>
+            </div>
+          </div>
+                      
+                     </th>
+                  <!-- <th scope="col"></th>
+                  <th scope="col"></th> -->
+  
+                  <th scope="col" style="padding: 0; vertical-align: middle; ">
+                    <div
+                      class="d-flex flex-column align-items-center custome-input"
+                    >
+                      <mde-popover
+                        #appPopover="mdePopover"
+                        [mdePopoverOverlapTrigger]="false"
+                      >
+                        <mat-card style="max-width: 300px">
+                          <mat-card-content>
+                           Select LPI % wef date
+                          </mat-card-content>
+                        </mat-card>
+                      </mde-popover>
+  
+                      <mat-form-field color="accent" appearance="fill">
+                        <mat-label>Choose Date</mat-label>
+                        <input
+                          matInput
+                          [(ngModel)]="date_lpi"
+                          [min]="minDate" [max]="maxDate"
+                          [ngModelOptions]="{ standalone: true }"
+                          [matDatepicker]="picker1"
+                        />
+                        <mat-datepicker-toggle
+                          matSuffix
+                          [for]="picker1"
+                          [mdePopoverTriggerFor]="appPopover"
+                          mdePopoverTriggerOn="hover"
+                          #popoverTrigger="mdePopoverTrigger"
+                        ></mat-datepicker-toggle>
+                        <mat-datepicker #picker1 color="primary"></mat-datepicker>
+                      </mat-form-field>
+                    </div>
+  
+                    <span *ngIf="date_lpi"
+                      >{{ date_lpi | date }}
+                      <i
+                        class="fa fa-trash"
+                        (click)="date_lpi = null"
+                        aria-hidden="true"
+                      ></i
+                    ></span>
+                                  </th>
+                  <th
+                    scope="col"
+                    style="padding: 0; vertical-align: middle;"
+                    class="table-cal"
+                  >
+                    <mde-popover
+                      #appPopover1="mdePopover"
+                      [mdePopoverOverlapTrigger]="false"
+                    >
+                      <mat-card style="max-width: 300px">
+                        <mat-card-content>
+                          Select RSP % wef date
+                        </mat-card-content>
+                      </mat-card>
+                    </mde-popover>
+                    <div
+                      class="d-flex flex-column custome-input align-items-center"
+                    >
+                      <mat-form-field color="accent" appearance="fill">
+                        <mat-label>Choose Date</mat-label>
+                        <input
+                          matInput
+                          [matDatepicker]="picker2"
+                          [(ngModel)]="date_rsp"
+                          [ngModelOptions]="{ standalone: true }"
+                          [min]="minDate" [max]="maxDate"
+                        />
+                        <mat-datepicker-toggle
+                          matSuffix
+                          [for]="picker2"
+                          [mdePopoverTriggerFor]="appPopover1"
+                          mdePopoverTriggerOn="hover"
+                          #popoverTrigger="mdePopoverTrigger"
+                        ></mat-datepicker-toggle>
+                        <mat-datepicker #picker2 color="primary"></mat-datepicker>
+                      </mat-form-field>
+                    </div>
+                    <span *ngIf="date_rsp"
+                      >{{ date_rsp | date }}
+                      <i
+                        class="fa fa-trash"
+                        (click)="date_rsp = null"
+                        aria-hidden="true"
+                      ></i
+                    ></span>
+                    
+                  </th>
+                  <th scope="col" style="padding: 0; vertical-align: middle;">
+                    <mde-popover
+                      #appPopover2="mdePopover"
+                      [mdePopoverOverlapTrigger]="false"
+                    >
+                      <mat-card style="max-width: 300px">
+                        <mat-card-content>
+                          Select COGS % wef date
+                        </mat-card-content>
+                      </mat-card>
+                    </mde-popover>
+                    <div
+                      class="d-flex flex-column justify-content-start align-items-center custome-input"
+                    >
+                      <mat-form-field color="accent" appearance="fill">
+                        <mat-label>Choose Date</mat-label>
+                        <input
+                          matInput
+                          [matDatepicker]="picker3"
+                          [(ngModel)]="date_cogs"
+                          [ngModelOptions]="{ standalone: true }"
+                          [min]="minDate" [max]="maxDate"
+                        />
+                        <mat-datepicker-toggle
+                          matSuffix
+                          [for]="picker3"
+                          [mdePopoverTriggerFor]="appPopover2"
+                          mdePopoverTriggerOn="hover"
+                          #popoverTrigger="mdePopoverTrigger"
+                        ></mat-datepicker-toggle>
+                        <mat-datepicker #picker3 color="primary"></mat-datepicker>
+                      </mat-form-field>
+                    </div>
+  
+                    <span *ngIf="date_cogs"
+                      >{{ date_cogs | date }}
+                      <i
+                        class="fa fa-trash"
+                        (click)="date_cogs = null"
+                        aria-hidden="true"
+                      ></i
+                    ></span>
+                    
+                  </th>
+                  <th scope="col">
+                    <div
+                      class="d-flex justify-content-center align-items-center custome-input "
+                    >
+                    <ng-template #tipDown>
+                      Download data to modify Elasticity 
+  
+                    </ng-template>
+                    <ng-template #tipUpload>
+                      Export data to update Elasticity
+  
+                    </ng-template>
+                      <input
+                        #csvInput
+                        hidden="true"
+                        type="file"
+                        onclick="this.value=null"
+                        (change)="csvInputChange($event)"
+                      />
+                      <div class="m-aut" placement="bottom" [ngbTooltip]="tipDown">
+                        <i
+                        class="fa fa-download mr-1"
+                        aria-hidden="true"
+                        style="font-size: 1.3rem"
+                        (click)="downloadE()"
+                      ></i>
+                    
+                    </div>
+                    <div class="m-aut"  placement="bottom" [ngbTooltip]="tipUpload">
+                      <i
+                      class="fa fa-upload"
+                      aria-hidden="true"
+                      style="font-size: 1.3rem"
+                      (click)="csvInput.click()"
+                      
+                    ></i>
+                  
+                    </div>
+                     
+                    </div>
+                  </th>
+                   
+                  <th scope="col" style="width: 115px;padding:0">
+                    <button routerLink="/scenario" class="btn btn-primary">
+                       1 year plan</button>
+                  </th>
+                                </tr>
+              </thead>
+              <thead class="header-table">
+                <tr style="height: 85px">
+                  <th style="text-align: left" scope="col" >
+                    <span class="" sortable="product_group" (sort)="onSort($event)">Product Group</span>
+                  </th> 
+                    
+                  <th scope="col" >
+                    <span class="" sortable="current_lpi" (sort)="onSort($event)">List Pice</span>
+                  </th>
+                  <th scope="col">
+                    <span class="" sortable="current_rsp" (sort)="onSort($event)">RSP w/o VAT</span>
+                  </th>
+                  <th scope="col">
+                    <span class="" sortable="current_cogs" (sort)="onSort($event)">COGS</span>
+                  </th>
+                  <th scope="col" class="table-cal">
+                    <div>LPI %</div>
+                  </th>
+                  <th scope="col" class="table-cal">
+                    <div>% RSP Increase</div>
+                  </th>
+                  <th scope="col" class="table-cal">
+                    <div>% COGS Increase</div>
+                  </th>
+                  <!-- <th scope="col">Base Price Elasticity Used</th> -->
+                  <th scope="col" class="table-cal">
+                    <div>Base Price Elasticity</div>
+                  </th>
+                  <th scope="col">Competition</th>
+                   
+                </tr>
+              </thead>
+              <tbody>
+                 
+                <ng-container formArrayName="inputFormArray"
+                 *ngFor="let input of myForm.get('inputFormArray').controls;index as i">
+                  <tr style="height: 80px"  [formGroupName]="i" >
+                    <td scope="row" style="text-align: left">
+                      <strong>{{
+                        input.controls.product_group_retailer.value
+                          | removeUnder
+                      }}</strong>
+                    </td>
+                    <td style="font-size: 1rem; padding: 0;">
+                     <div class="d-flex flex-column">
+                      <div class="d-flex flex-wrap justify-content-center">
+                        <div class="mr-1">Curr</div>
+                        <div>{{ input.controls.current_lpi.value | number: decimalFormat}} <strong>₽</strong></div>
+                      </div>
+                      <div *ngIf="input.controls.current_lpi.value < input.controls.increased_lpi.value" class="d-flex flex-wrap justify-content-center"
+                      [ngClass]="{
+                        'blink': input.controls.current_lpi.value < input.controls.increased_lpi.value
+                      }">
+                        <div class="mr-1">New</div>
+                        <div
+                        
+                        >{{ input.controls.increased_lpi.value | number: decimalFormat}} <strong>₽</strong></div>
+                      
+                     </div>
+                    </div>
+                    </td>
+                    <td style="font-size: 1rem; padding: 0;">
+                      <div class="d-flex flex-column">
+                        <div class="d-flex flex-wrap justify-content-center">
+                          <div class="mr-1">Curr</div>
+                          <div>{{ input.controls.current_rsp.value | number: decimalFormat}} <strong>₽</strong></div>
+                        </div>
+                        <div *ngIf="input.controls.current_rsp.value < input.controls.increased_rsp.value" class="d-flex flex-wrap justify-content-center"
+                        [ngClass]="{
+                          'blink': input.controls.current_rsp.value < input.controls.increased_rsp.value
+                        }">
+                          <div class="mr-1">New</div>
+                          <div
+                          
+                          >{{ input.controls.increased_rsp.value | number: decimalFormat}} <strong>₽</strong></div>
+                        
+                       </div>
+                      </div>
+                      
+                      
+                    </td>
+                    <td style="font-size: 1rem;padding: 0;">
+                      <div class="d-flex flex-column">
+                        <div class="d-flex flex-wrap justify-content-center">
+                          <div class="mr-1">Curr</div>
+                          <div>{{ input.controls.current_cogs.value | number: decimalFormat}} <strong>₽</strong></div>
+                        </div>
+                        <div *ngIf="input.controls.current_cogs.value < input.controls.increased_cogs.value" class="d-flex flex-wrap justify-content-center"
+                        [ngClass]="{
+                          'blink': input.controls.current_cogs.value < input.controls.increased_cogs.value
+                        }">
+                          <div class="mr-1">New</div>
+                          <div
+                          
+                          >{{ input.controls.increased_cogs.value | number: decimalFormat}} <strong>₽</strong></div>
+                        
+                       </div>
+                      </div>
+                      
+                      
+                    </td>
+                    <td class="p-1" >
+                      
+                      <div class="d-flex align-items-center "> 
+                      
+                      
+                      
+                      <div
+                      class="value-button"
+                      id="increase"
+                      [ngClass]="{
+                        'disable':
+                        input.controls.lpi_increase.value == 0,
+                        '':
+                        input.controls.lpi_increase.value != 0
+                      }"
+                      (click)="decreaseValue(input, 'lpi_increase' , i)"
+                    
+                      value="Increase Value"
+                    >
+                      <i class="fa fa-minus" aria-hidden="true"></i>
+                    </div>
+                      <div class="percent">
+                      <input
+                        type="number"
+                        class="form-control"
+                        placeholder="%"
+                        value="0"
+                        formControlName="lpi_increase"
+                        (keyup)="increaseValue(input, 'lpi_increase' , i,$event.target.value)"
+                        
+                      />
+                    </div>
+                    <div
+                    class="value-button"
+                    id="decrease"
+                    value="Decrease Value"
+                    (click)="increaseValue(input, 'lpi_increase' , i)"
+                   
+                  >
+                    <i class="fa fa-plus" aria-hidden="true"></i>
+                  </div>
+                    
+                    </div>
+                   
+                    </td>
+                    <td class="p-1" >
+                    
+                      <div class="d-flex align-items-center"> 
+                     
+                      <div
+                      class="value-button"
+                      id="increase"
+                      [ngClass]="{
+                        'disable':
+                        input.controls.rsp_increase.value == 0,
+                        '':
+                        input.controls.rsp_increase.value != 0
+                      }"
+                      (click)="decreaseValue(input, 'rsp_increase', i)"
+                      value="Increase Value"
+                    >
+                      <i class="fa fa-minus" aria-hidden="true"></i>
+                    </div>
+                    
+                      <div class="percent">
+                      <input
+                        type="number"
+                        class="form-control"
+                        placeholder="%"
+                        value="0"
+                        formControlName="rsp_increase"
+                        (keyup)="increaseValue(input, 'rsp_increase' , i,$event.target.value)"
+                      />
+                      </div>
+                      <div
+                      class="value-button"
+                      id="decrease"
+                      value="Decrease Value"
+                      (click)="increaseValue(input, 'rsp_increase', i)"
+                      
+                    >
+                      <i class="fa fa-plus" aria-hidden="true"></i>
+                    </div>
+                     
+                      </div>
+                     
+                    </td>
+                    <td class="p-1" >
+                      
+                      <div class="d-flex align-items-center"> 
+                       
+                      <div
+                        class="value-button"
+                        id="increase"
+                        [ngClass]="{
+                          'disable':
+                          input.controls.cogs_increase.value == 0,
+                          '':
+                          input.controls.cogs_increase.value != 0
+                        }"
+                        (click)="decreaseValue(input, 'cogs_increase', i)"
+                        
+                        value="Increase Value"
+                      >
+                        <i class="fa fa-minus" aria-hidden="true"></i>
+                      </div>
+                     
+                      <div class="percent">
+                      <input
+                        type="number"
+                        class="form-control"
+                        placeholder="%"
+                        formControlName="cogs_increase"
+                        (keyup)="increaseValue(input, 'cogs_increase' , i,$event.target.value)"
+                        
+                      />
+                      </div>
+                      <div
+                      class="value-button"
+                      id="decrease"
+                      value="Decrease Value"
+                      (click)="increaseValue(input, 'cogs_increase', i)"
+                    >
+                      <i class="fa fa-plus" aria-hidden="true"></i>
+                    </div>
+                      
+                      </div>
+                     
+                    </td>
+                    <td style="padding: 0;">
+                      <input
+                        type="text"
+                        class="form-control ip"
+                        [ngClass]="{
+                          'color-change': update,
+                          '': !update
+                        }"
+                        placeholder="%"
+                        value="0"
+                        formControlName="base_price_elasticity"
+                      />
+                    </td>
+                    <td style="padding: 0;">
+                      <mat-form-field class="demo-full-width" appearance="fill">
+                        <select matNativeControl formControlName="competition" 
+                        (change)="competitionChange($event.target.value , input , i)">
+                          <option value=""></option>
+                          <option value="Follows">Follows</option>
+                          <option value="Not Follows">Not Follows</option>
+                        </select>
+                      </mat-form-field>
+                    </td>
+   
+                  </tr>
+                </ng-container>
+               </tbody>
+            </table>
+           
+            <div class="align-self-center">
+              <i
+                (click)="expandTable()"
+                class="fa"
+                [ngClass]="{
+                  'fa-angle-double-left': !expanded_flag,
+                  'fa-angle-double-right': expanded_flag
+                }"
+                aria-hidden="true"
+              ></i>
+            </div>
+            
+            <div
+              class="d-flex"
+              [ngClass]="expanded_flag ? 'expanded' : 'not-expanded'"
+            >
+              <table class="table table-bordered table-striped table-hover">
+                <thead>
+                  <tr style="height: 65px">
+                    <th colspan="5" scope="col" style="width: 350px;">
+                      ANNULAIZED IMPACT
+                      <mat-slide-toggle
+                        [(ngModel)]="isCHG"
+                        (change)="toggleChange($event)"
+                        [ngModelOptions]="{ standalone: true }"
+                        >%CHG</mat-slide-toggle
+                      >
+                    </th>
+                  </tr>
+                </thead>
+                <thead>
+                  <tr style="height: 85px">
+                    <th scope="col" style="padding: 0;">Volume (Tonnes)</th>
+                    <th scope="col" style="padding: 0;">RSV w/o VAT</th>
+                    <th scope="col" style="padding: 0;">Customer Margin</th>
+                    <th scope="col" style="padding: 0;">NSV</th>
+                    <th scope="col" style="padding: 0;">MAC</th>
+                  </tr>
+                </thead>
+                <tbody>
+  
+                
+                  <ng-container formArrayName="inputFormArray"
+                    *ngFor="let input of myForm.get('inputFormArray').controls;index as i"
+                  >
+                    <tr style="height: 80px" [formGroupName]="i">
+                      <td style="padding: 0">
+                    <app-sc-ip-simulated-td
+                    [value] = "input.controls.tonnes.value"
+                    [isCHG] = "isCHG">
+                  </app-sc-ip-simulated-td>
+                    </td>
+                    <td style="padding: 0">
+                      <app-sc-ip-simulated-td
+                      [value] = "input.controls.rsv.value"
+                      [isCHG] = "isCHG">
+                    </app-sc-ip-simulated-td>
+                  </td>
+                      <td style="padding: 0">
+                        <app-sc-ip-simulated-td
+                        [value] = "input.controls.rp.value"
+                        [isCHG] = "isCHG">
+                      </app-sc-ip-simulated-td>
+                      </td>
+                      <td style="padding: 0">
+                        <app-sc-ip-simulated-td
+                        [value] = "input.controls.nsv.value"
+                        [isCHG] = "isCHG">
+                      </app-sc-ip-simulated-td>
+                      </td>
+                      <td style="padding: 0">
+                        <app-sc-ip-simulated-td
+                        [value] = "input.controls.mac.value"
+                        [isCHG] = "isCHG">
+                      </app-sc-ip-simulated-td>
+                      </td>
+                    </tr>
+                  </ng-container>
+                </tbody>
+              </table>
+            </div>
+            <!-- <table>
+  
+            </table> -->
+          </div>
+        </form>
+      </ng-container>
+  
+      <!-- <div class="col-2">
+        <table class="table table-dark">
+          <thead>
+            <tr>
+              <th scope="col"></th>
+              <th scope="col">DATE</th>
+              <th scope="col"></th>
+            </tr>
+          </thead>
+          <thead>
+            <tr>
+              <th scope="col">MAC</th>
+              <th scope="col">RP</th>
+              <th scope="col">TE</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Mark</td>
+              <td>Otto</td>
+              <td>@mdo</td>
+            </tr>
+          </tbody>
+        </table>
+      </div> -->
+    </div>
+    <!-- <div class="row p-3 cust" #scrollHeader [class.sticky_]="sticky"> -->
+    <!-- <div class="col"> -->
+    <div class="row cust" #scrollHeader>
+      <div class="d-flex flex-row flex-fill p-2 justify-content-end">
+        <div class="flex-grow-1">
+          <!-- <a (click)="simulateFn(true)" class="btn btn-primary mx-2 eq"
+            >Simulate Scenario
+          </a> -->
+          <a (click)="open(loadModals, 'large')" class="btn btn-primary mx-2 eq"
+            >Simulate Scenario
+          </a>
+        </div>
+  
+        <a (click)="resetFormGroup()" class="btn btn-primary mx-2 eq"
+          >Reset Scenario</a
+        >
+        <a (click)="openScenario(loadModal)" class="btn btn-primary mx-2 eq"
+          >Load Scenario</a
+        >
+  
+        <a *ngIf="chosenScenario" (click)="open(mymodal)" class="btn btn-primary mx-2 eq"
+          >Save Scenario</a
+        >
+        <a *ngIf="!chosenScenario" (click)="open(mymodal)" class="btn btn-primary mx-2 eq"
+        >Save Scenario</a
+      >
+        <!-- <a routerLink="/scenario/compare" class="btn btn-primary mx-2 eq"
+          >Compare Scenario</a
+        > -->
+        <a routerLink="/scenario/compare-table" [queryParams]="{yearly: true}" class="btn btn-primary mx-2 eq"
+          >Compare Scenario</a
+        >
+        <!-- <a (click) = "downloadE()" class="btn btn-primary mx-2 eq"
+        >Download</a
+      > -->
+      </div>
+      <!-- <div class="d-flex flex-row flex-fill p-2 justify-content-between">
+          <a (click)="goToDashboard()" class="btn btn-primary">Dashboard</a>
+          <a (click)="simulateSummary(simulate)" class="btn btn-primary"
+            >Summary</a
+          >
+  
+          <a (click)="open(mymodal)" class="btn btn-primary">Save Scenario</a>
+          <a routerLink="/compare" class="btn btn-primary">Compare Scenario</a>
+          <a
+            *ngIf="isSimulate"
+            (click)="downloadSummary()"
+            class="btn btn-primary"
+            ><i class="fa fa-download pr-1" aria-hidden="true"></i
+          ></a>
+        </div> -->
+    </div>
+    <!-- </div> -->
+  </div>
+  
+  <!-- Modal -->
+  <ng-template #mymodal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="modal-basic-title">Save Scenario</h4>
+      <button
+        type="button"
+        class="close"
+        aria-label="Close"
+        #closebutton
+        (click)="modal.dismiss('Cross click')"
+      >
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      
+      <div class="form-group">
+        <label for="usr">Name:</label>
+        <input
+          type="text"
+          class="form-control"
+          id="usr"
+          [(ngModel)]="scenarioName"
+        />
+      </div>
+      <div class="form-group">
+        <label for="pwd">Comments:</label>
+        <textarea
+          class="form-control"
+          rows="5"
+          [(ngModel)]="scenarioComment"
+          id="comment"
+        ></textarea>
+      </div>
+       
+    </div>
+    <div class="modal-footer">
+      <button *ngIf="!chosenScenario"
+        type="button"
+        class="btn btn-primary"
+        (click)="saveScenario(mymodal)"
+      >
+        Save
+      </button>
+      <button *ngIf="chosenScenario"
+      type="button"
+      class="btn btn-primary"
+      (click)="editScenario(mymodal)"
+    >
+      Edit
+    </button>
+    <button *ngIf="chosenScenario"
+    type="button"
+    class="btn btn-primary"
+    (click)="deleteScenario(mymodal)"
+  >
+    Delete
+  </button>
+      
+    </div>
+  </ng-template>
+  
+  
+  <ng-template #loadModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="modal-basic-title">Load Scenario</h4>
+      <button
+        type="button"
+        class="close"
+        aria-label="Close"
+        #closebutton
+        (click)="modal.dismiss('Cross click')"
+      >
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      
+      <div class="form-group">
+        <mat-form-field appearance="fill">
+          <mat-label>Select Sceanrio</mat-label>
+          <mat-select [formControl]="selectedScenario"  >
+            <mat-option  *ngFor="let c of scenarioArray" [value]="c.id">
+              {{ c.name }}
+            </mat-option>
+           
+          </mat-select>
+        </mat-form-field>
+  
+      </div>
+      
+       
+    </div>
+    <div class="modal-footer">
+      <button
+        type="button"
+        class="btn btn-primary"
+        (click)="loadScenario(loadModal)"
+      >
+        Load
+      </button>
+      
+    </div>
+  </ng-template>
+  
+  <ng-template #loadModals let-modal>
+    <app-simulate-scenario-modal [simulatedData] = "simulatedData"></app-simulate-scenario-modal>
+     
+  </ng-template>
+  

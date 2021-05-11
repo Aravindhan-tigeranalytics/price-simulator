@@ -10,13 +10,21 @@ export class ModalService {
 
  }
  
-  open(content) {
-    this.modalService
-      .open(content, { ariaLabelledBy: 'modal-basic-title' })
-      .result.then(
-        (result) => {},
-        (reason) => {}
-      );
+  open(content , extra? , data?) {
+    let obj = { ariaLabelledBy: 'modal-basic-title',}
+    if(extra){
+      obj = {...obj , ...extra}
+
+    }
+     
+    
+    let ins = this.modalService
+      .open(content,obj )
+      if(data){
+        console.log(data , "data")
+        // ins.componentInstance.simulatedData = data
+      } 
+      
   }
  
   close(content) {

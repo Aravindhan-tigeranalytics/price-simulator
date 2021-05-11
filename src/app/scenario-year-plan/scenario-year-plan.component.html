@@ -1,0 +1,94 @@
+<section >
+    <div class="container-fluid text-muted">
+      <div class="row mx-2 cust">
+        <div class="col-9">
+          <div class="d-flex flex-row justify-content-start align-items-center">
+            <app-drop-down [name]="'Retailer'"
+            [filter_value] = "retailer_filter" 
+            [formControl1] = "retailers"
+            [filterCtrl] ="retailersFilterCtrl"
+            [filtered] = "filteredRetailers"
+            [placeholder] = "'Search Retailers'"
+            [noentries] = "'No Retailers available'"
+            ></app-drop-down>
+            
+            <app-drop-down [name]="'Category'"
+            [filter_value] = "category_filter" 
+            [formControl1] = "categories"
+            [filterCtrl] ="categoriesFilterCtrl"
+            [filtered] = "filteredCategories"
+            [placeholder] = "'Search Categories'"
+            [noentries] = "'No Categories available'"
+            ></app-drop-down>
+
+            <app-drop-down [name]="'Product Group'"
+            [filter_value] = "product_filter" 
+            [formControl1] = "products"
+            [filterCtrl] ="productsFilterCtrl"
+            [filtered] = "filteredProducts"
+            [placeholder] = "'Search Products'"
+            [noentries] = "'No Products available'"
+            ></app-drop-down>
+
+            <app-drop-down [name]="'Strategic Cell'"
+            [filter_value] = "cell_filter" 
+            [formControl1] = "cells"
+            [filterCtrl] ="cellsFilterCtrl"
+            [filtered] = "filteredCells"
+            [placeholder] = "'Search Strategic Cell'"
+            [noentries] = "'No strategic cell available'"
+            ></app-drop-down>
+
+            <app-drop-down [name]="'Brand'"
+            [filter_value] = "brand_filter" 
+            [formControl1] = "brands"
+            [filterCtrl] ="brandsFilterCtrl"
+            [filtered] = "filteredBrands"
+            [placeholder] = "'Search Brands'"
+            [noentries] = "'No Brands available'"
+            ></app-drop-down>
+
+            <app-drop-down [name]="'Brand Format'"
+            [filter_value] = "brand_format_filter" 
+            [formControl1] = "brandFormats"
+            [filterCtrl] ="brandFormatsFilterCtrl"
+            [filtered] = "filteredBrandFormats"
+            [placeholder] = "'Search Brand Format'"
+            [noentries] = "'No Brand Format available'"
+            ></app-drop-down>
+            
+          </div>
+          </div>
+
+          <div class="col-3">
+            <div class="d-flex flex-row justify-content-start align-items-center">
+              <div class="p-2 flex-fill">
+                <a (click)="apply()" class="btn btn-primary btn-block"  
+                  >Apply</a
+                >
+              </div>
+              <div  class="p-2 flex-fill">
+                <a (click)="reset()" class="btn btn-primary btn-block" 
+                  >Reset</a
+                >
+              </div>
+            </div>
+          </div>
+
+          </div>
+
+          <app-scenario-input-yearly
+         
+       
+          [simulteFlag]="simulateFlag$"
+          (yearEvent)="filterYear($event)"
+          (filtersEvent)="filtersEvent($event)"
+          (saveScenarioEvent) = "saveScenarioEvent($event)"
+
+        ></app-scenario-input-yearly>
+          </div>
+</section>
+<!-- 
+
+
+<button (click)="apply()">apply</button> -->

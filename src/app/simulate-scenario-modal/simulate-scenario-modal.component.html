@@ -1,0 +1,83 @@
+ 
+<div class="modal-header d-flex">
+  <div class="flex-fill text-center"> 
+  ANNULAIZED IMPACT
+  <mat-slide-toggle
+  [(ngModel)]="isCHG"
+  (change)="toggleChange($event)"
+   
+  >%CHG</mat-slide-toggle
+>
+</div>
+                    <!-- <mat-slide-toggle
+                      [(ngModel)]="isCHG"
+                      (change)="toggleChange($event)"
+                      [ngModelOptions]="{ standalone: true }"
+                      >%CHG</mat-slide-toggle
+                    > -->
+    <button
+      type="button"
+      class="close"
+      aria-label="Close"
+     
+    >
+      <span aria-hidden="true">×</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    
+        <div class="table-responsive">
+        <table class="table table-striped">
+            <colgroup>
+                <col span="1" style="border-right:1px solid rgba(0,0,0,.2)">
+           <col span="4"   >
+           <col span="1" style="border-right:1px solid rgba(0,0,0,.2)" >
+            <col span="4"   >
+           <col span="1" style="border-right:1px solid rgba(0,0,0,.2)" >
+         </colgroup>
+        <thead>
+                 
+          <tr>
+            <td rowspan="2"></td>
+            <th *ngFor="let data of year" colspan="5" style="text-align:center;" scope="colgroup">{{data}}</th>
+            <!-- <th colspan="5" style="text-align:center;" scope="colgroup">2020</th>
+            <th colspan="5" style="text-align:center;" scope="colgroup">2021</th> -->
+          </tr>
+          
+          <tr>
+            <ng-container *ngFor="let data of year">
+              <th class="variable-class" *ngFor="let variable of variables"  >{{variable}}</th>
+            </ng-container>
+                       
+                         
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let header of headers" >
+            <th scope="row" >{{header}}</th>
+            <ng-container *ngFor="let data of year">
+              <!-- <ng-container *ngFor="let variable of variables"> -->
+              <td appTdDirective [n] = "'ABS Change'" [value] = "getValue(data,header,variable)" *ngFor="let variable of variables">{{getValue(data,header,variable) | convertTonnes}}
+                <span *ngIf="isCHG">%</span>
+              </td>
+              <!-- <td>{{data}}-{{header}} -- {{variable}}</td>
+               <td>{{getValue(data,header,variable)}}</td>
+              <td> {{data}}-{{header}}</td>
+               <td> {{data}}-{{header}}</td> -->
+              <!-- </ng-container> -->
+
+            </ng-container>
+            
+          
+          </tr>
+        </tbody>
+          
+                  </table>
+                  </div>
+                  </div>
+        
+    
+     
+  
+
+ 

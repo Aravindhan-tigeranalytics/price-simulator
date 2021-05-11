@@ -34,7 +34,7 @@ import {
 import {
   Observable,
   of,
-  from,
+  // from,
   BehaviorSubject,
   Subject,
   combineLatest,
@@ -42,6 +42,9 @@ import {
   pipe,
   fromEvent,
   Subscription,
+  concat,
+  zip,
+  
 
   
   
@@ -49,6 +52,7 @@ import {
 import { FormBuilder, FormGroup, FormArray } from '@angular/forms';
 import { ExcelServicesService } from '../shared/services/excel.service';
 import {FormService} from '../shared/services/form.service'
+import { Options } from "@angular-slider/ngx-slider";
 
 import {
   distinct,
@@ -61,6 +65,11 @@ import {
   debounceTime,
   startWith,
   takeUntil,
+  switchMap,
+  concatMap,
+  mergeScan,
+  scan,
+  
 
 } from 'rxjs/operators';
 import { Directive } from '@angular/core';
@@ -94,13 +103,26 @@ export class NgbdSortableHeader {
 }
 
 @Component({
-  selector: 'app-scenario-input',
-  templateUrl: './scenario-input.component.html',
-  styleUrls: ['./scenario-input.component.scss'],
-  // directives: []
-  // directives:[]
+  selector: 'app-scenario-input-yearly',
+  templateUrl: './scenario-input-yearly.component.html',
+  styleUrls: ['./scenario-input-yearly.component.scss']
 })
-export class ScenarioInputComponent implements OnInit , OnChanges {
+export class ScenarioInputYearlyComponent implements OnInit {
+  value = null;
+  yearMap = {}
+  options: Options = {
+    showTicksValues: true,
+    stepsArray: [
+     
+      // { value: 2019 },
+      // { value: 2020 },
+    ],
+    // translate : (value,i) =>{
+    //   // cos
+    //   console.log(value , "value of steps " , i)
+    //   return 'wwww'
+    // }
+  };
   @ViewChildren(NgbdSortableHeader) headers: QueryList<NgbdSortableHeader>;
   // @ViewChildren(NgbdSortableHeader) headers: QueryList<NgbdSortableHeader>;
   // @Input('tableData') tableData$: Observable<NewUnit[]>;
@@ -110,16 +132,18 @@ export class ScenarioInputComponent implements OnInit , OnChanges {
      @Output() simulateSummaryEvent = new EventEmitter<boolean>();
   @Output() filtersEvent = new EventEmitter<any>();
   @Output() saveScenarioEvent = new EventEmitter<any>()
+  @Output() yearEvent = new EventEmitter<any>()
   simulate;
   isSimulate = false;
-  date_lpi;
-  date_rsp;
-  date_cogs;
+  date_lpi=null;
+  date_rsp=null;
+  date_cogs=null;
   isCHG;
   initialForm = null;
   scenarios;
   scenarioArray;
   selectedScenario = new FormControl();
+  simulatedData;
   // decimalFormat = '1.0-1';
   // simulated_summary_obj = {
 
@@ -178,6 +202,7 @@ export class ScenarioInputComponent implements OnInit , OnChanges {
   minDate: Date = new Date();
   maxDate: Date = new Date(1950,1,1);
 fg
+
   constructor(
     private modalService: ModalService,
     private api: ApiService,
@@ -186,58 +211,101 @@ fg
     private router: Router,
     private formSevice : FormService,
     private priceScenarioService : PriceScenarioService
-  ) {
+  ) { 
     this.inputFormArray = new FormArray([]);
     this.myForm = this.formBuilder.group({
+      year : [],
       inputFormArray : this.formBuilder.array([])
     })
-    
   }
+
   ngOnInit(): void {
     this.fg = this.formSevice.getForms() 
-    
-  this.priceScenarioService.getUnits().pipe(
-    takeUntil(this.unsubscribe$)
-  )
-    .subscribe(data=>{
-        if(data){
-          this.units = data 
-            this.init()
-             this.updateForm()
-        this.simulateFn()
-  
-        }
-      
-    },
-    (err)=>{
+    // this.priceScenarioService.initYearlyUnitsObservable.subscribe(data=>{
+    //   console.log(data , "init data..")
+    //   if(data && data.length > 0){
+    //     this.populateFilter(data)
 
-    },()=>{
-      console.log("COMPLETED")
-    })
+    //   }
+    //      })
+    let init$ = this.priceScenarioService.initYearlyUnitsObservable
+    // let filter$ = this.populateFilterObservable
+    let filter$ = init$.pipe(
+      filter(data=>data.length > 0),
      
-    
-    this.priceScenarioService.getSimulatedArray().subscribe(data=>{
-      if(data && data.length > 0){
-        this.simulatedArray = data
-      }
+      switchMap(data=>{
+         
+        return this.populateFilterObservable(data)
+         
+
+      }),
+      switchMap(data=>{
+        return this.priceScenarioService.yearlyUnitsObservable
+      })
+       
+    )
+    filter$.subscribe(data=>{
+        if(data && data.length > 0){
+          console.log(data , "DATA ")
+                  this.units = data 
+                  this.init()
+                  this.updateForm()
+                  // console.log(this.units , "DATA ")
+                  // this.simulateFn()
+        
+              }
+     
     })
+    // combineLatest([filter$ , this.priceScenarioService.yearlyUnitsObservable]).subscribe(([data1,data])=>{
+    //   if(data && data.length > 0){
+    //               this.units = data 
+    //               this.init()
+    //               this.updateForm()
+    //               this.simulateFn()
+        
+    //           }
+    // })
+    
+    // this.priceScenarioService.yearlyUnitsObservable.pipe(
+    //   takeUntil  (this.unsubscribe$)
+    // )
+    //   .subscribe(data=>{
+    //       if(data && data.length > 0){
+    //           this.units = data 
+    //           this.init()
+    //           this.updateForm()
+    //           this.simulateFn()
+    
+    //       }
+        
+    //   },
+    //   (err)=>{
   
-   
-    this.scrollHeaderPosition = 0;
-    this.filterHeaderPosition = 0;
- 
-
-    this.simulteFlag$.subscribe((data) => {
-      if (data) {
-        this.simulateFn();
-      }
-
+    //   },()=>{
+    //     console.log("COMPLETED")
+    //   })
+       
       
-    });
-    // this.units = this._units
+      this.priceScenarioService.getSimulatedArray().subscribe(data=>{
+        if(data && data.length > 0){
+          this.simulatedArray = data
+        }
+      })
+    
+     
+      this.scrollHeaderPosition = 0;
+      this.filterHeaderPosition = 0;
    
+  
+      this.simulteFlag$.subscribe((data) => {
+        if (data) {
+          this.simulateFn();
+        }
+  
+        
+      });
+     
   }
-
   downloadExcel(){
     let form = this.myForm.get('inputFormArray')
     // console.log(form.value , "form values...")
@@ -270,24 +338,27 @@ fg
    return 0
   }
   init(){
+    this.minDate  = new Date();
+    this.maxDate  = new Date(1950,1,1);
+     
     this.inputList = this.aggregate(this.units);
-    if(this.savedScenario){
-      // debugger
-         const control = <FormArray>this.myForm.controls['inputFormArray'];
-    this.savedScenario.formArray.forEach(element => {
-      let form = (this.myForm.get('inputFormArray') as FormArray).
-      controls.find((d:FormGroup)=>d.controls.product_group.value == element.product_group)
-      let obj = {}
-      for (var key of Object.keys(element)) {
-        obj[key] = element[key]
-    }
-    form.patchValue(obj)
-    });
+    // if(this.savedScenario){
+      
+    //      const control = <FormArray>this.myForm.controls['inputFormArray'];
+    // this.savedScenario.formArray.forEach(element => {
+    //   let form = (this.myForm.get('inputFormArray') as FormArray).
+    //   controls.find((d:FormGroup)=>d.controls.product_group.value == element.product_group)
+    //   let obj = {}
+    //   for (var key of Object.keys(element)) {
+    //     obj[key] = element[key]
+    // }
+    // form.patchValue(obj)
+    // });
 
-    }
+    // }
     
    
-
+// console.log(this.myForm.value , "FORM VALUE YEAR UPDATE ")
 
   }
   ngOnChanges(changes) {
@@ -306,34 +377,177 @@ fg
       updateForm(){
         // let f : FormGroup =  this.formSevice.getForm();
         
-        let fr : {} = this.formSevice.getForms();
-        console.log(fr , "FORM s")
+        // let fr : {} = this.formSevice.getForms();
+        // console.log(fr , "FORM s")
         // debugger
-        if(fr){
+        // if(fr){
          
-          if(fr['formValue']){
-            this.myForm.get('inputFormArray').patchValue(fr['formValue']['inputFormArray'])
+        //   if(fr['formValue']){
+        //     this.myForm.get('inputFormArray').patchValue(fr['formValue']['inputFormArray'])
     
-          }
-          if(fr['date_cogs']){
-            this.date_cogs = fr['date_cogs']
-          }
-          if(fr['date_lpi']){
-            this.date_lpi = fr['date_lpi']
+        //   }
+        //   if(fr['date_cogs']){
+        //     this.date_cogs = fr['date_cogs']
+        //   }
+        //   if(fr['date_lpi']){
+        //     this.date_lpi = fr['date_lpi']
     
-          }
-          if(fr['date_rsp']){
-            this.date_rsp = fr['date_rsp']
+        //   }
+        //   if(fr['date_rsp']){
+        //     this.date_rsp = fr['date_rsp']
     
-          }
-          if(fr['selectedScenario']){
-            this.selectedScenario.patchValue(fr['selectedScenario'].value)
+        //   }
+        //   if(fr['selectedScenario']){
+        //     this.selectedScenario.patchValue(fr['selectedScenario'].value)
     
-          }
+        //   }
     
-        }
+        // }
+        this.updateYear()
    
        
+      }
+      updateYear(){
+        let prev = this.value -1
+        // console.log(this.value , "current value")
+        // console.log(this.options.stepsArray, "STEPS ARRAY")
+        if(this.options.stepsArray.length > 0){
+          let initYear = this.options.stepsArray[0].value 
+        // console.log(this.options.stepsArray[0].value , "options year ")
+       
+
+        }
+        let initYear = this.options.stepsArray[0].value 
+        let yearForm = this.formSevice.getFormYear()
+        console.log(yearForm , "YEARFORM")
+        
+        
+
+
+        
+        if(yearForm.length > 0){
+          let prevForm = yearForm.find(d=>d.year == prev)
+          let currForm = yearForm.find(d=>d.year == this.value)
+          let formArray = this.myForm.get('inputFormArray') as FormArray
+          console.log(prevForm , "prev")
+          console.log(currForm , "currform")
+
+          if(prevForm){
+            formArray.controls.forEach((arr,i)=>{
+              // console.log(i , "INDEX")
+           
+              let ar = prevForm['inputFormArray'].find(d=>d.product_group == arr.value['product_group'])
+              // console.log(ar , "prev form")
+               
+              arr.patchValue({
+                current_lpi : ar['increased_lpi'],
+                current_rsp : ar['increased_rsp'],
+                current_cogs : ar['increased_cogs'],
+                increased_lpi : ar['increased_lpi'],
+                increased_rsp : ar['increased_rsp'],
+                increased_cogs : ar['increased_cogs'],
+              })
+            })
+            if(currForm){
+              console.log(currForm , "currform condition")
+              // currForm['']
+              this.date_cogs = currForm['cogs_date'];
+              this.date_rsp = currForm['rsp_date'];
+              this.date_lpi = currForm['lpi_date'];
+              // rsp_date : this.date_rsp,
+              // lpi_date : this.date_lpi
+              formArray.controls.forEach((arr,i)=>{
+           
+                let ar = currForm['inputFormArray'].find(d=>d.product_group == arr.value['product_group'])
+  
+                
+                
+                 
+                arr.patchValue({
+                  lpi_increase : ar['lpi_increase'],
+                  rsp_increase : ar['rsp_increase'],
+                  cogs_increase : ar['cogs_increase'],
+                  base_price_elasticity : ar['base_price_elasticity'],
+                  base_price_elasticity_manual : ar['base_price_elasticity_manual'],
+                  net_elasticity : ar['net_elasticity'],
+                  competition : ar['competition']
+                })
+                this.increaseValue(arr, 'lpi_increase',i, Number(ar['lpi_increase']))
+                this.increaseValue(arr, 'rsp_increase',i, Number(ar['rsp_increase']))
+                this.increaseValue(arr, 'cogs_increase',i, Number(ar['cogs_increase']))
+              })
+              
+    
+  
+
+            }
+  
+
+          }
+          else if(currForm && (initYear == this.value)){
+            this.date_cogs = currForm['cogs_date'];
+            this.date_rsp = currForm['rsp_date'];
+            this.date_lpi = currForm['lpi_date'];
+            formArray.patchValue(yearForm.find(d=>d.year == initYear).inputFormArray)
+          }
+          else {
+            // formArray.controls.forEach(arr=>{
+           
+            //   let ar = currForm['inputFormArray'].find(d=>d.product_group == arr.value['product_group'])
+
+               
+              
+               
+            //   arr.patchValue({
+            //     lpi_increase : ar['lpi_increase'],
+            //     rsp_increase : ar['rsp_increase'],
+            //     cogs_increase : ar['cogs_increase'],
+            //     base_price_elasticity : ar['base_price_elasticity'],
+            //     base_price_elasticity_manual : ar['base_price_elasticity_manual'],
+            //     net_elasticity : ar['net_elasticity'],
+            //     competition : ar['competition']
+            //   })
+            // })
+            
+  
+
+
+          }
+         
+          
+          // let formArray = this.myForm.get('inputFormArray') as FormArray
+          // if(initYear == this.value){
+          //  formArray.patchValue(yearForm.find(d=>d.year == initYear).inputFormArray)
+
+          // } 
+          // else{
+            // formArray.controls.forEach(arr=>{
+           
+            //   let ar = yearForm.find(d=>d.year+1 == this.value)['inputFormArray'].find(d=>d.product_group == arr.value['product_group'])
+               
+            //   arr.patchValue({
+            //     current_lpi : ar['increased_lpi'],
+            //     current_rsp : ar['increased_rsp'],
+            //     current_cogs : ar['increased_cogs'],
+            //     increased_lpi : ar['increased_lpi'],
+            //     increased_rsp : ar['increased_rsp'],
+            //     increased_cogs : ar['increased_cogs1'],
+            //   })
+            // })
+            
+  
+
+          // }  
+         
+           
+          
+
+          
+        }
+        // console.log(this.myForm.value , "updateYear MYFORMVALUE")
+        // console.log(this.formSevice.getFormYear(), "updateYear getformupdateear")
+        // console.log(this.myForm.get('inputFormArray') , "updateYear input form  year")
+
       }
   expandTable(flag?) {
     if (flag) {
@@ -348,9 +562,9 @@ fg
 
    
   }
-  resetDate(date) {
+  // resetDate(date) {
     
-  }
+  // }
   csvInputChange(fileInputEvent: any) {
      
     const target: DataTransfer = <DataTransfer>fileInputEvent.target;
@@ -369,7 +583,7 @@ fg
     };
   }
   updateElasiticity(data) {
-    console.log(data , "DATA ") 
+    // console.log(data , "DATA ") 
     let form = this.myForm.get('inputFormArray') as FormArray
    
     this.update = true;
@@ -389,11 +603,26 @@ fg
     });
   }
   loadScenario(modal){
+
     
     let selected = this.scenarios.find((p) => p.id === this.selectedScenario.value);
+    console.log(selected , "selected")
+    // console.log(this.selectedScenario.value , "selected value")
+    // debugger
     let valArr = JSON.parse(selected.savedump)
+    console.log(valArr , "value array ")
+    if('yearlyForm' in valArr){
+      this.formSevice.updateFormYear(valArr.yearlyForm)
+
+    }
+    else{
+      let o = [{year : this.value,inputFormArray : valArr.formArray}]
+      console.log(o, "generated form array for on eyear")
+      this.formSevice.updateFormYear(o)
+    }
+    
     this.savedScenario =  JSON.parse(selected.savedump)
-    // console.log(JSON.parse(selected.savedump), "SAVED DUMP");
+    console.log(JSON.parse(selected.savedump), "SAVED DUMP");
     // console.log(selected , "selected")
     this.chosenScenario = selected
     this.scenarioName = this.chosenScenario.name
@@ -421,22 +650,35 @@ fg
     // this.close(modal)
   }
   editScenario(mymodal){
+    let formval = this.formSevice.getFormYear()
+    let form = [{...this.getFormValue(),year : this.value}]
     let res ={}
+    
     res['id'] = this.chosenScenario.id
-    res['formArray'] = this.myForm.get('inputFormArray').value
+    res['yearlyForm'] = [...form , ...formval.filter(d=>d.year !== this.value)]
+    // res['formArray'] = this.myForm.get('inputFormArray').value
     res['scenarioName'] = this.scenarioName
     res['scenarioComment'] = this.scenarioComment
     this.saveScenarioEvent.emit(res)
     this.close(mymodal);
   }
   saveScenario(mymodal) {
+    console.log(this.formSevice.getFormYear() , "form year")
    
+    let formval = this.formSevice.getFormYear()
+    let form = [{...this.getFormValue(),year : this.value}]
+    
+    // form.push(formval.filter(d=>d.year !== this.value))
     
     let res ={}
-    res['formArray'] = this.myForm.get('inputFormArray').value
+   
+    res['yearlyForm'] = [...form , ...formval.filter(d=>d.year !== this.value)]
     res['scenarioName'] = this.scenarioName
     res['scenarioComment'] = this.scenarioComment
-    
+
+
+    console.log(res , "RES")
+    // console.log(this.formSevice.getFormYear() , "form year")
     this.saveScenarioEvent.emit(res)
     this.close(mymodal);
     
@@ -451,6 +693,7 @@ fg
 
   }
   private checkValue(value,val){
+    // debugger
     let inc_per ;
       if(value == ""){
         inc_per = ''
@@ -477,7 +720,7 @@ inc_per = Number(value)
     if (formname == 'lpi_increase') {
       let val = formGroup.controls.lpi_increase.value;
       let cur_lpi = formGroup.controls.current_lpi.value;
-      let inc_per = this.checkValue(value , val)
+      let inc_per = Number(this.checkValue(value , val))
       let inc_lpi = cur_lpi * (inc_per / 100)
       let v = {
         lpi_increase: inc_per,
@@ -491,7 +734,7 @@ inc_per = Number(value)
     if (formname == 'rsp_increase') {
       let val = formGroup.controls.rsp_increase.value;
       let cur_rsp = formGroup.controls.current_rsp.value;
-      let inc_per = this.checkValue(value , val)
+      let inc_per = Number(this.checkValue(value , val))
       let inc_rsp = cur_rsp * (inc_per / 100)
       form.at(index).patchValue({
         rsp_increase: inc_per,
@@ -503,7 +746,7 @@ inc_per = Number(value)
     if (formname == 'cogs_increase') {
       let val = formGroup.controls.cogs_increase.value;
       let cur_cogs = formGroup.controls.current_cogs.value;
-      let inc_per = this.checkValue(value , val)
+      let inc_per = Number(this.checkValue(value , val))
       let inc_cogs = cur_cogs * (inc_per / 100)
       form.at(index).patchValue({
         cogs_increase: inc_per,
@@ -612,70 +855,7 @@ inc_per = Number(value)
   openDialog(): void {
     
   }
-//   applyFilter() {
-//        if (this.categories.value && this.categories.value.includes('ALL')) {
-//       this.categoryFilterSubject.next(this.categories_filter);
-//     } else {
-//       this.categoryFilterSubject.next(this.categories.value);
-//     }
-//     if (this.retailers.value && this.retailers.value.includes('ALL')) {
-//       this.retailerFilterSubject.next(this.retailer_filter);
-//     } else {
-//       this.retailerFilterSubject.next(this.retailers.value);
-//     }
-//     if (this.products.value && this.products.value.includes('ALL')) {
-//       let arr = this.products.value;
-     
-//       arr.push(...this.product_filter);
-    
-//       this.productFilterSubject.next(arr);
-//     } else {
-      
-//       this.productFilterSubject.next(this.products.value);
-//     }
-
-  
-
-
-// this.filterSummary();
-
-
-
-//     combineLatest([
-//       this.tableData$,
-//       this.categoryFilterSubject,
-//       this.productFilterSubject,
-//       this.retailerFilterSubject,
-//     ])
-//       .pipe(
-//         map(([units, category, product, retailer]) => {
-        
-//           if (category) {
-//             units = units.filter((unit) => category.includes(unit.category));
-//           }
-//           if (product) {
-//             units = units.filter((unit) =>
-//               product.includes(unit.product_group)
-//             );
-//           }
-//           if (retailer) {
-//             units = units.filter((unit) => retailer.includes(unit.retailer));
-//           }
-//           // this.simulatedArray = this.simulatedArray.filter(d=>d.key == unit.product_group)
-
-//           return units;
-//         })
-//       )
-//       .subscribe((data) => {
-//         //  console.log(data , "FILTERED DATA ")
-//         this.aggregate(data);
-       
-
-       
-         
-//       });
-//   }
-  filterSummary(){
+   filterSummary(){
 
 
     let products = this.productFilterSubject.getValue()
@@ -697,8 +877,8 @@ inc_per = Number(value)
     );
   }
   openScenario(content){
-    this.api.getScenario().subscribe((data: any[]) => {
-      // console.log(data, 'GET DATA');
+    this.api.getScenario('ALL').subscribe((data: any[]) => {
+      console.log(data, 'GET DATA');
       this.scenarios = data;
       this.scenarioArray = data.map((d) => ({ name: d.name, id: d.id }));
       // console.log(this.scenarioArray, 'SELECTED SCENARIO');
@@ -713,11 +893,141 @@ inc_per = Number(value)
     if(large){
     obj = {size: 'lg', windowClass: 'modal'} 
     }
-    this.modalService.open(content , obj)
+
+    console.log(this.formSevice.getFormYear() , "form year")
+
+    console.log(this.myForm.value , "form value")
+    let result = []
+    let fy = this.formSevice.getFormYear()
+    let fm = this.myForm.value
+    let restfm = fy.filter(d=>d.year!=fm.year)
+    result.push(fm)
+    result = [...result , ...restfm]
+    console.log(result , "RESULT")
+    let form = this.myForm.get('inputFormArray') as FormArray
+    let product_group = form.value.map(d=>d.product_group)
+    product_group.unshift('ALL')
+    let res = this.priceScenarioService.updateSimulatedvalueYearly(result)
+    console.log(res, "RESULTTTTT")
+    let obs$ = []
+    res.map(d=>{
+      product_group.forEach(element => {
+        if(element == 'ALL'){
+          obs$.push(this.populateSummary(d,element))
+        }
+        else{
+          obs$.push(this.populateSummary(d.filter((unit) => unit.product_group === element ),element))
+
+        }
+      });
+    })
+    console.log(obs$ , "observables")
+
+    forkJoin(obs$).subscribe(data=>{
+      console.log(data , "DATA FORKJOIN")
+      this.simulatedData = data.map(d=>{
+      return  { 
+        'value':this.calculateAggregate(d),
+        'year' : d[18]
+    }
+      }
+        )
+      this.modalService.open(content , obj,this.simulatedData)
+    })
+    console.log(this.simulatedData , "calculted result")
+    
       
+  }
+  calculateAggregate(d){
+    // total_base,
+      //     total_base_new,
+      //     total_weight_in_tons,
+      //     total_weight_in_tons_new,
+      //     total_lsv,
+      //     total_lsv_new,
+      //     total_rsv,
+      //     total_rsv_new,
+      //     total_nsv,
+      //     total_nsv_new,
+      //     total_cogs,
+      //     total_cogs_new,
+      //     trade_expense,
+      //     trade_expense_new,
+      //     mars_mac,
+      //     mars_mac_new,
+      //     retailer_margin,
+      //     retailer_margin_new,
+      //     retialer,
+      //     category,
+      //     product
+         let baseSummary = new SimulatedSummary(
+            d[0],
+            d[2],
+            d[4],
+            d[6],
+            d[8],
+            d[10],
+            d[12],
+            d[14],
+            d[16]
+          );
+          let SimulateSummary = new SimulatedSummary(
+            d[1],
+            d[3],
+            d[5],
+            d[7],
+            d[9],
+            d[11],
+            d[13],
+            d[15],
+            d[17]
+          );
+           
+          this.base_summary = baseSummary;
+          this.simulated_summary = SimulateSummary;
+                     let sarr = new SimulatedArray(
+           d[19],
+          'category',
+          'retialer',
+           
+            baseSummary,
+            SimulateSummary,
+            baseSummary.get_absolute(SimulateSummary),
+            baseSummary.get_percent_change(SimulateSummary)
+          );
+           
+          // if (key != 'ALL') {
+          //   let form  = (this.myForm.get('inputFormArray') as FormArray).
+          //   controls.find((d:FormGroup)=>d.controls.product_group.value == key)
+            
+          //  form.patchValue({
+          //    tonnes:sarr.simulated.tonnes - sarr.current.tonnes,
+          //     mac: sarr.simulated.mac - sarr.current.mac,
+          //     te: sarr.simulated.te - sarr.current.te,
+          //     rsv:sarr.simulated.rsv - sarr.current.rsv,
+          //     nsv:sarr.simulated.nsv - sarr.current.nsv,
+          //     rp: sarr.simulated.rp -sarr.current.rp,
+          //   });
+          //              }
+           
+          // let sindex = this.simulatedArray.findIndex(d=>d.key == sarr.key)
+           
+          // if (sindex > -1) {
+          //   this.simulatedArray.splice(sindex, 1);
+          // }
+
+          // this.simulatedArray.push(sarr);
+                
+
+return sarr
   }
   close(content) {
     this.modalService.close(content);
+  }
+  resetDate(){
+    this.date_lpi = null
+    this.date_rsp = null
+    this.date_cogs = null
   }
   resetFormGroup() {
     this.resetFilter()
@@ -725,9 +1035,7 @@ inc_per = Number(value)
     // this.formSevice.setForm(null)
     this.formSevice.setForms(null);
      
-    this.date_lpi = null
-    this.date_rsp = null
-    this.date_cogs = null
+    this.resetDate()
     this.selectedScenario.patchValue('')
     this.savedScenario = null;
 
@@ -739,31 +1047,83 @@ inc_per = Number(value)
    
     
   }
- 
+  getFormValue(){
+    return {
+      ...this.myForm.value ,
+      cogs_date : this.date_cogs,
+      rsp_date : this.date_rsp,
+      lpi_date : this.date_lpi
+    }
+
+  }
+  ChangeYear(e){
+    
+   
+    // console.log(this.value , "VALUE   ")
+    this.formSevice.setFormYear(this.getFormValue())
+    this.resetDate()
+    this.yearEvent.emit(this.value)
+
+    // this.priceScenarioService.filterYear(e)
+    //  console.log(this.formSevice.getFormYear() , "FORM YEAR GET")
+  }
+  populateFilterObservable(data){
+    return of(...data)
+    .pipe(
+    distinct((unit: NewUnit) => unit.year),
+    reduce((units, unit) => [...units, unit.year], []),
+    tap(d=>{
+      if(d.length > 0){
+        this.value = d[0]
+        this.yearEvent.emit(this.value)
+        // this.priceScenarioService.filterYear(this.value)
+        // this.options.stepsArray.push(d.map(d=>{}))
+        this.options.stepsArray = d.map((a , i)=>{
+          console.log(this , "this variable in setting")
+          console.log(a , "value of a")
+          this.yearMap[a] = `year ${i+1}`
+          console.log(this.yearMap , "year map setting")
+          return {value :  a}
+
+        })
+        this.options.translate = function(value){
+         
+          return this.yearMap[value]
+        }.bind(this)
+        
+      }
+      // console.log(d , "DDDDDDDDDDDDDDDDDDDDD")
+      // console.log(this.value , "VALUE ")
+      console.log(this.options , "options")
+    })
+    )
+   
+    
+     
+  }
 
   populateFilter(datas) {
-    of(...datas)
-      .pipe(distinct((unit: NewUnit) => unit.category))
-      .subscribe((data) => {
-        this.categories_filter.push(data.category);
-
-      });
-    of(...datas)
-      .pipe(distinct((unit: NewUnit) => unit.retailer))
-      .subscribe((data) => {
-        this.retailer_filter.push(data.retailer);
-      });
-    of(...datas)
-      .pipe(distinct((unit: NewUnit) => unit.product_group))
-      .subscribe((data) => {
-        this.product_filter.push(data.product_group);
-        // console.log(this.product_filter , "PRODUCT FILTER ")
-      });
+         of(...datas)
+       .pipe(distinct((unit: NewUnit) => unit.year))
+       .subscribe((data) => {
+        
+        // console.log(data.year , "DATA YEAR ")
+         this.options.stepsArray.push({ value:data.year })
+        
+       },()=>{},()=>{
+        let arr = this.options.stepsArray
+        if(arr.length > 0){
+          // console.log(arr , "ARR")
+          this.value = arr[0].value
+          this.ChangeYear(this.value)
+          // this.unsubscribe$.next()
+          
+           
+        }
+       });
   }
   competitionChange(value , input , index?){
-    // this.inputFormArray.at(index).patchValue({
-    //   rsp_increase: val + 5,
-    // })
+     
     let val = 0
     // debugger
     if(value == "Follows"){
@@ -777,15 +1137,12 @@ inc_per = Number(value)
       base_price_elasticity: val
     })
 
-    // input.controls.patchValue({
-    //   base_price_elasticity: val
      
-    // });
   }
   aggregate(units: NewUnit[]) {
-    // debugger
-    // console.log(units , "UNITS AGGREGATE")
-    // this.inputFormArray.reset()
+    
+    this.myForm.get('year').patchValue(units[0].year)
+     
     let f1 = (this.myForm.get('inputFormArray') as FormArray)
     f1.clear()
     // console.log(f1, "f111")
@@ -813,22 +1170,7 @@ inc_per = Number(value)
         weight[str]['count'] = weight[str]['count'] + 1
         weight[str]['b*u']  = weight[str]['b*u'] + (data.base_price_elasticity * data.base_units)
         weight[str]['units'] = weight[str]['units'] + data.base_units
-        // console.log(val_lpi , "BASE PRICE ELASITICITY")
-        // let val_rsp = form.value.current_rsp + data.retailer_median_base_price
-        // let val_cogs = form.value.current_cogs + data.mars_cogs_per_unit
-        // data.mars_cogs_per_unit,
-        // data.list_price,
-        // data.retailer_median_base_price,
-        // form.patchValue({
-        //   base_price_elasticity  :val_lpi,
-          
-        // })
-        // console.log(arr2)
-        // debugger
-      // arr2.controls.find(d=>d.value)
-          // debugger
-          // arr2.push(this.getFormGroup(obj));
-      } else {
+              } else {
         arr.push(str);
         weight[str] = {
           'count' : 0,
@@ -851,34 +1193,28 @@ inc_per = Number(value)
 
         // console.log(obj , "OBBBB")
         if (obj) {
+          console.log(obj , "GENERATED OBJECT")
           this.simulatorInput.push(obj);
 
           let arr1 : FormArray = this.myForm.get('inputFormArray') as FormArray;
           // debugger
           arr1.push(this.getFormGroup(obj));
-          // let form =  this.getFormGroup(obj)
-          // group[str] = form
-          // this.inputFormArray.push(form)
-        
+         
         }
       }
       // console.log(weight , "WEIGHT")
     });
-    // console.log(this.minDate , "DATE-MIN")
-    // console.log(this.maxDate , "DATE-MIN MAX")
-    // console.log(this.myForm,"FORM ARRAY VALUES myform")
-    // console.log(weight , "WEiGHT WEiGHT WEiGHT WEiGHT WEiGHT ")
+   
     for (const i in weight){
-      // console.log(i , "iii")
-      weight[i]['el']  = weight[i]['b*u'] / weight[i]['units']
+         weight[i]['el']  = weight[i]['b*u'] / weight[i]['units']
     }
-    // console.log(weight , "WEiGHT WEiGHT WEiGHT WEiGHT WEiGHT ")
+     
     let form = this.myForm.get('inputFormArray') as FormArray;
-    // console.log(form , "FORM ARRAY VALUES")
+     
    for(const obj in weight){
     let ctrl = form.controls.find((d : FormGroup)=>d.controls.product_group_retailer.value == obj)
     
-    // let weighted_value =  Math.round(((prev/weight[obj])+ Number.EPSILON) * 100) / 100
+    
     let weighted_value =  weight[obj]['el'].toFixed(2)
     ctrl.patchValue({
      
@@ -906,10 +1242,7 @@ inc_per = Number(value)
 
 
   }
-  //   getVal(obj){
-  //     console.log(obj , "OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO")
-  // return true
-  //   }
+   
   private getFormGroup(obj: SimulatorInput) {
 
     return this.formBuilder.group({
@@ -938,32 +1271,11 @@ inc_per = Number(value)
       te:  [obj.te],
 
     })
-    // return {
-    //   product_group: new FormControl(obj.product_group),
-    //   retailer: new FormControl(obj.retailer),
-    //   category: new FormControl(obj.category),
-    //   product_group_retailer: new FormControl(obj.ret_cat_prod),
-    //   current_lpi: new FormControl(obj.lp),
-    //   current_rsp: new FormControl(obj.rsp),
-    //   current_cogs: new FormControl(obj.cogs),
-    //   lpi_increase: new FormControl(0),
-    //   rsp_increase: new FormControl(0),
-    //   cogs_increase: new FormControl(0),
-    //   base_price_elasticity: new FormControl(obj.base_price_elasticity_used),
-    //   base_price_elasticity_manual: new FormControl(obj.base_price_elasticity_manual),
-    //   net_elasticity : new FormControl(obj.net_elasticity),
-    //   competition: new FormControl(obj.competition),
-    //   mac: new FormControl(obj.mac),
-    //   rp: new FormControl(obj.mac),
-    //   te: new FormControl(obj.te),
-    //   // lpi_date: new FormControl(),
-    //   // rsp_date: new FormControl(),
-    //   // cogs_date: new FormControl(),
-    // };
+     
   }
 
   populateSummary(units: NewUnit[], key) {
-    // console.log(units , key , "SIMULATED AT}RRAY incoming units key")
+     
     
     let total_base$ = of(...units).pipe(
       reduce((a, b) => a + Number(b.base_units.toFixed(2)),0)
@@ -973,10 +1285,7 @@ inc_per = Number(value)
       map(data => Array.from(new Set(data.category))),
     )
     
-      // .pipe(
-        
-      //   distinct((unit) => unit.category)
-      //   )
+      
     let retailer$ = of(...units)
       .pipe(distinct((unit) => unit.retailer))
     let product$ = of(...units)
@@ -1027,8 +1336,10 @@ inc_per = Number(value)
     let retailer_margin_new$ = of(...units).pipe(
       reduce((a, b) => a + b.retailer_margin_new, 0)
     );
+    let year$ = of(units[0].year)
+    let key$ = of(key)
 
-    combineLatest([
+    return combineLatest([
       total_base$,
       total_base_new$,
       total_weight_in_tons$,
@@ -1047,124 +1358,109 @@ inc_per = Number(value)
       mars_mac_new$,
       retailer_margin$,
       retailer_margin_new$,
+      year$,
+      key$,
       retailer$,
       category$,
       product$
     ])
-      .pipe(
-        finalize(() => {
-          // console.log(this.simulatedArray, 'FINAAALLLLLLLLLLLLLL');
-        })
-      )
-
-      .subscribe(
-        ([
-          total_base,
-          total_base_new,
-          total_weight_in_tons,
-          total_weight_in_tons_new,
-          total_lsv,
-          total_lsv_new,
-          total_rsv,
-          total_rsv_new,
-          total_nsv,
-          total_nsv_new,
-          total_cogs,
-          total_cogs_new,
-          trade_expense,
-          trade_expense_new,
-          mars_mac,
-          mars_mac_new,
-          retailer_margin,
-          retailer_margin_new,
-          retialer,
-          category,
-          product
-        ]) => {
+    
+      // .subscribe(
+      //   ([
+      //     total_base,
+      //     total_base_new,
+      //     total_weight_in_tons,
+      //     total_weight_in_tons_new,
+      //     total_lsv,
+      //     total_lsv_new,
+      //     total_rsv,
+      //     total_rsv_new,
+      //     total_nsv,
+      //     total_nsv_new,
+      //     total_cogs,
+      //     total_cogs_new,
+      //     trade_expense,
+      //     trade_expense_new,
+      //     mars_mac,
+      //     mars_mac_new,
+      //     retailer_margin,
+      //     retailer_margin_new,
+      //     retialer,
+      //     category,
+      //     product
+      //   ]) => {
  
           
-          let baseSummary = new SimulatedSummary(
-            total_base,
-            total_weight_in_tons,
-            total_lsv,
-            total_rsv,
-            total_nsv,
-            total_cogs,
-            trade_expense,
-            mars_mac,
-            retailer_margin
-          );
-          let SimulateSummary = new SimulatedSummary(
-            total_base_new,
-            total_weight_in_tons_new,
-            total_lsv_new,
-            total_rsv_new,
-            total_nsv_new,
-            total_cogs_new,
-            trade_expense_new,
-            mars_mac_new,
-            retailer_margin_new
-          );
-          // console.log(key, 'FOR KEY');
-          // console.log(category, 'FOR KEY category');
-          // console.log(retialer, 'FOR KEY retailer');
-          // console.log(baseSummary, 'FOR KEY BASE SUMMARY');
-          // console.log(SimulateSummary, 'FOR KEY SIMULATED SUMMARY');
-          this.base_summary = baseSummary;
-          this.simulated_summary = SimulateSummary;
-          // let f = this.inputForm;
-          // debugger;
-          let sarr = new SimulatedArray(
-            key,
-          category,
-          retialer,
-          // product,
-            baseSummary,
-            SimulateSummary,
-            baseSummary.get_absolute(SimulateSummary),
-            baseSummary.get_percent_change(SimulateSummary)
-          );
-          // console.log(sarr, 'FOR KEY SIMULATED SUMMARY sarrrrrrr' );
-          // debugger
-          if (key != 'ALL') {
-            let form  = (this.myForm.get('inputFormArray') as FormArray).
-            controls.find((d:FormGroup)=>d.controls.product_group.value == key)
-            // let arr = this.myForm.get('inputFormArray') as FormArray
-            // arr.controls.find(d=>d.controls.product_group.value == key)
-            // arr.controls[0].value.product_group
-            // debugger;
-           form.patchValue({
-             tonnes:sarr.simulated.tonnes - sarr.current.tonnes,
-              mac: sarr.simulated.mac - sarr.current.mac,
-              te: sarr.simulated.te - sarr.current.te,
-              rsv:sarr.simulated.rsv - sarr.current.rsv,
-              nsv:sarr.simulated.nsv - sarr.current.nsv,
-              rp: sarr.simulated.rp -sarr.current.rp,
-            });
-            // this.expandTable('expand');
-          }
-          // if(sarr.key)
-          let sindex = this.simulatedArray.findIndex(d=>d.key == sarr.key)
-          // console.log(sarr.key , sindex , "key and index")
-          if (sindex > -1) {
-            this.simulatedArray.splice(sindex, 1);
-          }
+      //     let baseSummary = new SimulatedSummary(
+      //       total_base,
+      //       total_weight_in_tons,
+      //       total_lsv,
+      //       total_rsv,
+      //       total_nsv,
+      //       total_cogs,
+      //       trade_expense,
+      //       mars_mac,
+      //       retailer_margin
+      //     );
+      //     let SimulateSummary = new SimulatedSummary(
+      //       total_base_new,
+      //       total_weight_in_tons_new,
+      //       total_lsv_new,
+      //       total_rsv_new,
+      //       total_nsv_new,
+      //       total_cogs_new,
+      //       trade_expense_new,
+      //       mars_mac_new,
+      //       retailer_margin_new
+      //     );
+           
+      //     this.base_summary = baseSummary;
+      //     this.simulated_summary = SimulateSummary;
+      //                let sarr = new SimulatedArray(
+      //       key,
+      //     category,
+      //     retialer,
+           
+      //       baseSummary,
+      //       SimulateSummary,
+      //       baseSummary.get_absolute(SimulateSummary),
+      //       baseSummary.get_percent_change(SimulateSummary)
+      //     );
+           
+      //     if (key != 'ALL') {
+      //       let form  = (this.myForm.get('inputFormArray') as FormArray).
+      //       controls.find((d:FormGroup)=>d.controls.product_group.value == key)
+            
+      //      form.patchValue({
+      //        tonnes:sarr.simulated.tonnes - sarr.current.tonnes,
+      //         mac: sarr.simulated.mac - sarr.current.mac,
+      //         te: sarr.simulated.te - sarr.current.te,
+      //         rsv:sarr.simulated.rsv - sarr.current.rsv,
+      //         nsv:sarr.simulated.nsv - sarr.current.nsv,
+      //         rp: sarr.simulated.rp -sarr.current.rp,
+      //       });
+      //                  }
+           
+      //     let sindex = this.simulatedArray.findIndex(d=>d.key == sarr.key)
+           
+      //     if (sindex > -1) {
+      //       this.simulatedArray.splice(sindex, 1);
+      //     }
 
-          this.simulatedArray.push(sarr);
-          // console.log(this.simulatedArray, 'SIMULATED AT}RRAY');
-        },
-        (err) => {},
-        () => {
-          this.priceScenarioService.setSimulatedArray(this.simulatedArray);
-          // console.log(this.simulatedArray, 'OBSERVABLE COMPLETED..........');
-        }
-      );
+      //     this.simulatedArray.push(sarr);
+      //            },
+      //   (err) => {},
+      //   () => {
+      //     this.priceScenarioService.setSimulatedArray(this.simulatedArray);
+      //     // console.log(this.simulatedArray, 'OBSERVABLE COMPLETED..........');
+      //   }
+      // );
   }
   sm(){
     this.isCHG = false
   }
   simulateFn(expand?) {
-    console.log(expand , "expand flag")
+    // console.log(expand , "expand flag")
     if(expand){
       this.expandTable('expand');
     }
@@ -1247,7 +1543,7 @@ product_group.forEach((key, i) => result[key] = values[i]);
   }
   downloadE(){
     let val = this.myForm.get('inputFormArray').value
-    console.log(val , "VAL")
+    // console.log(val , "VAL")
     let gen_val = []
     for(var i in val){
      
@@ -1259,29 +1555,32 @@ product_group.forEach((key, i) => result[key] = values[i]);
        })
     }
    
-    console.log(gen_val , "genval")
+    // console.log(gen_val , "genval")
     this.api.getExcel(gen_val , "input").subscribe(data=>{
-      console.log(data)
+      // console.log(data)
       this.excel.save(data , "input")
     },
     err=>{
-      console.log(err , "error")
+      // console.log(err , "error")
     })
   }
   ngOnDestroy() {
     // alert("DESTROYING")
     // this.formSevice.setForm(this.myForm)
-    this.formSevice.setForms({
-      'formValue':this.myForm.value,
-      'myform' : this.myForm,
-      'date_lpi' : this.date_lpi,
-      'date_rsp' : this.date_rsp,
-      'date_cogs' : this.date_cogs,
-      'selectedScenario' : this.selectedScenario,
-    })
+    this.formSevice.setFormYear(this.getFormValue())
+    // this.formSevice.setForms({
+    //   'formValue':this.myForm.value,
+    //   'myform' : this.myForm,
+    //   'date_lpi' : this.date_lpi,
+    //   'date_rsp' : this.date_rsp,
+    //   'date_cogs' : this.date_cogs,
+    //   'selectedScenario' : this.selectedScenario,
+    // })
     this.scrollHeaderPosition = 0;
     this.filterHeaderPosition = 0;
     // this.unsubscribe$.next();
     // this.unsubscribe$.complete();
   }
+
+
 }
